@@ -5,12 +5,15 @@ import { sessionMiddleware } from "./session";
 export const logoutRoute = new Elysia({ prefix: "/auth" })
   .use(sessionMiddleware)
   .post("/logout", async ({ cookie, user, set }) => {
+    if (!user) {
+      set.status = 401;
+      return { error: "Unauthorized" };
+    }
     const token = cookie.session?.value;
     if (token) {
       await deleteSessionByToken(token);
       cookie.session.remove();
     }
-    set.status = 200;
     return { success: true };
   })
   .get("/me", ({ user, set }) => {

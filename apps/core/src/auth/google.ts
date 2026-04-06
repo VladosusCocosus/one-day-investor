@@ -99,10 +99,13 @@ export const googleAuth = new Elysia({ prefix: "/auth" })
     const token = crypto.randomUUID();
     await createSession({ user_id: userId, token, expires_at: expiresAt });
 
+    const isProduction = process.env.NODE_ENV === "production";
+
     cookie.session.set({
       value: token,
       httpOnly: true,
       sameSite: "lax",
+      secure: isProduction,
       path: "/",
       maxAge: sessionMaxAge,
     });
