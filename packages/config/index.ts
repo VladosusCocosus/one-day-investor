@@ -55,6 +55,12 @@ const config = convict({
       env: "GOOGLE_REDIRECT_URI",
     },
   },
+  frontendUrl: {
+    doc: "Frontend URL for redirects and CORS",
+    format: String,
+    default: "http://localhost:5173",
+    env: "FRONTEND_URL",
+  },
   session: {
     maxAge: {
       doc: "Session max age in seconds",
