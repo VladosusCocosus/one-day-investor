@@ -34,6 +34,35 @@ const config = convict({
       sensitive: true,
     },
   },
+  google: {
+    clientId: {
+      doc: "Google OAuth2 client ID",
+      format: String,
+      default: "",
+      env: "GOOGLE_CLIENT_ID",
+    },
+    clientSecret: {
+      doc: "Google OAuth2 client secret",
+      format: String,
+      default: "",
+      env: "GOOGLE_CLIENT_SECRET",
+      sensitive: true,
+    },
+    redirectUri: {
+      doc: "Google OAuth2 redirect URI",
+      format: String,
+      default: "http://localhost:3000/auth/google/callback",
+      env: "GOOGLE_REDIRECT_URI",
+    },
+  },
+  session: {
+    maxAge: {
+      doc: "Session max age in seconds",
+      format: "int",
+      default: 2592000,
+      env: "SESSION_MAX_AGE",
+    },
+  },
 });
 
 config.validate({ allowed: "strict" });
