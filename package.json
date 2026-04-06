@@ -1,0 +1,5 @@
+{
+  "name": "one-day-investor",
+  "version": "1.0.0",
+  "workspaces": ["packages/*", "apps/*"]
+}

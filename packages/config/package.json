@@ -1,0 +1,16 @@
+{
+  "name": "@config",
+  "module": "index.ts",
+  "type": "module",
+  "private": true,
+  "devDependencies": {
+    "@types/bun": "latest",
+    "@types/convict": "^6.1.6"
+  },
+  "peerDependencies": {
+    "typescript": "^5"
+  },
+  "dependencies": {
+    "convict": "^6.2.5"
+  }
+}
