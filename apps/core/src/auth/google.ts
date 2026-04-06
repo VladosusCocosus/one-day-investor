@@ -9,6 +9,8 @@ import {
   createSession,
 } from "@database";
 
+console.error(config.get("google.clientId"))
+
 const google = new Google(
   config.get("google.clientId"),
   config.get("google.clientSecret"),
@@ -43,7 +45,7 @@ export const googleAuth = new Elysia({ prefix: "/auth" })
   .get("/google/callback", async ({ query, cookie, redirect, set }) => {
     const { code, state } = query;
     const storedState = cookie.oauth_state.value;
-    const codeVerifier = cookie.code_verifier.value;
+    const codeVerifier = cookie.code_verifier.value as string;
 
     if (!code || !state || !storedState || state !== storedState || !codeVerifier) {
       set.status = 400;
@@ -110,5 +112,5 @@ export const googleAuth = new Elysia({ prefix: "/auth" })
       maxAge: sessionMaxAge,
     });
 
-    return redirect("/");
+    return redirect(config.get("frontendUrl"));
   });
