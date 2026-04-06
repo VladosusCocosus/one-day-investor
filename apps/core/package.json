@@ -6,6 +6,9 @@
     "dev": "bun run --watch src/index.ts"
   },
   "dependencies": {
+    "@config": "workspace:*",
+    "@database": "workspace:*",
+    "arctic": "latest",
     "elysia": "latest"
   },
   "devDependencies": {
