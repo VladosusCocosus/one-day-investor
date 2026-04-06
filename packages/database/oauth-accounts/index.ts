@@ -1,12 +1,7 @@
 import { pool } from "../pool";
+import type { OAuthAccount } from "@types";
 
-export interface OAuthAccount {
-  id: string;
-  user_id: string;
-  provider: string;
-  provider_user_id: string;
-  created_at: Date;
-}
+export type { OAuthAccount } from "@types";
 
 export async function findOAuthAccount(
   provider: string,

@@ -1,13 +1,7 @@
 import { pool } from "../pool";
+import type { User } from "@types";
 
-export interface User {
-  id: string;
-  email: string;
-  name: string | null;
-  avatar_url: string | null;
-  created_at: Date;
-  updated_at: Date;
-}
+export type { User } from "@types";
 
 export async function findUserById(id: string): Promise<User | null> {
   const result = await pool.query<User>(

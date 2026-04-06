@@ -1,24 +1,12 @@
 {
-  "name": "@database",
+  "name": "@types",
   "module": "index.ts",
   "type": "module",
   "private": true,
-  "scripts": {
-    "migrate:up": "node-pg-migrate up",
-    "migrate:down": "node-pg-migrate down",
-    "migrate:redo": "node-pg-migrate redo",
-    "migrate:create": "node-pg-migrate create --migration-file-language sql"
-  },
   "devDependencies": {
-    "@types/bun": "latest",
-    "node-pg-migrate": "^8.0.4",
-    "@types/pg": "^8.20.0"
+    "@types/bun": "latest"
   },
   "peerDependencies": {
     "typescript": "^5"
-  },
-  "dependencies": {
-    "pg": "^8.20.0",
-    "@config": "workspace:*"
   }
 }
