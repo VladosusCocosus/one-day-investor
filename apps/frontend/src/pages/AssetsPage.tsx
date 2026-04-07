@@ -79,7 +79,7 @@ export function AssetsPage() {
           tree={tree}
           onAdd={async (name, parentId) => { await addService(name, parentId); }}
           onRemove={removeService}
-          onEdit={async (id, name) => { await editService(id, name); }}
+          onEdit={async (id, params) => { await editService(id, params); }}
           onClose={handleServicesClose}
         />
       </div>
