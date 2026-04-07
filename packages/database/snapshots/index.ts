@@ -78,7 +78,7 @@ export async function findLatestSnapshot(userId: string): Promise<SnapshotWithEn
 
 export async function createSnapshot(params: {
   user_id: string;
-  month: Date;
+  month: string;
   entries: { service_id: string; amount: number }[];
 }): Promise<SnapshotWithEntries> {
   const client = await pool.connect();
