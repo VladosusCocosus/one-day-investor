@@ -22,3 +22,26 @@ export interface Session {
   expires_at: Date;
   created_at: Date;
 }
+
+export interface Service {
+  id: string;
+  user_id: string;
+  name: string;
+  parent_id: string | null;
+  sort_order: number;
+  created_at: Date;
+}
+
+export interface Snapshot {
+  id: string;
+  user_id: string;
+  month: Date;
+  created_at: Date;
+}
+
+export interface SnapshotEntry {
+  id: string;
+  snapshot_id: string;
+  service_id: string;
+  amount: string; // numeric comes back as string from pg
+}
