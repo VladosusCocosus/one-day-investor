@@ -35,6 +35,14 @@ export function AssetsPage() {
     (s) => s.service_type === "crypto" || s.service_type === "invest"
   );
 
+  const parentNameMap = new Map<string, string>();
+  for (const s of investPockets) {
+    if (s.parent_id) {
+      const parent = services.find((p) => p.id === s.parent_id);
+      if (parent) parentNameMap.set(s.id, parent.name);
+    }
+  }
+
   const allAssets = useAllPocketAssets(investPockets.map((s) => s.id));
 
   const handleFetchPrices = async () => {
@@ -97,6 +105,7 @@ export function AssetsPage() {
             <AssetPocketCard
               key={service.id}
               service={service}
+              parentName={parentNameMap.get(service.id)}
               prices={prices}
               currency={currency}
             />

@@ -10,6 +10,7 @@ import type { Service } from "@/hooks/useServices";
 
 interface AssetPocketCardProps {
   service: Service;
+  parentName?: string;
   prices: Record<string, number>;
   currency: string;
 }
@@ -75,7 +76,7 @@ function formatValue(qty: number, price: number | undefined, symbol: string): st
   return `${symbol}${value.toLocaleString("en-US", { maximumFractionDigits: 0 })}`;
 }
 
-export function AssetPocketCard({ service, prices, currency }: AssetPocketCardProps) {
+export function AssetPocketCard({ service, parentName, prices, currency }: AssetPocketCardProps) {
   const { searchAssetCatalog } = useAssetCatalog();
   const { assets, addAsset, updateQuantity, removeAsset } = usePocketAssets(service.id);
 
@@ -112,6 +113,9 @@ export function AssetPocketCard({ service, prices, currency }: AssetPocketCardPr
       {/* Header */}
       <div className="flex items-center justify-between px-4 py-3.5 border-b">
         <div className="flex items-center gap-2">
+          {parentName && (
+            <span className="text-[13px] text-muted-foreground">{parentName} —</span>
+          )}
           <span className="text-[15px] font-semibold text-foreground">{service.name}</span>
           <TypeBadge type={service.service_type} />
         </div>
