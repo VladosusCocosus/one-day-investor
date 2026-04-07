@@ -45,7 +45,7 @@ export function LoginPage() {
     <div className="min-h-screen flex items-center justify-center bg-[#f8fafc]">
       <Card className="w-[380px] shadow-sm">
         <CardContent className="pt-8 pb-8 text-center">
-          <div className="mx-auto mb-4 flex h-12 w-12 items-center justify-center rounded-xl bg-[hsl(var(--primary))]">
+          <div className="mx-auto mb-4 flex h-12 w-12 items-center justify-center rounded-xl bg-primary">
             <span className="text-xl font-bold text-white">I</span>
           </div>
           <h1 className="text-xl font-bold text-foreground">One Day Investor</h1>
