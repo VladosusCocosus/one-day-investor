@@ -1,0 +1,2 @@
+ALTER TABLE pocket_assets
+    ADD COLUMN quantity NUMERIC NOT NULL DEFAULT 0;

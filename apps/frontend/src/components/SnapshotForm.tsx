@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { RefreshCw } from "lucide-react";
 import { useQueries } from "@tanstack/react-query";
 import { Button } from "@/components/ui/button";
@@ -9,23 +9,22 @@ import { useSettings } from "@/hooks/useSettings";
 import type { ServiceTree } from "@/hooks/useServices";
 import type { SnapshotDetail } from "@/hooks/useSnapshots";
 
-interface PocketAssetWithApiId {
+interface PocketAssetData {
   id: string;
   service_id: string;
-  asset_catalog_id: string | null;
   symbol: string;
   name: string;
   asset_type: "crypto" | "invest";
-  sort_order: number;
+  quantity: string;
   api_id: string | null;
 }
 
-function useAllPocketAssets(serviceIds: string[]): PocketAssetWithApiId[] {
+function useAllPocketAssets(serviceIds: string[]): PocketAssetData[] {
   const results = useQueries({
     queries: serviceIds.map((sid) => ({
       queryKey: ["pocket-assets", sid],
       queryFn: async () => {
-        const res = await marketApi.get<PocketAssetWithApiId[]>(`/api/pocket-assets/${sid}`);
+        const res = await marketApi.get<PocketAssetData[]>(`/api/pocket-assets/${sid}`);
         return res.data;
       },
     })),
@@ -50,6 +49,7 @@ interface SnapshotFormProps {
 
 export function SnapshotForm({ month: initialMonth, prefill, tree, existing, onSave, onCancel }: SnapshotFormProps) {
   const [selectedMonth, setSelectedMonth] = useState(initialMonth);
+  // For common pockets: manual amount entry
   const [amounts, setAmounts] = useState<Record<string, string>>(() => {
     const initial: Record<string, string> = {};
     const source = existing ?? prefill;
@@ -62,25 +62,14 @@ export function SnapshotForm({ month: initialMonth, prefill, tree, existing, onS
     }
     return initial;
   });
-  const [assetQuantities, setAssetQuantities] = useState<Record<string, string>>(() => {
-    const initial: Record<string, string> = {};
-    const source = existing ?? prefill;
-    if (source) {
-      for (const entry of source.entries) {
-        if (entry.pocket_asset_id && entry.quantity) {
-          initial[entry.pocket_asset_id] = entry.quantity;
-        }
-      }
-    }
-    return initial;
-  });
-  const [assetPrices, setAssetPrices] = useState<Record<string, string>>(() => {
-    const initial: Record<string, string> = {};
+  // For asset pockets: prices fetched from market, keyed by pocket_asset_id
+  const [assetPrices, setAssetPrices] = useState<Record<string, number>>(() => {
+    const initial: Record<string, number> = {};
     const source = existing ?? prefill;
     if (source) {
       for (const entry of source.entries) {
         if (entry.pocket_asset_id && entry.price) {
-          initial[entry.pocket_asset_id] = entry.price;
+          initial[entry.pocket_asset_id] = Number(entry.price);
         }
       }
     }
@@ -91,7 +80,7 @@ export function SnapshotForm({ month: initialMonth, prefill, tree, existing, onS
   const { settings } = useSettings();
   const { fetchPrices, loading: fetchingPrices } = useMarketPrices();
 
-  // Collect all service IDs that are crypto/invest
+  // Collect crypto/invest service IDs
   const investServiceIds = tree.flatMap((g) => {
     const ids: string[] = [];
     if (g.service.service_type !== "common") ids.push(g.service.id);
@@ -102,17 +91,16 @@ export function SnapshotForm({ month: initialMonth, prefill, tree, existing, onS
   });
 
   const allPocketAssets = useAllPocketAssets(investServiceIds);
+  const hasAssets = allPocketAssets.length > 0;
 
-  const setAmount = (serviceId: string, value: string) => {
-    setAmounts((prev) => ({ ...prev, [serviceId]: value }));
-  };
-
-  const setQuantity = (pocketAssetId: string, value: string) => {
-    setAssetQuantities((prev) => ({ ...prev, [pocketAssetId]: value }));
-  };
-
-  const setPrice = (pocketAssetId: string, value: string) => {
-    setAssetPrices((prev) => ({ ...prev, [pocketAssetId]: value }));
+  // Calculate total for a service from its assets
+  const getAssetTotal = (serviceId: string): number => {
+    const serviceAssets = allPocketAssets.filter((a) => a.service_id === serviceId);
+    return serviceAssets.reduce((sum, asset) => {
+      const qty = Number(asset.quantity) || 0;
+      const price = assetPrices[asset.id] ?? 0;
+      return sum + qty * price;
+    }, 0);
   };
 
   const handleFetchPrices = async () => {
@@ -122,12 +110,12 @@ export function SnapshotForm({ month: initialMonth, prefill, tree, existing, onS
     }));
     const currency = settings?.currency ?? "EUR";
     const prices = await fetchPrices(priceAssets, currency);
-    const newPrices: Record<string, string> = {};
+    const newPrices: Record<string, number> = {};
     for (const asset of allPocketAssets) {
       const apiId = asset.api_id ?? asset.symbol;
       const price = prices[apiId];
       if (price != null) {
-        newPrices[asset.id] = String(price);
+        newPrices[asset.id] = price;
       }
     }
     setAssetPrices((prev) => ({ ...prev, ...newPrices }));
@@ -149,15 +137,16 @@ export function SnapshotForm({ month: initialMonth, prefill, tree, existing, onS
         for (const service of serviceNodes) {
           const serviceAssets = allPocketAssets.filter((a) => a.service_id === service.id);
           if (serviceAssets.length > 0 && service.service_type !== "common") {
+            // Store per-asset entries with qty from pocket_assets and fetched price
             for (const asset of serviceAssets) {
-              const qty = parseFloat(assetQuantities[asset.id] || "0") || 0;
-              const prc = parseFloat(assetPrices[asset.id] || "0") || 0;
+              const qty = Number(asset.quantity) || 0;
+              const price = assetPrices[asset.id] ?? 0;
               entries.push({
                 service_id: service.id,
-                amount: qty * prc,
+                amount: qty * price,
                 pocket_asset_id: asset.id,
                 quantity: qty,
-                price: prc,
+                price,
               });
             }
           } else {
@@ -175,6 +164,10 @@ export function SnapshotForm({ month: initialMonth, prefill, tree, existing, onS
     }
   };
 
+  const setAmount = (serviceId: string, value: string) => {
+    setAmounts((prev) => ({ ...prev, [serviceId]: value }));
+  };
+
   const monthInputValue = selectedMonth.slice(0, 7);
   const formatMonthLabel = new Date(selectedMonth).toLocaleDateString("en-US", {
     month: "long",
@@ -182,43 +175,26 @@ export function SnapshotForm({ month: initialMonth, prefill, tree, existing, onS
     timeZone: "UTC",
   });
 
-  const hasAssets = allPocketAssets.length > 0;
+  const pricesFetched = Object.keys(assetPrices).length > 0;
 
-  function renderAssetRows(assets: PocketAssetWithApiId[], indent: string) {
-    return assets.map((asset) => {
-      const qty = parseFloat(assetQuantities[asset.id] || "0") || 0;
-      const prc = parseFloat(assetPrices[asset.id] || "0") || 0;
-      const total = qty * prc;
+  function renderServiceRow(serviceId: string, label: string, serviceType: string) {
+    const serviceAssets = allPocketAssets.filter((a) => a.service_id === serviceId);
+    if (serviceAssets.length > 0 && serviceType !== "common") {
+      // Asset-based pocket: show auto-calculated total
+      const total = getAssetTotal(serviceId);
       return (
-        <div key={asset.id} className={`flex items-center gap-2 ${indent} mb-1`}>
-          <span className="w-16 text-xs font-medium shrink-0">{asset.symbol}</span>
-          <input
-            type="number"
-            className="w-24 text-xs border rounded px-2 py-1 bg-background"
-            value={assetQuantities[asset.id] ?? ""}
-            onChange={(e) => setQuantity(asset.id, e.target.value)}
-            placeholder="Qty"
-            step="any"
-          />
-          <span className="text-xs text-muted-foreground">x</span>
-          <input
-            type="number"
-            className="w-24 text-xs border rounded px-2 py-1 bg-background"
-            value={assetPrices[asset.id] ?? ""}
-            onChange={(e) => setPrice(asset.id, e.target.value)}
-            placeholder="Price"
-            step="any"
-          />
-          <span className="text-xs text-muted-foreground">=</span>
-          <span className="text-xs font-medium w-20 text-right">
-            {total > 0 ? total.toLocaleString("en-US", { maximumFractionDigits: 0 }) : "—"}
-          </span>
+        <div className="flex items-center gap-3">
+          <label className="w-32 text-sm text-foreground truncate">{label}</label>
+          <div className="flex-1 text-sm px-3 py-1.5 text-right text-muted-foreground">
+            {pricesFetched
+              ? total.toLocaleString("en-US", { maximumFractionDigits: 0 })
+              : <span className="text-xs italic">Fetch prices to calculate</span>
+            }
+          </div>
         </div>
       );
-    });
-  }
-
-  function renderAmountInput(serviceId: string, label: string) {
+    }
+    // Common pocket: manual amount input
     return (
       <div className="flex items-center gap-3">
         <label className="w-32 text-sm text-foreground truncate">{label}</label>
@@ -275,26 +251,15 @@ export function SnapshotForm({ month: initialMonth, prefill, tree, existing, onS
               </p>
               {group.children.length > 0 ? (
                 <div className="space-y-2">
-                  {group.children.map((child) => {
-                    const childAssets = allPocketAssets.filter((a) => a.service_id === child.id);
-                    if (childAssets.length > 0 && child.service_type !== "common") {
-                      return (
-                        <div key={child.id}>
-                          <p className="text-xs font-medium text-foreground pl-3 mb-1">{child.name}</p>
-                          {renderAssetRows(childAssets, "pl-6")}
-                        </div>
-                      );
-                    }
-                    return <div key={child.id}>{renderAmountInput(child.id, child.name)}</div>;
-                  })}
+                  {group.children.map((child) => (
+                    <div key={child.id}>
+                      {renderServiceRow(child.id, child.name, child.service_type)}
+                    </div>
+                  ))}
                 </div>
-              ) : (() => {
-                const serviceAssets = allPocketAssets.filter((a) => a.service_id === group.service.id);
-                if (serviceAssets.length > 0 && group.service.service_type !== "common") {
-                  return <div className="space-y-1">{renderAssetRows(serviceAssets, "pl-3")}</div>;
-                }
-                return renderAmountInput(group.service.id, group.service.name);
-              })()}
+              ) : (
+                renderServiceRow(group.service.id, group.service.name, group.service.service_type)
+              )}
             </div>
           ))}
         </div>

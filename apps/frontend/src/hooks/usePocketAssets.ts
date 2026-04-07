@@ -10,6 +10,7 @@ export interface PocketAsset {
   name: string;
   asset_type: AssetType;
   sort_order: number;
+  quantity: string;
   api_id: string | null;
 }
 
@@ -41,6 +42,16 @@ export function usePocketAssets(serviceId: string | undefined) {
     },
   });
 
+  const updateQuantityMutation = useMutation({
+    mutationFn: async ({ id, quantity }: { id: string; quantity: number }) => {
+      const res = await marketApi.put<PocketAsset>(`/api/pocket-assets/${id}/quantity`, { quantity });
+      return res.data;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["pocket-assets", serviceId] });
+    },
+  });
+
   const removeMutation = useMutation({
     mutationFn: async (id: string) => {
       await marketApi.delete(`/api/pocket-assets/${id}`);
@@ -60,9 +71,13 @@ export function usePocketAssets(serviceId: string | undefined) {
     return addMutation.mutateAsync(params);
   };
 
+  const updateQuantity = async (id: string, quantity: number) => {
+    return updateQuantityMutation.mutateAsync({ id, quantity });
+  };
+
   const removeAsset = async (id: string) => {
     await removeMutation.mutateAsync(id);
   };
 
-  return { assets, loading, addAsset, removeAsset };
+  return { assets, loading, addAsset, updateQuantity, removeAsset };
 }
