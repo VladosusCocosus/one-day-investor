@@ -1,0 +1,24 @@
+name: Deploy
+
+on:
+  push:
+    branches: [main]
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Deploy via SSH
+        uses: appleboy/ssh-action@v1
+        with:
+          host: ${{ secrets.SSH_HOST }}
+          username: ${{ secrets.SSH_USER }}
+          key: ${{ secrets.SSH_KEY }}
+          script: |
+            cd /opt/one-day-investor
+            git pull origin main
+            docker compose build
+            docker compose run --rm core bun run --cwd packages/database migrate:up
+            docker compose up -d
+            sleep 5
+            curl -sf http://127.0.0.1:3000/ > /dev/null && echo "Health check passed" || echo "Health check failed"
