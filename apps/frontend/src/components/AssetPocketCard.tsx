@@ -1,53 +1,77 @@
-import { useState, useRef } from "react";
+import { useState } from "react";
 import { Trash2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { TypeBadge } from "@/components/TypeBadge";
 import { AssetSearch } from "@/components/AssetSearch";
 import { useAssetCatalog } from "@/hooks/useAssetCatalog";
-import { usePocketAssets } from "@/hooks/usePocketAssets";
+import { usePocketAssets, type PocketAsset } from "@/hooks/usePocketAssets";
 import type { AssetCatalog, AssetType } from "@/hooks/useAssetCatalog";
 import type { Service } from "@/hooks/useServices";
 
 interface AssetPocketCardProps {
   service: Service;
+  prices: Record<string, number>;
+  currency: string;
 }
 
-function QuantityInput({
-  value,
+function ClickToEditQuantity({
+  asset,
   onSave,
 }: {
-  value: string;
-  onSave: (qty: number) => void;
+  asset: PocketAsset;
+  onSave: (id: string, qty: number) => void;
 }) {
-  const [draft, setDraft] = useState(value === "0" ? "" : value);
-  const debounceRef = useRef<ReturnType<typeof setTimeout>>();
+  const [editing, setEditing] = useState(false);
+  const [draft, setDraft] = useState(asset.quantity);
 
-  const handleChange = (v: string) => {
-    setDraft(v);
-    if (debounceRef.current) clearTimeout(debounceRef.current);
-    debounceRef.current = setTimeout(() => {
-      const num = parseFloat(v) || 0;
-      if (String(num) !== value) {
-        onSave(num);
-      }
-    }, 500);
+  const commit = () => {
+    const num = parseFloat(draft) || 0;
+    if (num !== Number(asset.quantity)) {
+      onSave(asset.id, num);
+    }
+    setEditing(false);
   };
 
+  if (editing) {
+    return (
+      <input
+        type="number"
+        className="w-20 text-[13px] font-medium text-right border-2 border-primary rounded-md px-2 py-1 bg-background outline-none"
+        value={draft}
+        onChange={(e) => setDraft(e.target.value)}
+        onBlur={commit}
+        onKeyDown={(e) => e.key === "Enter" && commit()}
+        step="any"
+        autoFocus
+      />
+    );
+  }
+
   return (
-    <input
-      type="number"
-      className="w-20 text-xs border rounded px-1.5 py-1 bg-background text-right"
-      value={draft}
-      onChange={(e) => handleChange(e.target.value)}
-      placeholder="0"
-      step="any"
-    />
+    <span
+      className="text-[13px] font-medium text-foreground cursor-pointer px-2 py-1 rounded-md bg-muted min-w-[50px] text-right inline-block hover:bg-muted/80"
+      onClick={() => {
+        setDraft(asset.quantity === "0" ? "" : asset.quantity);
+        setEditing(true);
+      }}
+    >
+      {Number(asset.quantity) || 0}
+    </span>
   );
 }
 
-export function AssetPocketCard({ service }: AssetPocketCardProps) {
+function formatValue(qty: number, price: number | undefined, symbol: string): string {
+  if (!price || qty === 0) return "—";
+  const value = qty * price;
+  return `${symbol}${value.toLocaleString("en-US", { maximumFractionDigits: 0 })}`;
+}
+
+export function AssetPocketCard({ service, prices, currency }: AssetPocketCardProps) {
   const { searchAssetCatalog } = useAssetCatalog();
   const { assets, addAsset, updateQuantity, removeAsset } = usePocketAssets(service.id);
+
+  const currencySymbol: Record<string, string> = { EUR: "\u20ac", USD: "$", GBP: "\u00a3" };
+  const sym = currencySymbol[currency] ?? currency;
 
   const handleSelectCatalog = async (asset: AssetCatalog) => {
     await addAsset({
@@ -68,41 +92,81 @@ export function AssetPocketCard({ service }: AssetPocketCardProps) {
     });
   };
 
+  const total = assets.reduce((sum, a) => {
+    const qty = Number(a.quantity) || 0;
+    const price = prices[a.api_id ?? a.symbol] ?? 0;
+    return sum + qty * price;
+  }, 0);
+
   return (
-    <div className="border rounded-lg p-3.5 min-w-[250px] flex-1 max-w-[320px]">
-      <div className="flex items-center gap-2 mb-3">
-        <span className="text-sm font-semibold text-foreground">{service.name}</span>
-        <TypeBadge type={service.service_type} />
+    <div className="bg-background border rounded-xl overflow-hidden">
+      {/* Header */}
+      <div className="flex items-center justify-between px-4 py-3.5 border-b">
+        <div className="flex items-center gap-2">
+          <span className="text-[15px] font-semibold text-foreground">{service.name}</span>
+          <TypeBadge type={service.service_type} />
+        </div>
+        <AssetSearch
+          assetType={service.service_type === "crypto" ? "crypto" : "invest"}
+          searchAssetCatalog={searchAssetCatalog}
+          onSelectCatalog={handleSelectCatalog}
+          onCreateCustom={handleCreateCustom}
+        />
       </div>
 
+      {/* Asset rows */}
       {assets.length > 0 && (
-        <div className="space-y-1.5 mb-3">
-          {assets.map((asset) => (
-            <div key={asset.id} className="flex items-center gap-1.5">
-              <span className="text-xs font-medium w-14 shrink-0">{asset.symbol}</span>
-              <QuantityInput
-                value={asset.quantity}
-                onSave={(qty) => updateQuantity(asset.id, qty)}
-              />
-              <Button
-                variant="ghost"
-                size="icon"
-                className="h-5 w-5 text-muted-foreground shrink-0"
-                onClick={() => removeAsset(asset.id)}
+        <div>
+          {assets.map((asset, i) => {
+            const qty = Number(asset.quantity) || 0;
+            const price = prices[asset.api_id ?? asset.symbol];
+            return (
+              <div
+                key={asset.id}
+                className={`flex items-center gap-2.5 px-4 py-2.5 ${i > 0 ? "border-t border-muted/50" : ""}`}
               >
-                <Trash2 className="h-2.5 w-2.5" />
-              </Button>
-            </div>
-          ))}
+                <span className="text-[13px] font-semibold text-foreground w-[50px] shrink-0">
+                  {asset.symbol}
+                </span>
+                <span className="text-xs text-muted-foreground flex-1 truncate">
+                  {asset.name}
+                </span>
+                <ClickToEditQuantity
+                  asset={asset}
+                  onSave={updateQuantity}
+                />
+                <span className="text-[13px] font-medium text-muted-foreground w-[70px] text-right shrink-0">
+                  {formatValue(qty, price, sym)}
+                </span>
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  className="h-6 w-6 text-muted-foreground shrink-0"
+                  onClick={() => removeAsset(asset.id)}
+                >
+                  <Trash2 className="h-3 w-3" />
+                </Button>
+              </div>
+            );
+          })}
         </div>
       )}
 
-      <AssetSearch
-        assetType={service.service_type === "crypto" ? "crypto" : "invest"}
-        searchAssetCatalog={searchAssetCatalog}
-        onSelectCatalog={handleSelectCatalog}
-        onCreateCustom={handleCreateCustom}
-      />
+      {/* Total */}
+      {assets.length > 0 && (
+        <div className="flex justify-end px-4 py-2.5 border-t">
+          <span className="text-[13px] font-semibold text-foreground">
+            Total: {sym}{total.toLocaleString("en-US", { maximumFractionDigits: 0 })}
+          </span>
+        </div>
+      )}
+
+      {/* Empty state */}
+      {assets.length === 0 && (
+        <div className="px-4 py-6 text-center">
+          <p className="text-xs text-muted-foreground">No assets yet. Search above to add.</p>
+        </div>
+      )}
     </div>
   );
 }
