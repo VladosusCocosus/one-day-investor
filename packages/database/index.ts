@@ -4,3 +4,4 @@ export * from "./oauth-accounts";
 export * from "./sessions";
 export * from "./services";
 export * from "./snapshots";
+export * from "./analytics";

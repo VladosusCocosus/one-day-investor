@@ -10,9 +10,9 @@ COPY apps/analytics/package.json apps/analytics/
 COPY apps/core/package.json apps/core/
 COPY apps/frontend/package.json apps/frontend/
 COPY packages/ packages/
-COPY apps/core/ apps/core/
+COPY apps/analytics/ apps/analytics/
 
 RUN bun install
 
-EXPOSE 3000
-CMD ["bun", "run", "apps/core/src/index.ts"]
+EXPOSE 3001
+CMD ["bun", "run", "apps/analytics/src/index.ts"]

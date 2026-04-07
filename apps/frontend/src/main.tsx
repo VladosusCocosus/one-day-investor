@@ -11,6 +11,7 @@ import { AppLayout } from "./components/AppLayout";
 import { DashboardPage } from "./pages/DashboardPage";
 import { ProfilePage } from "./pages/ProfilePage";
 import { AssetsPage } from "./pages/AssetsPage";
+import { AnalyticsPage } from "./pages/AnalyticsPage";
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -35,6 +36,7 @@ const router = createBrowserRouter([
           { path: "/dashboard", element: <DashboardPage /> },
           { path: "/profile", element: <ProfilePage /> },
           { path: "/assets", element: <AssetsPage /> },
+          { path: "/analytics", element: <AnalyticsPage /> },
         ],
       },
     ],

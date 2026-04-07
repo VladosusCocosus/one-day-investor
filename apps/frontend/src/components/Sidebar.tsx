@@ -1,5 +1,5 @@
 import { NavLink, useNavigate } from "react-router";
-import { LayoutDashboard, User, Layers, PanelLeftClose, PanelLeft, LogOut } from "lucide-react";
+import { LayoutDashboard, User, Layers, BarChart3, PanelLeftClose, PanelLeft, LogOut } from "lucide-react";
 import { useAuth } from "@/hooks/useAuth";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
@@ -15,6 +15,7 @@ const navItems = [
   { label: "Dashboard", icon: LayoutDashboard, path: "/dashboard" },
   { label: "Profile", icon: User, path: "/profile" },
   { label: "Assets", icon: Layers, path: "/assets" },
+  { label: "Analytics", icon: BarChart3, path: "/analytics" },
 ] as const;
 
 interface SidebarProps {

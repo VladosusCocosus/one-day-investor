@@ -7,6 +7,7 @@ COPY packages/config/package.json packages/config/
 COPY packages/database/package.json packages/database/
 COPY packages/types/package.json packages/types/
 COPY apps/core/package.json apps/core/
+COPY apps/analytics/package.json apps/analytics/
 COPY apps/frontend/package.json apps/frontend/
 COPY tsconfig.base.json ./
 COPY packages/types/ packages/types/
@@ -17,6 +18,8 @@ RUN bun install
 # VITE_API_URL is baked in at build time
 ARG VITE_API_URL
 ENV VITE_API_URL=$VITE_API_URL
+ARG VITE_ANALYTICS_URL
+ENV VITE_ANALYTICS_URL=$VITE_ANALYTICS_URL
 
 RUN bun run --cwd apps/frontend build
 
