@@ -1,16 +1,15 @@
 {
-  "name": "@core",
-  "version": "1.0.50",
+  "name": "@market-app",
+  "version": "1.0.0",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1",
     "dev": "bun run --watch src/index.ts"
   },
   "dependencies": {
     "@config": "workspace:*",
     "@database": "workspace:*",
-"@elysiajs/cors": "^1.4.1",
+    "@market": "workspace:*",
+    "@elysiajs/cors": "^1.4.1",
     "@types": "workspace:*",
-    "arctic": "latest",
     "elysia": "latest"
   },
   "devDependencies": {
