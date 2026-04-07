@@ -1,4 +1,5 @@
-import { createContext, useState, useEffect, type ReactNode } from "react";
+import { createContext, type ReactNode } from "react";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { api } from "@/lib/api";
 
 export interface User {
@@ -18,16 +19,16 @@ export interface AuthContextValue {
 export const AuthContext = createContext<AuthContextValue | null>(null);
 
 export function AuthProvider({ children }: { children: ReactNode }) {
-  const [user, setUser] = useState<User | null>(null);
-  const [loading, setLoading] = useState(true);
+  const queryClient = useQueryClient();
 
-  useEffect(() => {
-    api
-      .get<User>("/auth/me")
-      .then((res) => setUser(res.data))
-      .catch(() => setUser(null))
-      .finally(() => setLoading(false));
-  }, []);
+  const { data: user = null, isLoading: loading } = useQuery({
+    queryKey: ["auth", "me"],
+    queryFn: async () => {
+      const res = await api.get<User>("/auth/me");
+      return res.data;
+    },
+    retry: false,
+  });
 
   const login = () => {
     window.location.href = `${import.meta.env.VITE_API_URL}/auth/google`;
@@ -37,7 +38,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     try {
       await api.post("/auth/logout");
     } finally {
-      setUser(null);
+      queryClient.setQueryData(["auth", "me"], null);
+      queryClient.clear();
     }
   };
 

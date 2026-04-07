@@ -1,9 +1,9 @@
-import { useState, useEffect, useCallback } from "react";
+import { useState } from "react";
 import { ChevronLeft, ChevronRight, Plus, Pencil, Settings } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { useServices } from "@/hooks/useServices";
-import { useSnapshots, type SnapshotDetail } from "@/hooks/useSnapshots";
+import { useSnapshots, useSnapshotDetail, type SnapshotDetail } from "@/hooks/useSnapshots";
 import { SnapshotForm } from "@/components/SnapshotForm";
 import { ServiceManager } from "@/components/ServiceManager";
 
@@ -23,36 +23,18 @@ function formatAmount(value: string | number): string {
 }
 
 export function AssetsPage() {
-  const { tree, addService, removeService, editService, refetch: refetchServices } = useServices();
-  const { summaries, loading, getSnapshot, createSnapshot, updateSnapshot } = useSnapshots();
+  const { tree, addService, removeService, editService } = useServices();
+  const { summaries, loading, createSnapshot, updateSnapshot } = useSnapshots();
 
   const [currentIndex, setCurrentIndex] = useState(0);
-  const [detail, setDetail] = useState<SnapshotDetail | null>(null);
-  const [prevDetail, setPrevDetail] = useState<SnapshotDetail | null>(null);
   const [mode, setMode] = useState<"view" | "form" | "services">("view");
   const [editingSnapshot, setEditingSnapshot] = useState<SnapshotDetail | null>(null);
 
   const currentSummary = summaries[currentIndex];
   const prevSummary = summaries[currentIndex + 1];
 
-  const loadDetail = useCallback(async () => {
-    if (!currentSummary) {
-      setDetail(null);
-      return;
-    }
-    const d = await getSnapshot(currentSummary.id);
-    setDetail(d);
-  }, [currentSummary, getSnapshot]);
-
-  useEffect(() => { loadDetail(); }, [loadDetail]);
-
-  useEffect(() => {
-    if (!prevSummary) {
-      setPrevDetail(null);
-      return;
-    }
-    getSnapshot(prevSummary.id).then(setPrevDetail);
-  }, [prevSummary, getSnapshot]);
+  const { data: detail } = useSnapshotDetail(currentSummary?.id);
+  const { data: prevDetail } = useSnapshotDetail(prevSummary?.id);
 
   const handleSave = async (month: string, entries: { service_id: string; amount: number }[]) => {
     if (editingSnapshot) {
@@ -63,7 +45,6 @@ export function AssetsPage() {
     setMode("view");
     setEditingSnapshot(null);
     setCurrentIndex(0);
-    setTimeout(loadDetail, 100);
   };
 
   const handleNewSnapshot = () => {
@@ -72,13 +53,12 @@ export function AssetsPage() {
   };
 
   const handleEditSnapshot = () => {
-    setEditingSnapshot(detail);
+    if (detail) setEditingSnapshot(detail);
     setMode("form");
   };
 
   const handleServicesClose = () => {
     setMode("view");
-    refetchServices();
   };
 
   const change = currentSummary && prevSummary
@@ -115,7 +95,7 @@ export function AssetsPage() {
         </p>
         <SnapshotForm
           month={editingSnapshot ? editingSnapshot.month : newSnapshotMonth()}
-          prefill={detail}
+          prefill={detail ?? null}
           tree={tree}
           existing={editingSnapshot}
           onSave={handleSave}
