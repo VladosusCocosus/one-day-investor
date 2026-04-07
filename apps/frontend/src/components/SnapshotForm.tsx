@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import type { ServiceTree } from "@/hooks/useServices";
@@ -15,10 +15,7 @@ interface SnapshotFormProps {
 
 export function SnapshotForm({ month: initialMonth, prefill, tree, existing, onSave, onCancel }: SnapshotFormProps) {
   const [selectedMonth, setSelectedMonth] = useState(initialMonth);
-  const [amounts, setAmounts] = useState<Record<string, string>>({});
-  const [saving, setSaving] = useState(false);
-
-  useEffect(() => {
+  const [amounts, setAmounts] = useState<Record<string, string>>(() => {
     const initial: Record<string, string> = {};
     if (prefill) {
       for (const entry of prefill.entries) {
@@ -30,8 +27,9 @@ export function SnapshotForm({ month: initialMonth, prefill, tree, existing, onS
         initial[entry.service_id] = entry.amount;
       }
     }
-    setAmounts(initial);
-  }, [prefill, existing]);
+    return initial;
+  });
+  const [saving, setSaving] = useState(false);
 
   const setAmount = (serviceId: string, value: string) => {
     setAmounts((prev) => ({ ...prev, [serviceId]: value }));
