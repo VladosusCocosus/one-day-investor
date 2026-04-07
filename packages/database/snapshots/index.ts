@@ -79,7 +79,13 @@ export async function findLatestSnapshot(userId: string): Promise<SnapshotWithEn
 export async function createSnapshot(params: {
   user_id: string;
   month: string;
-  entries: { service_id: string; amount: number }[];
+  entries: {
+    service_id: string;
+    amount: number;
+    pocket_asset_id?: string | null;
+    quantity?: number | null;
+    price?: number | null;
+  }[];
 }): Promise<SnapshotWithEntries> {
   const client = await pool.connect();
   try {
@@ -93,9 +99,20 @@ export async function createSnapshot(params: {
 
     const entries: SnapshotEntry[] = [];
     for (const entry of params.entries) {
+      const amount = entry.pocket_asset_id && entry.quantity != null && entry.price != null
+        ? entry.quantity * entry.price
+        : entry.amount;
       const entryResult = await client.query<SnapshotEntry>(
-        "INSERT INTO snapshot_entries (snapshot_id, service_id, amount) VALUES ($1, $2, $3) RETURNING *",
-        [snapshot.id, entry.service_id, entry.amount]
+        `INSERT INTO snapshot_entries (snapshot_id, service_id, amount, pocket_asset_id, quantity, price)
+         VALUES ($1, $2, $3, $4, $5, $6) RETURNING *`,
+        [
+          snapshot.id,
+          entry.service_id,
+          amount,
+          entry.pocket_asset_id ?? null,
+          entry.quantity ?? null,
+          entry.price ?? null,
+        ]
       );
       entries.push(entryResult.rows[0]);
     }
@@ -118,7 +135,13 @@ export async function createSnapshot(params: {
 export async function updateSnapshot(
   id: string,
   userId: string,
-  entries: { service_id: string; amount: number }[]
+  entries: {
+    service_id: string;
+    amount: number;
+    pocket_asset_id?: string | null;
+    quantity?: number | null;
+    price?: number | null;
+  }[]
 ): Promise<SnapshotWithEntries | null> {
   const client = await pool.connect();
   try {
@@ -138,9 +161,20 @@ export async function updateSnapshot(
 
     const newEntries: SnapshotEntry[] = [];
     for (const entry of entries) {
+      const amount = entry.pocket_asset_id && entry.quantity != null && entry.price != null
+        ? entry.quantity * entry.price
+        : entry.amount;
       const entryResult = await client.query<SnapshotEntry>(
-        "INSERT INTO snapshot_entries (snapshot_id, service_id, amount) VALUES ($1, $2, $3) RETURNING *",
-        [id, entry.service_id, entry.amount]
+        `INSERT INTO snapshot_entries (snapshot_id, service_id, amount, pocket_asset_id, quantity, price)
+         VALUES ($1, $2, $3, $4, $5, $6) RETURNING *`,
+        [
+          id,
+          entry.service_id,
+          amount,
+          entry.pocket_asset_id ?? null,
+          entry.quantity ?? null,
+          entry.price ?? null,
+        ]
       );
       newEntries.push(entryResult.rows[0]);
     }
