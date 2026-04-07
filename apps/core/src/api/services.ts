@@ -4,8 +4,11 @@ import {
   createService,
   updateService,
   deleteService,
+  subscribeToService,
+  unsubscribeFromService,
 } from "@database";
 import { resolveUser } from "../auth/session";
+import type { ServiceType } from "@types";
 
 export const servicesApi = new Elysia({ prefix: "/api/services" })
   .derive(async ({ cookie }) => {
@@ -24,7 +27,11 @@ export const servicesApi = new Elysia({ prefix: "/api/services" })
       set.status = 401;
       return { error: "Unauthorized" };
     }
-    const { name, parent_id } = body as { name: string; parent_id: string | null };
+    const { name, parent_id, service_type } = body as {
+      name: string;
+      parent_id: string | null;
+      service_type?: ServiceType;
+    };
     if (!name || typeof name !== "string") {
       set.status = 400;
       return { error: "name is required" };
@@ -33,14 +40,52 @@ export const servicesApi = new Elysia({ prefix: "/api/services" })
       user_id: user.id,
       name,
       parent_id: parent_id ?? null,
+      service_type,
     });
+  })
+  .post("/subscribe", async ({ user, set, body }) => {
+    if (!user) {
+      set.status = 401;
+      return { error: "Unauthorized" };
+    }
+    const { catalog_service_id, child_ids } = body as {
+      catalog_service_id: string;
+      child_ids: string[];
+    };
+    if (!catalog_service_id) {
+      set.status = 400;
+      return { error: "catalog_service_id is required" };
+    }
+    return subscribeToService(user.id, catalog_service_id, child_ids ?? []);
+  })
+  .post("/unsubscribe", async ({ user, set, body }) => {
+    if (!user) {
+      set.status = 401;
+      return { error: "Unauthorized" };
+    }
+    const { catalog_service_id } = body as { catalog_service_id: string };
+    if (!catalog_service_id) {
+      set.status = 400;
+      return { error: "catalog_service_id is required" };
+    }
+    const result = await unsubscribeFromService(user.id, catalog_service_id);
+    if (!result.success) {
+      set.status = 409;
+      return { error: result.error };
+    }
+    return { success: true };
   })
   .put("/:id", async ({ user, set, params, body }) => {
     if (!user) {
       set.status = 401;
       return { error: "Unauthorized" };
     }
-    const updates = body as { name?: string; parent_id?: string | null; sort_order?: number };
+    const updates = body as {
+      name?: string;
+      parent_id?: string | null;
+      sort_order?: number;
+      service_type?: ServiceType;
+    };
     const result = await updateService(params.id, user.id, updates);
     if (!result) {
       set.status = 404;
