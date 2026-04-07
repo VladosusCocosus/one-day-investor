@@ -1,10 +1,10 @@
 {
-  "name": "@market",
+  "name": "@logger",
   "module": "index.ts",
   "type": "module",
   "private": true,
   "dependencies": {
-    "@logger": "workspace:*"
+    "pino": "^10.3.1"
   },
   "peerDependencies": {
     "typescript": "^5"

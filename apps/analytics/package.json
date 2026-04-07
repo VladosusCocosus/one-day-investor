@@ -9,7 +9,8 @@
     "@database": "workspace:*",
     "@elysiajs/cors": "^1.4.1",
     "@types": "workspace:*",
-    "elysia": "latest"
+    "elysia": "latest",
+    "@logger": "workspace:*"
   },
   "devDependencies": {
     "bun-types": "latest"
