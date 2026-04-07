@@ -1,6 +1,7 @@
 import { Elysia } from "elysia";
 import { Google } from "arctic";
 import config from "@config";
+import { createLogger } from "@logger";
 import {
   findOAuthAccount,
   createOAuthAccount,
@@ -9,7 +10,7 @@ import {
   createSession,
 } from "@database";
 
-console.error(config.get("google.clientId"))
+const log = createLogger("auth");
 
 const google = new Google(
   config.get("google.clientId"),
@@ -40,6 +41,7 @@ export const googleAuth = new Elysia({ prefix: "/auth" })
       maxAge: 600,
     });
 
+    log.info("OAuth flow initiated, redirecting to Google");
     return redirect(url.toString());
   })
   .get("/google/callback", async ({ query, cookie, redirect, set }) => {
@@ -48,6 +50,7 @@ export const googleAuth = new Elysia({ prefix: "/auth" })
     const codeVerifier = cookie.code_verifier.value as string;
 
     if (!code || !state || !storedState || state !== storedState || !codeVerifier) {
+      log.warn("Invalid OAuth callback: state mismatch or missing parameters");
       set.status = 400;
       return { error: "Invalid OAuth callback" };
     }
@@ -56,62 +59,81 @@ export const googleAuth = new Elysia({ prefix: "/auth" })
     cookie.oauth_state.remove();
     cookie.code_verifier.remove();
 
-    // Exchange code for tokens
-    const tokens = await google.validateAuthorizationCode(code, codeVerifier);
-    const accessToken = tokens.accessToken();
+    try {
+      // Exchange code for tokens
+      const tokens = await google.validateAuthorizationCode(code, codeVerifier);
+      const accessToken = tokens.accessToken();
 
-    // Fetch Google user info
-    const googleUserRes = await fetch(
-      "https://openidconnect.googleapis.com/v1/userinfo",
-      { headers: { Authorization: `Bearer ${accessToken}` } }
-    );
-    const googleUser = (await googleUserRes.json()) as {
-      sub: string;
-      email: string;
-      name: string;
-      picture: string;
-    };
+      // Fetch Google user info
+      const googleUserRes = await fetch(
+        "https://openidconnect.googleapis.com/v1/userinfo",
+        { headers: { Authorization: `Bearer ${accessToken}` } }
+      );
 
-    // Find or create user
-    let oauthAccount = await findOAuthAccount("google", googleUser.sub);
-    let userId: string;
-
-    if (oauthAccount) {
-      userId = oauthAccount.user_id;
-    } else {
-      let user = await findUserByEmail(googleUser.email);
-      if (!user) {
-        user = await createUser({
-          email: googleUser.email,
-          name: googleUser.name,
-          avatar_url: googleUser.picture,
-        });
+      if (!googleUserRes.ok) {
+        log.error({ status: googleUserRes.status }, "Failed to fetch Google user info");
+        set.status = 500;
+        return { error: "Failed to fetch user info from Google" };
       }
-      await createOAuthAccount({
-        user_id: user.id,
-        provider: "google",
-        provider_user_id: googleUser.sub,
+
+      const googleUser = (await googleUserRes.json()) as {
+        sub: string;
+        email: string;
+        name: string;
+        picture: string;
+      };
+
+      log.info({ email: googleUser.email }, "Google user info fetched");
+
+      // Find or create user
+      let oauthAccount = await findOAuthAccount("google", googleUser.sub);
+      let userId: string;
+
+      if (oauthAccount) {
+        userId = oauthAccount.user_id;
+        log.info({ userId }, "Existing user logged in");
+      } else {
+        let user = await findUserByEmail(googleUser.email);
+        if (!user) {
+          user = await createUser({
+            email: googleUser.email,
+            name: googleUser.name,
+            avatar_url: googleUser.picture,
+          });
+          log.info({ userId: user.id, email: user.email }, "New user created");
+        }
+        await createOAuthAccount({
+          user_id: user.id,
+          provider: "google",
+          provider_user_id: googleUser.sub,
+        });
+        userId = user.id;
+        log.info({ userId }, "OAuth account linked");
+      }
+
+      // Create session
+      const sessionMaxAge = config.get("session.maxAge");
+      const expiresAt = new Date(Date.now() + sessionMaxAge * 1000);
+      const token = crypto.randomUUID();
+      await createSession({ user_id: userId, token, expires_at: expiresAt });
+
+      const isProduction = process.env.NODE_ENV === "production";
+
+      cookie.session.set({
+        value: token,
+        httpOnly: true,
+        sameSite: "lax",
+        secure: isProduction,
+        path: "/",
+        maxAge: sessionMaxAge,
+        domain: isProduction ? ".odinvestor.net" : undefined,
       });
-      userId = user.id;
+
+      log.info({ userId }, "Session created, redirecting to frontend");
+      return redirect(config.get("frontendUrl"));
+    } catch (err) {
+      log.error({ err }, "OAuth callback failed");
+      set.status = 500;
+      return { error: "Authentication failed" };
     }
-
-    // Create session
-    const sessionMaxAge = config.get("session.maxAge");
-    const expiresAt = new Date(Date.now() + sessionMaxAge * 1000);
-    const token = crypto.randomUUID();
-    await createSession({ user_id: userId, token, expires_at: expiresAt });
-
-    const isProduction = process.env.NODE_ENV === "production";
-
-    cookie.session.set({
-      value: token,
-      httpOnly: true,
-      sameSite: "lax",
-      secure: isProduction,
-      path: "/",
-      maxAge: sessionMaxAge,
-      domain: isProduction ? ".odinvestor.net" : undefined,
-    });
-
-    return redirect(config.get("frontendUrl"));
   });

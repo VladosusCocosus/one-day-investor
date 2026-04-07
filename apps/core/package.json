@@ -8,10 +8,11 @@
   "dependencies": {
     "@config": "workspace:*",
     "@database": "workspace:*",
-"@elysiajs/cors": "^1.4.1",
+    "@elysiajs/cors": "^1.4.1",
     "@types": "workspace:*",
     "arctic": "latest",
-    "elysia": "latest"
+    "elysia": "latest",
+    "@logger": "workspace:*"
   },
   "devDependencies": {
     "bun-types": "latest"
