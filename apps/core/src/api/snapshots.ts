@@ -52,7 +52,13 @@ export const snapshotsApi = new Elysia({ prefix: "/api/snapshots" })
     }
     const { month, entries } = body as {
       month: string;
-      entries: { service_id: string; amount: number }[];
+      entries: {
+        service_id: string;
+        amount: number;
+        pocket_asset_id?: string | null;
+        quantity?: number | null;
+        price?: number | null;
+      }[];
     };
     if (!month || !entries) {
       set.status = 400;
@@ -78,7 +84,13 @@ export const snapshotsApi = new Elysia({ prefix: "/api/snapshots" })
       return { error: "Unauthorized" };
     }
     const { entries } = body as {
-      entries: { service_id: string; amount: number }[];
+      entries: {
+        service_id: string;
+        amount: number;
+        pocket_asset_id?: string | null;
+        quantity?: number | null;
+        price?: number | null;
+      }[];
     };
     if (!entries) {
       set.status = 400;
