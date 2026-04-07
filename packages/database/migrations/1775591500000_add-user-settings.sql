@@ -1,0 +1,6 @@
+CREATE TABLE user_settings (
+    user_id UUID PRIMARY KEY REFERENCES users(id) ON DELETE CASCADE,
+    snapshot_day INTEGER NOT NULL DEFAULT 1 CHECK (snapshot_day BETWEEN 1 AND 28),
+    goal NUMERIC NOT NULL DEFAULT 0,
+    currency TEXT NOT NULL DEFAULT 'EUR'
+);
