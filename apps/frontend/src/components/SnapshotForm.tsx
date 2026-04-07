@@ -13,7 +13,8 @@ interface SnapshotFormProps {
   onCancel: () => void;
 }
 
-export function SnapshotForm({ month, prefill, tree, existing, onSave, onCancel }: SnapshotFormProps) {
+export function SnapshotForm({ month: initialMonth, prefill, tree, existing, onSave, onCancel }: SnapshotFormProps) {
+  const [selectedMonth, setSelectedMonth] = useState(initialMonth);
   const [amounts, setAmounts] = useState<Record<string, string>>({});
   const [saving, setSaving] = useState(false);
 
@@ -49,13 +50,16 @@ export function SnapshotForm({ month, prefill, tree, existing, onSave, onCancel 
         service_id: id,
         amount: parseFloat(amounts[id] || "0") || 0,
       }));
-      await onSave(month, entries);
+      await onSave(selectedMonth, entries);
     } finally {
       setSaving(false);
     }
   };
 
-  const formatMonth = new Date(month).toLocaleDateString("en-US", {
+  // Convert YYYY-MM-DD to YYYY-MM for the input
+  const monthInputValue = selectedMonth.slice(0, 7);
+
+  const formatMonthLabel = new Date(selectedMonth).toLocaleDateString("en-US", {
     month: "long",
     year: "numeric",
     timeZone: "UTC",
@@ -65,9 +69,21 @@ export function SnapshotForm({ month, prefill, tree, existing, onSave, onCancel 
     <Card>
       <CardContent className="pt-4">
         <div className="flex items-center justify-between mb-4">
-          <h3 className="text-sm font-semibold text-foreground">
-            {existing ? "Edit" : "New"} Snapshot — {formatMonth}
-          </h3>
+          <div className="flex items-center gap-3">
+            <h3 className="text-sm font-semibold text-foreground">
+              {existing ? "Edit" : "New"} Snapshot
+            </h3>
+            {existing ? (
+              <span className="text-sm text-muted-foreground">— {formatMonthLabel}</span>
+            ) : (
+              <input
+                type="month"
+                className="text-sm border rounded px-2 py-1 bg-background"
+                value={monthInputValue}
+                onChange={(e) => setSelectedMonth(`${e.target.value}-01`)}
+              />
+            )}
+          </div>
           <div className="flex gap-2">
             <Button variant="ghost" size="sm" onClick={onCancel}>Cancel</Button>
             <Button size="sm" onClick={handleSave} disabled={saving}>
