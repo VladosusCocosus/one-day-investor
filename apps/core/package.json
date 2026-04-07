@@ -8,6 +8,7 @@
   "dependencies": {
     "@config": "workspace:*",
     "@database": "workspace:*",
+    "@market": "workspace:*",
     "@elysiajs/cors": "^1.4.1",
     "@types": "workspace:*",
     "arctic": "latest",
