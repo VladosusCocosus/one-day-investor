@@ -1,3 +1,4 @@
+import { useState, useRef } from "react";
 import { Trash2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { TypeBadge } from "@/components/TypeBadge";
@@ -11,9 +12,42 @@ interface AssetPocketCardProps {
   service: Service;
 }
 
+function QuantityInput({
+  value,
+  onSave,
+}: {
+  value: string;
+  onSave: (qty: number) => void;
+}) {
+  const [draft, setDraft] = useState(value === "0" ? "" : value);
+  const debounceRef = useRef<ReturnType<typeof setTimeout>>();
+
+  const handleChange = (v: string) => {
+    setDraft(v);
+    if (debounceRef.current) clearTimeout(debounceRef.current);
+    debounceRef.current = setTimeout(() => {
+      const num = parseFloat(v) || 0;
+      if (String(num) !== value) {
+        onSave(num);
+      }
+    }, 500);
+  };
+
+  return (
+    <input
+      type="number"
+      className="w-20 text-xs border rounded px-1.5 py-1 bg-background text-right"
+      value={draft}
+      onChange={(e) => handleChange(e.target.value)}
+      placeholder="0"
+      step="any"
+    />
+  );
+}
+
 export function AssetPocketCard({ service }: AssetPocketCardProps) {
   const { searchAssetCatalog } = useAssetCatalog();
-  const { assets, addAsset, removeAsset } = usePocketAssets(service.id);
+  const { assets, addAsset, updateQuantity, removeAsset } = usePocketAssets(service.id);
 
   const handleSelectCatalog = async (asset: AssetCatalog) => {
     await addAsset({
@@ -35,7 +69,7 @@ export function AssetPocketCard({ service }: AssetPocketCardProps) {
   };
 
   return (
-    <div className="border rounded-lg p-3.5 min-w-[220px] flex-1 max-w-[300px]">
+    <div className="border rounded-lg p-3.5 min-w-[250px] flex-1 max-w-[320px]">
       <div className="flex items-center gap-2 mb-3">
         <span className="text-sm font-semibold text-foreground">{service.name}</span>
         <TypeBadge type={service.service_type} />
@@ -44,15 +78,16 @@ export function AssetPocketCard({ service }: AssetPocketCardProps) {
       {assets.length > 0 && (
         <div className="space-y-1.5 mb-3">
           {assets.map((asset) => (
-            <div key={asset.id} className="flex items-center justify-between">
-              <div className="flex items-center gap-1.5">
-                <span className="text-xs font-medium">{asset.symbol}</span>
-                <span className="text-xs text-muted-foreground">{asset.name}</span>
-              </div>
+            <div key={asset.id} className="flex items-center gap-1.5">
+              <span className="text-xs font-medium w-14 shrink-0">{asset.symbol}</span>
+              <QuantityInput
+                value={asset.quantity}
+                onSave={(qty) => updateQuantity(asset.id, qty)}
+              />
               <Button
                 variant="ghost"
                 size="icon"
-                className="h-5 w-5 text-muted-foreground"
+                className="h-5 w-5 text-muted-foreground shrink-0"
                 onClick={() => removeAsset(asset.id)}
               >
                 <Trash2 className="h-2.5 w-2.5" />

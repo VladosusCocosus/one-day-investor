@@ -2,6 +2,7 @@ import { Elysia } from "elysia";
 import {
   findPocketAssetsByServiceId,
   addPocketAsset,
+  updatePocketAssetQuantity,
   removePocketAsset,
 } from "@database";
 import { resolveUser } from "../auth/session";
@@ -36,6 +37,23 @@ export const pocketAssetsApi = new Elysia({ prefix: "/api/pocket-assets" })
       return { error: "service_id, symbol, name, and asset_type are required" };
     }
     return addPocketAsset(params);
+  })
+  .put("/:id/quantity", async ({ user, set, params, body }) => {
+    if (!user) {
+      set.status = 401;
+      return { error: "Unauthorized" };
+    }
+    const { quantity } = body as { quantity: number };
+    if (quantity == null || typeof quantity !== "number") {
+      set.status = 400;
+      return { error: "quantity is required" };
+    }
+    const result = await updatePocketAssetQuantity(params.id, quantity);
+    if (!result) {
+      set.status = 404;
+      return { error: "Pocket asset not found" };
+    }
+    return result;
   })
   .delete("/:id", async ({ user, set, params }) => {
     if (!user) {

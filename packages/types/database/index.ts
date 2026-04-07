@@ -70,6 +70,7 @@ export interface PocketAsset {
   name: string;
   asset_type: AssetType;
   sort_order: number;
+  quantity: string; // numeric from pg
 }
 
 export interface Snapshot {

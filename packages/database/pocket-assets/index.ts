@@ -19,10 +19,14 @@ export async function findPocketAssetsByServiceId(
 
 export async function findPocketAssetsByServiceIds(
   serviceIds: string[]
-): Promise<PocketAsset[]> {
+): Promise<(PocketAsset & { api_id: string | null })[]> {
   if (serviceIds.length === 0) return [];
-  const result = await pool.query<PocketAsset>(
-    "SELECT * FROM pocket_assets WHERE service_id = ANY($1) ORDER BY service_id, sort_order, symbol",
+  const result = await pool.query<PocketAsset & { api_id: string | null }>(
+    `SELECT pa.*, ac.api_id
+     FROM pocket_assets pa
+     LEFT JOIN asset_catalog ac ON pa.asset_catalog_id = ac.id
+     WHERE pa.service_id = ANY($1)
+     ORDER BY pa.service_id, pa.sort_order, pa.symbol`,
     [serviceIds]
   );
   return result.rows;
@@ -47,6 +51,17 @@ export async function addPocketAsset(params: {
     ]
   );
   return result.rows[0];
+}
+
+export async function updatePocketAssetQuantity(
+  id: string,
+  quantity: number
+): Promise<PocketAsset | null> {
+  const result = await pool.query<PocketAsset>(
+    "UPDATE pocket_assets SET quantity = $1 WHERE id = $2 RETURNING *",
+    [quantity, id]
+  );
+  return result.rows[0] ?? null;
 }
 
 export async function removePocketAsset(id: string): Promise<boolean> {
