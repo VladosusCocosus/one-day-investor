@@ -19,17 +19,24 @@ function ClickToEditQuantity({
   onSave,
 }: {
   asset: PocketAsset;
-  onSave: (id: string, qty: number) => void;
+  onSave: (id: string, qty: number) => Promise<void>;
 }) {
   const [editing, setEditing] = useState(false);
   const [draft, setDraft] = useState(asset.quantity);
+  const [displayQty, setDisplayQty] = useState(asset.quantity);
 
-  const commit = () => {
+  // Sync display when prop updates from server
+  if (asset.quantity !== displayQty && !editing) {
+    setDisplayQty(asset.quantity);
+  }
+
+  const commit = async () => {
     const num = parseFloat(draft) || 0;
-    if (num !== Number(asset.quantity)) {
-      onSave(asset.id, num);
-    }
     setEditing(false);
+    setDisplayQty(String(num));
+    if (num !== Number(asset.quantity)) {
+      await onSave(asset.id, num);
+    }
   };
 
   if (editing) {
@@ -47,15 +54,17 @@ function ClickToEditQuantity({
     );
   }
 
+  const num = Number(displayQty) || 0;
+
   return (
     <span
       className="text-[13px] font-medium text-foreground cursor-pointer px-2 py-1 rounded-md bg-muted min-w-[50px] text-right inline-block hover:bg-muted/80"
       onClick={() => {
-        setDraft(asset.quantity === "0" ? "" : asset.quantity);
+        setDraft(num === 0 ? "" : String(num));
         setEditing(true);
       }}
     >
-      {Number(asset.quantity) || 0}
+      {num}
     </span>
   );
 }
