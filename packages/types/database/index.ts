@@ -51,6 +51,27 @@ export interface UserSettings {
   currency: string;
 }
 
+export type AssetType = 'crypto' | 'invest';
+
+export interface AssetCatalog {
+  id: string;
+  symbol: string;
+  name: string;
+  asset_type: AssetType;
+  api_id: string;
+  sort_order: number;
+}
+
+export interface PocketAsset {
+  id: string;
+  service_id: string;
+  asset_catalog_id: string | null;
+  symbol: string;
+  name: string;
+  asset_type: AssetType;
+  sort_order: number;
+}
+
 export interface Snapshot {
   id: string;
   user_id: string;
@@ -63,4 +84,7 @@ export interface SnapshotEntry {
   snapshot_id: string;
   service_id: string;
   amount: string; // numeric comes back as string from pg
+  pocket_asset_id: string | null;
+  quantity: string | null;
+  price: string | null;
 }
