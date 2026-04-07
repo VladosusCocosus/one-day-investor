@@ -21,4 +21,5 @@ jobs:
             docker compose -f docker-compose.prod.yml run --rm core bun run --cwd packages/database migrate:up
             docker compose -f docker-compose.prod.yml up -d
             sleep 5
-            curl -sf http://127.0.0.1:3000/ > /dev/null && echo "Health check passed" || echo "Health check failed"
+            curl -sf http://127.0.0.1:3000/ > /dev/null && echo "Core health check passed" || echo "Core health check failed"
+            curl -sf http://127.0.0.1:3001/ > /dev/null && echo "Analytics health check passed" || echo "Analytics health check failed"
