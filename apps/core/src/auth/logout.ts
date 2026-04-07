@@ -1,9 +1,12 @@
 import { Elysia } from "elysia";
 import { deleteSessionByToken } from "@database";
-import { sessionMiddleware } from "./session";
+import { resolveUser } from "./session";
 
 export const logoutRoute = new Elysia({ prefix: "/auth" })
-  .use(sessionMiddleware)
+  .derive(async ({ cookie }) => {
+    const user = await resolveUser(cookie as Record<string, {value: string}>);
+    return { user };
+  })
   .post("/logout", async ({ cookie, user, set }) => {
     if (!user) {
       set.status = 401;
@@ -11,7 +14,7 @@ export const logoutRoute = new Elysia({ prefix: "/auth" })
     }
     const token = cookie.session?.value;
     if (token) {
-      await deleteSessionByToken(token);
+      await deleteSessionByToken(token as string);
       cookie.session.remove();
     }
     return { success: true };

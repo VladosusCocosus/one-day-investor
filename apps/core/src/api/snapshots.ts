@@ -61,7 +61,7 @@ export const snapshotsApi = new Elysia({ prefix: "/api/snapshots" })
     try {
       return await createSnapshot({
         user_id: user.id,
-        month: new Date(month),
+        month,
         entries,
       });
     } catch (err: unknown) {
