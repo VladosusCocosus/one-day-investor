@@ -110,6 +110,7 @@ export const googleAuth = new Elysia({ prefix: "/auth" })
       secure: isProduction,
       path: "/",
       maxAge: sessionMaxAge,
+      domain: isProduction ? ".odinvestor.net" : undefined,
     });
 
     return redirect(config.get("frontendUrl"));
