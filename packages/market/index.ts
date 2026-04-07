@@ -37,29 +37,33 @@ export async function fetchStockPrices(
 ): Promise<Record<string, number | null>> {
   if (symbols.length === 0) return {};
   const result: Record<string, number | null> = {};
-  try {
-    const joined = symbols.join(",");
-    const url = `https://query1.finance.yahoo.com/v7/finance/quote?symbols=${joined}&fields=regularMarketPrice`;
-    log.info({ symbols }, "Fetching stock prices from Yahoo Finance");
-    const res = await fetch(url, {
-      headers: { "User-Agent": "Mozilla/5.0" },
-    });
-    if (!res.ok) {
-      log.warn({ status: res.status, symbols }, "Yahoo Finance API returned non-OK status");
-      for (const s of symbols) result[s] = null;
-      return result;
-    }
-    const data = await res.json();
-    const quotes = data?.quoteResponse?.result ?? [];
-    for (const s of symbols) {
-      const quote = quotes.find((q: { symbol: string }) => q.symbol === s);
-      result[s] = quote?.regularMarketPrice ?? null;
-    }
-    log.info({ count: symbols.length, resolved: Object.values(result).filter((v) => v !== null).length }, "Stock prices fetched");
-  } catch (err) {
-    log.error({ err, symbols }, "Yahoo Finance API request failed");
-    for (const s of symbols) result[s] = null;
-  }
+
+  // Yahoo v7 quote API is dead (requires auth). Use v8 chart endpoint per symbol.
+  log.info({ symbols }, "Fetching stock prices from Yahoo Finance v8 chart");
+
+  await Promise.all(
+    symbols.map(async (symbol) => {
+      try {
+        const url = `https://query1.finance.yahoo.com/v8/finance/chart/${encodeURIComponent(symbol)}?range=1d&interval=1d`;
+        const res = await fetch(url, {
+          headers: { "User-Agent": "Mozilla/5.0" },
+        });
+        if (!res.ok) {
+          log.warn({ status: res.status, symbol }, "Yahoo Finance chart API non-OK");
+          result[symbol] = null;
+          return;
+        }
+        const data = await res.json();
+        const meta = data?.chart?.result?.[0]?.meta;
+        result[symbol] = meta?.regularMarketPrice ?? null;
+      } catch (err) {
+        log.error({ err, symbol }, "Yahoo Finance chart request failed");
+        result[symbol] = null;
+      }
+    })
+  );
+
+  log.info({ count: symbols.length, resolved: Object.values(result).filter((v) => v !== null).length }, "Stock prices fetched");
   return result;
 }
 
