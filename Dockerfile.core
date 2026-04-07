@@ -1,0 +1,18 @@
+FROM oven/bun:1 AS base
+WORKDIR /app
+
+# Copy workspace structure for dependency install caching
+COPY package.json bun.lock ./
+COPY packages/config/package.json packages/config/
+COPY packages/database/package.json packages/database/
+COPY packages/types/package.json packages/types/
+COPY apps/core/package.json apps/core/
+
+RUN bun install --frozen-lockfile
+
+# Copy all source
+COPY packages/ packages/
+COPY apps/core/ apps/core/
+
+EXPOSE 3000
+CMD ["bun", "run", "apps/core/src/index.ts"]
