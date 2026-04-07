@@ -1,13 +1,13 @@
 import { useState } from "react";
-import { Pencil, Trash2, Plus, X } from "lucide-react";
+import { Pencil, Trash2, Plus } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { TypeBadge } from "@/components/TypeBadge";
-import type { ServiceTree, Service } from "@/hooks/useServices";
+import type { ServiceTree } from "@/hooks/useServices";
 import type { ServiceType } from "@/hooks/useCatalog";
 
 interface PocketCardProps {
   group: ServiceTree;
-  onEdit: (id: string, params: { name?: string; service_type?: ServiceType }) => Promise<void>;
+  onEdit: (id: string, params: { name?: string; service_type?: ServiceType }) => Promise<unknown>;
   onRemove: (id: string) => Promise<void>;
   onAddChild: (name: string, parentId: string, serviceType: ServiceType) => Promise<void>;
 }
