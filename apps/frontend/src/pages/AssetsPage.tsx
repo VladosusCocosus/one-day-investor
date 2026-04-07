@@ -28,7 +28,7 @@ export function AssetsPage() {
 
   const [currentIndex, setCurrentIndex] = useState(0);
   const [detail, setDetail] = useState<SnapshotDetail | null>(null);
-  const [, setPrevDetail] = useState<SnapshotDetail | null>(null);
+  const [prevDetail, setPrevDetail] = useState<SnapshotDetail | null>(null);
   const [mode, setMode] = useState<"view" | "form" | "services">("view");
   const [editingSnapshot, setEditingSnapshot] = useState<SnapshotDetail | null>(null);
 
@@ -201,17 +201,29 @@ export function AssetsPage() {
             <div className="mt-4 grid gap-3">
               {tree.map((group) => {
                 const childEntries = group.children.length > 0
-                  ? group.children.map((child) => ({
-                      name: child.name,
-                      amount: detail.entries.find((e) => e.service_id === child.id)?.amount ?? "0",
-                    }))
+                  ? group.children.map((child) => {
+                      const amount = detail.entries.find((e) => e.service_id === child.id)?.amount ?? "0";
+                      const prevAmount = prevDetail?.entries.find((e) => e.service_id === child.id)?.amount ?? null;
+                      const diff = prevAmount !== null ? Number(amount) - Number(prevAmount) : null;
+                      return { name: child.name, amount, diff };
+                    })
                   : [];
                 const standaloneAmount = group.children.length === 0
                   ? detail.entries.find((e) => e.service_id === group.service.id)?.amount ?? "0"
                   : null;
+                const prevStandaloneAmount = group.children.length === 0 && prevDetail
+                  ? prevDetail.entries.find((e) => e.service_id === group.service.id)?.amount ?? null
+                  : null;
                 const subtotal = group.children.length > 0
                   ? childEntries.reduce((sum, e) => sum + Number(e.amount), 0)
                   : Number(standaloneAmount);
+                const prevSubtotal = group.children.length > 0 && prevDetail
+                  ? group.children.reduce((sum, child) => {
+                      const prev = prevDetail.entries.find((e) => e.service_id === child.id);
+                      return sum + Number(prev?.amount ?? 0);
+                    }, 0)
+                  : prevStandaloneAmount !== null ? Number(prevStandaloneAmount) : null;
+                const groupDiff = prevSubtotal !== null ? subtotal - prevSubtotal : null;
 
                 if (subtotal === 0 && !detail.entries.some((e) =>
                   e.service_id === group.service.id || group.children.some((c) => c.id === e.service_id)
@@ -224,16 +236,30 @@ export function AssetsPage() {
                     <CardContent className="pt-4 pb-4">
                       <div className="flex items-center justify-between mb-1">
                         <p className="text-sm font-semibold text-foreground">{group.service.name}</p>
-                        <p className="text-sm font-semibold text-foreground">
-                          €{formatAmount(subtotal)}
-                        </p>
+                        <div className="text-right">
+                          <p className="text-sm font-semibold text-foreground">
+                            €{formatAmount(subtotal)}
+                          </p>
+                          {groupDiff !== null && groupDiff !== 0 && (
+                            <p className={`text-xs ${groupDiff >= 0 ? "text-green-600" : "text-red-500"}`}>
+                              {groupDiff >= 0 ? "+" : ""}€{formatAmount(Math.abs(groupDiff))}
+                            </p>
+                          )}
+                        </div>
                       </div>
                       {childEntries.length > 0 && (
                         <div className="mt-2 space-y-1">
                           {childEntries.map((entry) => (
                             <div key={entry.name} className="flex items-center justify-between">
                               <p className="text-sm text-muted-foreground pl-3">{entry.name}</p>
-                              <p className="text-sm text-muted-foreground">€{formatAmount(entry.amount)}</p>
+                              <div className="text-right">
+                                <p className="text-sm text-muted-foreground">€{formatAmount(entry.amount)}</p>
+                                {entry.diff !== null && entry.diff !== 0 && (
+                                  <p className={`text-xs ${entry.diff >= 0 ? "text-green-600" : "text-red-500"}`}>
+                                    {entry.diff >= 0 ? "+" : ""}€{formatAmount(Math.abs(entry.diff))}
+                                  </p>
+                                )}
+                              </div>
                             </div>
                           ))}
                         </div>
