@@ -1,4 +1,4 @@
-FROM oven/bun:1 AS build
+FROM oven/bun:latest AS build
 WORKDIR /app
 
 # Copy workspace structure for dependency install caching
