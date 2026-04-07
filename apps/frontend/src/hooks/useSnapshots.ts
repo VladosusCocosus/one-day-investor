@@ -12,6 +12,9 @@ export interface SnapshotEntry {
   id: string;
   service_id: string;
   amount: string;
+  pocket_asset_id: string | null;
+  quantity: string | null;
+  price: string | null;
 }
 
 export interface SnapshotDetail {
@@ -33,7 +36,7 @@ export function useSnapshots() {
   });
 
   const createMutation = useMutation({
-    mutationFn: async ({ month, entries }: { month: string; entries: { service_id: string; amount: number }[] }) => {
+    mutationFn: async ({ month, entries }: { month: string; entries: { service_id: string; amount: number; pocket_asset_id?: string | null; quantity?: number | null; price?: number | null }[] }) => {
       const res = await api.post<SnapshotDetail>("/api/snapshots", { month, entries });
       return res.data;
     },
@@ -43,7 +46,7 @@ export function useSnapshots() {
   });
 
   const updateMutation = useMutation({
-    mutationFn: async ({ id, entries }: { id: string; entries: { service_id: string; amount: number }[] }) => {
+    mutationFn: async ({ id, entries }: { id: string; entries: { service_id: string; amount: number; pocket_asset_id?: string | null; quantity?: number | null; price?: number | null }[] }) => {
       const res = await api.put<SnapshotDetail>(`/api/snapshots/${id}`, { entries });
       return res.data;
     },
@@ -62,11 +65,11 @@ export function useSnapshots() {
     },
   });
 
-  const createSnapshot = async (month: string, entries: { service_id: string; amount: number }[]) => {
+  const createSnapshot = async (month: string, entries: { service_id: string; amount: number; pocket_asset_id?: string | null; quantity?: number | null; price?: number | null }[]) => {
     return createMutation.mutateAsync({ month, entries });
   };
 
-  const updateSnapshot = async (id: string, entries: { service_id: string; amount: number }[]) => {
+  const updateSnapshot = async (id: string, entries: { service_id: string; amount: number; pocket_asset_id?: string | null; quantity?: number | null; price?: number | null }[]) => {
     return updateMutation.mutateAsync({ id, entries });
   };
 
