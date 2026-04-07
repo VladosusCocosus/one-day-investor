@@ -2,6 +2,7 @@ import { Elysia } from "elysia";
 import { cors } from "@elysiajs/cors";
 import config from "@config";
 import { auth } from "./auth";
+import { api } from "./api";
 
 const app = new Elysia()
   .use(cors({
@@ -9,6 +10,7 @@ const app = new Elysia()
     credentials: true,
   }))
   .use(auth)
+  .use(api)
   .get("/", () => "Hello Elysia")
   .listen(3000);
 
