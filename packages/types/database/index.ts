@@ -23,13 +23,32 @@ export interface Session {
   created_at: Date;
 }
 
+export type ServiceType = 'common' | 'invest' | 'crypto';
+
+export interface CatalogService {
+  id: string;
+  name: string;
+  parent_id: string | null;
+  service_type: ServiceType;
+  sort_order: number;
+}
+
 export interface Service {
   id: string;
   user_id: string;
   name: string;
   parent_id: string | null;
   sort_order: number;
+  service_type: ServiceType;
+  catalog_service_id: string | null;
   created_at: Date;
+}
+
+export interface UserSettings {
+  user_id: string;
+  snapshot_day: number;
+  goal: string; // numeric comes back as string from pg
+  currency: string;
 }
 
 export interface Snapshot {
