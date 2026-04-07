@@ -17,6 +17,8 @@ jobs:
           script: |
             cd /opt/one-day-investor
             git pull origin main
+            sudo cp nginx/app.conf /etc/nginx/sites-available/app.conf
+            sudo nginx -t && sudo systemctl reload nginx
             docker compose -f docker-compose.prod.yml build
             docker compose -f docker-compose.prod.yml run --rm core bun run --cwd packages/database migrate:up
             docker compose -f docker-compose.prod.yml up -d
