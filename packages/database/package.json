@@ -12,6 +12,7 @@
   "devDependencies": {
     "@types/bun": "latest",
     "dotenv": "^16.4.7",
+    "dotenv-expand": "^12.0.1",
     "node-pg-migrate": "^8.0.4",
     "@types/pg": "^8.20.0"
   },
