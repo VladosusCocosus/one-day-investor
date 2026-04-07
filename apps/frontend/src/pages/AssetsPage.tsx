@@ -92,7 +92,7 @@ export function AssetsPage() {
           </CardContent>
         </Card>
       ) : (
-        <div className="mt-6 space-y-3 max-w-2xl">
+        <div className="mt-6 space-y-3">
           {investPockets.map((service) => (
             <AssetPocketCard
               key={service.id}
