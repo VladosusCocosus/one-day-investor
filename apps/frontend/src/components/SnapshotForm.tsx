@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { RefreshCw } from "lucide-react";
 import { useQueries } from "@tanstack/react-query";
 import { Button } from "@/components/ui/button";
