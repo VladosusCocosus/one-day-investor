@@ -4,6 +4,56 @@ const log = createLogger("market");
 
 export type AssetType = "crypto" | "invest";
 
+// --- Exchange Rate Cache ---
+
+interface CachedRate {
+  rate: number;
+  fetchedAt: number;
+}
+
+const RATE_CACHE_TTL = 60 * 60 * 1000; // 1 hour
+const rateCache = new Map<string, CachedRate>();
+
+export async function getExchangeRate(
+  from: string,
+  to: string
+): Promise<number> {
+  if (from.toUpperCase() === to.toUpperCase()) return 1;
+
+  const key = `${from.toUpperCase()}/${to.toUpperCase()}`;
+  const cached = rateCache.get(key);
+  if (cached && Date.now() - cached.fetchedAt < RATE_CACHE_TTL) {
+    log.debug({ key, rate: cached.rate }, "Exchange rate cache hit");
+    return cached.rate;
+  }
+
+  try {
+    // ECB free API — no key needed, supports major currencies
+    const url = `https://api.frankfurter.dev/v1/latest?from=${from.toUpperCase()}&to=${to.toUpperCase()}`;
+    log.info({ from, to }, "Fetching exchange rate");
+    const res = await fetch(url);
+    if (!res.ok) {
+      log.warn({ status: res.status, from, to }, "Exchange rate API non-OK");
+      return cached?.rate ?? 1;
+    }
+    const data = await res.json();
+    const rate = data?.rates?.[to.toUpperCase()];
+    if (rate == null) {
+      log.warn({ from, to, data }, "Exchange rate not found in response");
+      return cached?.rate ?? 1;
+    }
+
+    rateCache.set(key, { rate, fetchedAt: Date.now() });
+    log.info({ key, rate }, "Exchange rate cached");
+    return rate;
+  } catch (err) {
+    log.error({ err, from, to }, "Exchange rate fetch failed");
+    return cached?.rate ?? 1;
+  }
+}
+
+// --- Crypto Prices (CoinGecko — natively supports target currency) ---
+
 export async function fetchCryptoPrices(
   ids: string[],
   currency: string
@@ -32,14 +82,21 @@ export async function fetchCryptoPrices(
   return result;
 }
 
+// --- Stock Prices (Yahoo Finance — returns USD, converted to target currency) ---
+
 export async function fetchStockPrices(
-  symbols: string[]
+  symbols: string[],
+  currency: string
 ): Promise<Record<string, number | null>> {
   if (symbols.length === 0) return {};
   const result: Record<string, number | null> = {};
 
-  // Yahoo v7 quote API is dead (requires auth). Use v8 chart endpoint per symbol.
-  log.info({ symbols }, "Fetching stock prices from Yahoo Finance v8 chart");
+  log.info({ symbols, currency }, "Fetching stock prices from Yahoo Finance v8 chart");
+
+  // Fetch exchange rate USD→target in parallel with stock prices
+  const ratePromise = currency.toUpperCase() !== "USD"
+    ? getExchangeRate("USD", currency)
+    : Promise.resolve(1);
 
   await Promise.all(
     symbols.map(async (symbol) => {
@@ -63,9 +120,22 @@ export async function fetchStockPrices(
     })
   );
 
+  // Convert USD prices to target currency
+  const rate = await ratePromise;
+  if (rate !== 1) {
+    log.info({ rate, from: "USD", to: currency }, "Converting stock prices");
+    for (const symbol of symbols) {
+      if (result[symbol] != null) {
+        result[symbol] = Math.round(result[symbol]! * rate * 100) / 100;
+      }
+    }
+  }
+
   log.info({ count: symbols.length, resolved: Object.values(result).filter((v) => v !== null).length }, "Stock prices fetched");
   return result;
 }
+
+// --- Main Entry Point ---
 
 export async function fetchPrices(
   assets: { api_id: string; asset_type: AssetType }[],
@@ -82,7 +152,7 @@ export async function fetchPrices(
 
   const [cryptoPrices, stockPrices] = await Promise.all([
     fetchCryptoPrices(cryptoIds, currency),
-    fetchStockPrices(stockSymbols),
+    fetchStockPrices(stockSymbols, currency),
   ]);
 
   return { ...cryptoPrices, ...stockPrices };
