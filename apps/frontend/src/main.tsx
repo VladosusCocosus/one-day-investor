@@ -10,6 +10,7 @@ import { ProtectedRoute } from "./components/ProtectedRoute";
 import { AppLayout } from "./components/AppLayout";
 import { DashboardPage } from "./pages/DashboardPage";
 import { ProfilePage } from "./pages/ProfilePage";
+import { SnapshotsPage } from "./pages/SnapshotsPage";
 import { AssetsPage } from "./pages/AssetsPage";
 import { AnalyticsPage } from "./pages/AnalyticsPage";
 
@@ -36,6 +37,7 @@ const router = createBrowserRouter([
           { path: "/dashboard", element: <DashboardPage /> },
           { path: "/profile", element: <ProfilePage /> },
           { path: "/assets", element: <AssetsPage /> },
+          { path: "/snapshots", element: <SnapshotsPage /> },
           { path: "/analytics", element: <AnalyticsPage /> },
         ],
       },
