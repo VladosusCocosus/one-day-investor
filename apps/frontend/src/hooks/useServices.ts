@@ -1,11 +1,14 @@
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { api } from "@/lib/api";
+import type { ServiceType } from "./useCatalog";
 
 export interface Service {
   id: string;
   name: string;
   parent_id: string | null;
   sort_order: number;
+  service_type: ServiceType;
+  catalog_service_id: string | null;
 }
 
 export interface ServiceTree {
@@ -38,8 +41,20 @@ export function useServices() {
   const tree = buildTree(services);
 
   const addMutation = useMutation({
-    mutationFn: async ({ name, parentId }: { name: string; parentId: string | null }) => {
-      const res = await api.post<Service>("/api/services", { name, parent_id: parentId });
+    mutationFn: async ({
+      name,
+      parentId,
+      serviceType,
+    }: {
+      name: string;
+      parentId: string | null;
+      serviceType?: ServiceType;
+    }) => {
+      const res = await api.post<Service>("/api/services", {
+        name,
+        parent_id: parentId,
+        service_type: serviceType,
+      });
       return res.data;
     },
     onSuccess: () => queryClient.invalidateQueries({ queryKey: ["services"] }),
@@ -53,23 +68,23 @@ export function useServices() {
   });
 
   const editMutation = useMutation({
-    mutationFn: async ({ id, name }: { id: string; name: string }) => {
-      const res = await api.put<Service>(`/api/services/${id}`, { name });
+    mutationFn: async ({ id, ...params }: { id: string; name?: string; service_type?: ServiceType }) => {
+      const res = await api.put<Service>(`/api/services/${id}`, params);
       return res.data;
     },
     onSuccess: () => queryClient.invalidateQueries({ queryKey: ["services"] }),
   });
 
-  const addService = async (name: string, parentId: string | null) => {
-    return addMutation.mutateAsync({ name, parentId });
+  const addService = async (name: string, parentId: string | null, serviceType?: ServiceType) => {
+    return addMutation.mutateAsync({ name, parentId, serviceType });
   };
 
   const removeService = async (id: string) => {
     await removeMutation.mutateAsync(id);
   };
 
-  const editService = async (id: string, name: string) => {
-    return editMutation.mutateAsync({ id, name });
+  const editService = async (id: string, params: { name?: string; service_type?: ServiceType }) => {
+    return editMutation.mutateAsync({ id, ...params });
   };
 
   return { services, tree, loading, addService, removeService, editService };
