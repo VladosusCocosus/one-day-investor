@@ -213,6 +213,88 @@ async function fetchAllEuronextStocks(): Promise<{ symbol: string; name: string 
   return all;
 }
 
+// --- Xetra / Deutsche Börse — paginate ALL, resolve tickers via Yahoo ISIN search ---
+// Covers German + many cross-listed EU stocks (Spanish, French, Italian, etc.)
+
+interface XetraStock {
+  isin: string;
+  name: string;
+}
+
+async function fetchXetraPage(offset: number, limit = 300): Promise<XetraStock[]> {
+  const res = await fetch("https://api.boerse-frankfurt.de/v1/search/equity_search", {
+    method: "POST",
+    headers: { "User-Agent": "Mozilla/5.0", "Content-Type": "application/json" },
+    body: JSON.stringify({ offset, limit }),
+  });
+  if (!res.ok) {
+    log.warn({ status: res.status, offset }, "Xetra page failed");
+    return [];
+  }
+  const data = await res.json();
+  return (data.data ?? []).map((d: { isin: string; name: { originalValue: string } }) => ({
+    isin: d.isin,
+    name: d.name.originalValue,
+  }));
+}
+
+async function resolveYahooTicker(isin: string): Promise<string | null> {
+  try {
+    const res = await fetch(
+      `https://query1.finance.yahoo.com/v1/finance/search?q=${isin}&quotesCount=1&newsCount=0`,
+      { headers: { "User-Agent": "Mozilla/5.0" } }
+    );
+    if (!res.ok) return null;
+    const data = await res.json();
+    return data.quotes?.[0]?.symbol ?? null;
+  } catch {
+    return null;
+  }
+}
+
+async function fetchAllXetraStocks(): Promise<{ symbol: string; name: string }[]> {
+  // Step 1: Fetch all ISINs from Xetra
+  const limit = 300; // Xetra caps at 300 per page
+  const allStocks: XetraStock[] = [];
+  let offset = 0;
+
+  while (true) {
+    log.info({ offset, fetched: allStocks.length }, "Fetching Xetra stocks page");
+    const rows = await fetchXetraPage(offset, limit);
+    if (rows.length === 0) break;
+    allStocks.push(...rows);
+    if (rows.length < limit) break;
+    offset += limit;
+    await sleep(300);
+  }
+
+  log.info({ total: allStocks.length }, "All Xetra ISINs fetched, resolving Yahoo tickers");
+
+  // Step 2: Resolve ISINs to Yahoo tickers in batches
+  const resolved: { symbol: string; name: string }[] = [];
+  const batchSize = 5; // parallel requests per batch
+
+  for (let i = 0; i < allStocks.length; i += batchSize) {
+    const batch = allStocks.slice(i, i + batchSize);
+    const results = await Promise.all(
+      batch.map(async (stock) => {
+        const ticker = await resolveYahooTicker(stock.isin);
+        return ticker ? { symbol: ticker, name: stock.name } : null;
+      })
+    );
+    for (const r of results) {
+      if (r) resolved.push(r);
+    }
+    if (i % 100 === 0 && i > 0) {
+      log.info({ resolved: resolved.length, processed: i, total: allStocks.length }, "Xetra ticker resolution progress");
+    }
+    await sleep(200); // Yahoo rate limit
+  }
+
+  log.info({ total: resolved.length, unresolved: allStocks.length - resolved.length }, "Xetra stocks resolved");
+  return resolved;
+}
+
 // --- Upsert into DB ---
 
 async function upsertAssets(
@@ -273,9 +355,18 @@ async function main() {
     api_id: s.symbol,
   }));
 
-  // European stocks — all from Euronext
+  // European stocks — Euronext (Paris, Amsterdam, Brussels, Lisbon, Milan, Oslo, Dublin)
   const euStocks = await fetchAllEuronextStocks();
   const euAssets = euStocks.map((s) => ({
+    symbol: s.symbol,
+    name: s.name,
+    asset_type: "invest" as const,
+    api_id: s.symbol,
+  }));
+
+  // Xetra / Deutsche Börse — German + cross-listed EU stocks (Madrid, Swiss, etc.)
+  const xetraStocks = await fetchAllXetraStocks();
+  const xetraAssets = xetraStocks.map((s) => ({
     symbol: s.symbol,
     name: s.name,
     asset_type: "invest" as const,
@@ -292,7 +383,7 @@ async function main() {
   }));
 
   log.info(
-    { crypto: cryptoAssets.length, stocks: stockAssets.length, eu: euAssets.length, etfs: etfAssets.length },
+    { crypto: cryptoAssets.length, usStocks: stockAssets.length, euronext: euAssets.length, xetra: xetraAssets.length, etfs: etfAssets.length },
     "Total assets to upsert"
   );
 
@@ -303,12 +394,15 @@ async function main() {
   log.info(stockResult, "US stock assets upserted");
 
   const euResult = await upsertAssets(euAssets);
-  log.info(euResult, "EU stock assets upserted");
+  log.info(euResult, "Euronext stock assets upserted");
+
+  const xetraResult = await upsertAssets(xetraAssets);
+  log.info(xetraResult, "Xetra stock assets upserted");
 
   const etfResult = await upsertAssets(etfAssets);
   log.info(etfResult, "ETF assets upserted");
 
-  const total = cryptoAssets.length + stockAssets.length + euAssets.length + etfAssets.length;
+  const total = cryptoAssets.length + stockAssets.length + euAssets.length + xetraAssets.length + etfAssets.length;
   log.info({ total }, "Seed complete");
   await pool.end();
 }
