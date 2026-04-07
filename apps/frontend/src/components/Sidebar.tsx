@@ -56,7 +56,7 @@ export function Sidebar({ collapsed, onToggle }: SidebarProps) {
           )}
         >
           <div className="flex items-center gap-2.5">
-            <div className="flex h-7 w-7 flex-shrink-0 items-center justify-center rounded-lg bg-[hsl(var(--primary))]">
+            <div className="flex h-7 w-7 flex-shrink-0 items-center justify-center rounded-lg bg-primary">
               <span className="text-xs font-bold text-white">I</span>
             </div>
             {!collapsed && (
