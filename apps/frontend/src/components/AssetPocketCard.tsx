@@ -19,7 +19,7 @@ function ClickToEditQuantity({
   onSave,
 }: {
   asset: PocketAsset;
-  onSave: (id: string, qty: number) => Promise<void>;
+  onSave: (id: string, qty: number) => Promise<unknown>;
 }) {
   const [editing, setEditing] = useState(false);
   const [draft, setDraft] = useState(asset.quantity);
