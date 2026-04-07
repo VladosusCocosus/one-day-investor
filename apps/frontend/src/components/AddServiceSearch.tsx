@@ -26,7 +26,7 @@ export function AddServiceSearch({
   const [customType, setCustomType] = useState<ServiceType>("common");
   const [loading, setLoading] = useState(false);
   const wrapperRef = useRef<HTMLDivElement>(null);
-  const debounceRef = useRef<ReturnType<typeof setTimeout>>();
+  const debounceRef = useRef<ReturnType<typeof setTimeout>>(null);
 
   useEffect(() => {
     const handleClickOutside = (e: MouseEvent) => {
