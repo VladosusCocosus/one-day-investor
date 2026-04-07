@@ -7,8 +7,9 @@ COPY packages/config/package.json packages/config/
 COPY packages/database/package.json packages/database/
 COPY packages/types/package.json packages/types/
 COPY apps/core/package.json apps/core/
+COPY apps/frontend/package.json apps/frontend/
 
-RUN bun install --frozen-lockfile
+RUN bun install
 
 # Copy all source
 COPY packages/ packages/
