@@ -89,7 +89,7 @@ export async function fetchStockPrices(
   currency: string
 ): Promise<Record<string, number | null>> {
   if (symbols.length === 0) return {};
-  const result: Record<string, number | null> = {};
+  const result: Record<string, {price: number, currency: string} | null> = {};
 
   log.info({ symbols, currency }, "Fetching stock prices from Yahoo Finance v8 chart");
 
@@ -112,7 +112,10 @@ export async function fetchStockPrices(
         }
         const data = await res.json();
         const meta = data?.chart?.result?.[0]?.meta;
-        result[symbol] = meta?.regularMarketPrice ?? null;
+        result[symbol] = {
+            price: meta?.regularMarketPrice ?? null,
+            currency: meta.currency
+        };
       } catch (err) {
         log.error({ err, symbol }, "Yahoo Finance chart request failed");
         result[symbol] = null;
@@ -121,18 +124,27 @@ export async function fetchStockPrices(
   );
 
   // Convert USD prices to target currency
-  const rate = await ratePromise;
-  if (rate !== 1) {
-    log.info({ rate, from: "USD", to: currency }, "Converting stock prices");
+
+    console.log(result)
+
     for (const symbol of symbols) {
       if (result[symbol] != null) {
-        result[symbol] = Math.round(result[symbol]! * rate * 100) / 100;
+        const rate = await getExchangeRate(result[symbol].currency, currency)
+        log.info({ symbol, rate, from: result[symbol].currency, to: currency }, "Converting stock prices");
+        result[symbol] = {
+            ...result[symbol],
+            price: Math.round(result[symbol].price! * rate * 100) / 100
+        };
       }
     }
-  }
 
   log.info({ count: symbols.length, resolved: Object.values(result).filter((v) => v !== null).length }, "Stock prices fetched");
-  return result;
+  return Object.keys(result).reduce<Record<string, number | null>>((acc, key) => {
+      if (typeof key === 'string') {
+          acc[key] = result[key]?.price ?? null
+      }
+      return acc
+  }, {});
 }
 
 // --- Main Entry Point ---
