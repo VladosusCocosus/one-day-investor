@@ -7,8 +7,7 @@
     "migrate:up": "node-pg-migrate up",
     "migrate:down": "node-pg-migrate down",
     "migrate:redo": "node-pg-migrate redo",
-    "migrate:create": "node-pg-migrate create --migration-file-language sql",
-    "seed:assets": "bun run scripts/seed-asset-catalog.ts"
+    "migrate:create": "node-pg-migrate create --migration-file-language sql"
   },
   "devDependencies": {
     "@types/bun": "latest",

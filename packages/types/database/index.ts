@@ -60,6 +60,8 @@ export interface AssetCatalog {
   asset_type: AssetType;
   api_id: string;
   sort_order: number;
+  source: string | null;
+  isin: string | null;
 }
 
 export interface PocketAsset {
