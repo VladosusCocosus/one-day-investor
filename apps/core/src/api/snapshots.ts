@@ -73,6 +73,7 @@ export const snapshotsApi = new Elysia({ prefix: "/api/snapshots" })
     } catch (err: unknown) {
       if (err instanceof Error && err.message.includes("unique")) {
         set.status = 409;
+        console.error(err)
         return { error: "Snapshot already exists for this month" };
       }
       throw err;
