@@ -2,6 +2,7 @@ import { pool } from "../pool";
 import type { AssetCatalog, AssetType } from "@types";
 
 export type { AssetCatalog } from "@types";
+export { upsertAssets, type UpsertAssetInput } from "./upsert";
 
 export async function findAllAssetCatalog(): Promise<AssetCatalog[]> {
   const result = await pool.query<AssetCatalog>(

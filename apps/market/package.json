@@ -2,7 +2,8 @@
   "name": "@market-app",
   "version": "1.0.0",
   "scripts": {
-    "dev": "bun run --watch src/index.ts"
+    "dev": "bun run --watch src/index.ts",
+    "refresh-tickers": "bun run src/cli/refresh-tickers.ts"
   },
   "dependencies": {
     "@config": "workspace:*",
