@@ -70,7 +70,9 @@ export function AssetDrawer({
   const [results, setResults] = useState<AssetCatalog[]>([]);
   const [searched, setSearched] = useState(false);
   const [searchOpen, setSearchOpen] = useState(false);
+  const [activeIndex, setActiveIndex] = useState(-1);
   const debounceRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const activeItemRef = useRef<HTMLButtonElement | null>(null);
   const mountedRef = useRef(true);
   const searchSeqRef = useRef(0);
 
@@ -117,13 +119,22 @@ export function AssetDrawer({
       setResults([]);
       setSearched(false);
       setSearchOpen(false);
+      setActiveIndex(-1);
     }
   }, [open, modeKind, editingId, leafPockets]);
+
+  // Keep the keyboard-highlighted row scrolled into view
+  useEffect(() => {
+    if (activeIndex >= 0 && activeItemRef.current) {
+      activeItemRef.current.scrollIntoView({ block: "nearest" });
+    }
+  }, [activeIndex]);
 
   // Asset search (add mode)
   const handleSearchChange = (value: string) => {
     setQuery(value);
     setSearched(false);
+    setActiveIndex(-1);
     if (debounceRef.current) clearTimeout(debounceRef.current);
     if (!value.trim()) {
       setResults([]);
@@ -138,7 +149,48 @@ export function AssetDrawer({
       setResults(res);
       setSearched(true);
       setSearchOpen(true);
+      setActiveIndex(res.length > 0 ? 0 : -1);
     }, 200);
+  };
+
+  const handleSearchKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
+    // Escape: close the dropdown, keep the drawer open
+    if (e.key === "Escape" && searchOpen) {
+      e.preventDefault();
+      e.stopPropagation();
+      setSearchOpen(false);
+      return;
+    }
+    if (!searchOpen || results.length === 0) {
+      // With no open dropdown, Enter on an empty-result search creates a custom asset
+      if (
+        e.key === "Enter" &&
+        searched &&
+        results.length === 0 &&
+        query.trim()
+      ) {
+        e.preventDefault();
+        handleCreateCustom();
+      }
+      return;
+    }
+    if (e.key === "ArrowDown") {
+      e.preventDefault();
+      setActiveIndex((i) => (i + 1) % results.length);
+    } else if (e.key === "ArrowUp") {
+      e.preventDefault();
+      setActiveIndex((i) => (i <= 0 ? results.length - 1 : i - 1));
+    } else if (e.key === "Home") {
+      e.preventDefault();
+      setActiveIndex(0);
+    } else if (e.key === "End") {
+      e.preventDefault();
+      setActiveIndex(results.length - 1);
+    } else if (e.key === "Enter") {
+      e.preventDefault();
+      const pick = results[activeIndex >= 0 ? activeIndex : 0];
+      if (pick) handlePickCatalog(pick);
+    }
   };
 
   const handlePickCatalog = (asset: AssetCatalog) => {
@@ -290,28 +342,60 @@ export function AssetDrawer({
                   <Search className="pointer-events-none absolute left-2.5 top-1/2 h-3.5 w-3.5 -translate-y-1/2 text-muted-foreground" />
                   <input
                     autoFocus
+                    role="combobox"
+                    aria-expanded={searchOpen && results.length > 0}
+                    aria-controls="asset-search-listbox"
+                    aria-autocomplete="list"
+                    aria-activedescendant={
+                      activeIndex >= 0 && results[activeIndex]
+                        ? `asset-search-option-${results[activeIndex].id}`
+                        : undefined
+                    }
+                    autoComplete="off"
+                    spellCheck={false}
                     className="w-full rounded-md border bg-background px-3 py-2 pl-8 text-sm outline-none focus-visible:ring-2 focus-visible:ring-ring"
                     placeholder="Search assets..."
                     value={query}
                     onChange={(e) => handleSearchChange(e.target.value)}
+                    onKeyDown={handleSearchKeyDown}
                   />
                   {searchOpen && results.length > 0 && (
-                    <div className="absolute z-10 mt-1 max-h-48 w-full overflow-auto rounded-md border bg-background shadow-md">
-                      {results.map((asset) => (
-                        <button
-                          type="button"
-                          key={asset.id}
-                          className="flex w-full items-baseline gap-2 px-3 py-2 text-left text-xs hover:bg-muted"
-                          onClick={() => handlePickCatalog(asset)}
-                        >
-                          <span className="font-mono font-semibold">
-                            {asset.symbol}
-                          </span>
-                          <span className="text-muted-foreground">
-                            {asset.name}
-                          </span>
-                        </button>
-                      ))}
+                    <div
+                      id="asset-search-listbox"
+                      role="listbox"
+                      className="absolute z-10 mt-1 max-h-48 w-full overflow-auto rounded-md border bg-background shadow-md"
+                    >
+                      {results.map((asset, i) => {
+                        const active = i === activeIndex;
+                        return (
+                          <button
+                            type="button"
+                            key={asset.id}
+                            id={`asset-search-option-${asset.id}`}
+                            role="option"
+                            aria-selected={active}
+                            ref={active ? activeItemRef : null}
+                            className={cn(
+                              "flex w-full items-baseline gap-2 px-3 py-2 text-left text-xs",
+                              active ? "bg-primary/10 text-foreground" : "hover:bg-muted"
+                            )}
+                            onMouseEnter={() => setActiveIndex(i)}
+                            onClick={() => handlePickCatalog(asset)}
+                          >
+                            <span
+                              className={cn(
+                                "font-mono font-semibold",
+                                active && "text-primary"
+                              )}
+                            >
+                              {asset.symbol}
+                            </span>
+                            <span className="text-muted-foreground">
+                              {asset.name}
+                            </span>
+                          </button>
+                        );
+                      })}
                     </div>
                   )}
                   {searchOpen &&
