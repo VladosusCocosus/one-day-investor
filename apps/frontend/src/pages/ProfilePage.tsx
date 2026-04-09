@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { Link } from "react-router";
 import { AddServiceSearch } from "@/components/AddServiceSearch";
 import { PocketCard } from "@/components/PocketCard";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
@@ -55,6 +56,7 @@ function GoalHero({
   };
 
   const commit = () => {
+    if (!editing) return;
     const n = Number(draft);
     if (!Number.isNaN(n) && n > 0 && n !== goal) {
       onSave(n);
@@ -106,9 +108,10 @@ function GoalHero({
           className="mt-1 w-full bg-primary-foreground/15 border border-primary-foreground/30 rounded-md px-2 py-1 text-3xl font-extrabold tracking-tight tabular-nums text-primary-foreground outline-none"
         />
       ) : (
-        <div
+        <button
+          type="button"
           onClick={startEdit}
-          className="mt-1 text-3xl font-extrabold tracking-tight tabular-nums cursor-pointer"
+          className="mt-1 block w-full text-left text-3xl font-extrabold tracking-tight tabular-nums cursor-pointer rounded-md focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary-foreground/50"
         >
           {reached && currentTotal !== null ? (
             <>
@@ -121,16 +124,16 @@ function GoalHero({
           ) : (
             formatAmount(goal, symbol)
           )}
-        </div>
+        </button>
       )}
 
       {currentTotal === null && !editing && (
-        <a
-          href="/"
+        <Link
+          to="/"
           className="mt-3 inline-block text-xs text-primary-foreground/90 underline underline-offset-2"
         >
           Take your first snapshot to see progress →
-        </a>
+        </Link>
       )}
 
       {currentTotal !== null && (
