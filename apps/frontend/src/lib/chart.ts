@@ -30,3 +30,13 @@ export function formatCompact(value: number): string {
   }
   return `€${Math.round(value)}`;
 }
+
+export function formatCurrency(value: number): string {
+  return `€${Math.round(value).toLocaleString("en-US")}`;
+}
+
+export function sortByAmountDesc<T extends { amount: number | string }>(
+  items: T[],
+): T[] {
+  return [...items].sort((a, b) => Number(b.amount) - Number(a.amount));
+}

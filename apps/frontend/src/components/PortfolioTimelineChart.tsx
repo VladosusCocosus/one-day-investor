@@ -1,3 +1,4 @@
+import { useId } from "react";
 import {
   AreaChart,
   Area,
@@ -20,6 +21,7 @@ export function PortfolioTimelineChart({
   timeline,
   loading,
 }: PortfolioTimelineChartProps) {
+  const gradientId = `portfolio-timeline-${useId()}`;
   const chartTimeline = timeline.map((t) => ({
     month: formatMonthLong(t.month),
     total: Number(t.total),
@@ -48,7 +50,7 @@ export function PortfolioTimelineChart({
               >
                 <defs>
                   <linearGradient
-                    id="emeraldFill"
+                    id={gradientId}
                     x1="0"
                     y1="0"
                     x2="0"
@@ -100,7 +102,7 @@ export function PortfolioTimelineChart({
                   dataKey="total"
                   stroke={CHART_COLORS[0]}
                   strokeWidth={2.5}
-                  fill="url(#emeraldFill)"
+                  fill={`url(#${gradientId})`}
                   dot={{ fill: CHART_COLORS[0], r: 3, strokeWidth: 0 }}
                   activeDot={{ r: 5 }}
                 />
