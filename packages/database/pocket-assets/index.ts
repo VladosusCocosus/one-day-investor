@@ -64,6 +64,40 @@ export async function updatePocketAssetQuantity(
   return result.rows[0] ?? null;
 }
 
+export async function updatePocketAsset(
+  id: string,
+  patch: { service_id?: string; quantity?: number }
+): Promise<PocketAsset | null> {
+  const sets: string[] = [];
+  const values: (string | number)[] = [];
+  let i = 1;
+
+  if (patch.service_id !== undefined) {
+    sets.push(`service_id = $${i++}`);
+    values.push(patch.service_id);
+  }
+  if (patch.quantity !== undefined) {
+    sets.push(`quantity = $${i++}`);
+    values.push(patch.quantity);
+  }
+
+  if (sets.length === 0) {
+    // Nothing to update — just return current row
+    const current = await pool.query<PocketAsset>(
+      "SELECT * FROM pocket_assets WHERE id = $1",
+      [id]
+    );
+    return current.rows[0] ?? null;
+  }
+
+  values.push(id);
+  const result = await pool.query<PocketAsset>(
+    `UPDATE pocket_assets SET ${sets.join(", ")} WHERE id = $${i} RETURNING *`,
+    values
+  );
+  return result.rows[0] ?? null;
+}
+
 export async function removePocketAsset(id: string): Promise<boolean> {
   const result = await pool.query(
     "DELETE FROM pocket_assets WHERE id = $1",
