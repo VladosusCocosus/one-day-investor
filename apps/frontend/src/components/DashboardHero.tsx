@@ -13,6 +13,7 @@ interface DashboardHeroProps {
   distribution: DistributionEntry[];
   timelineLoading: boolean;
   user: User | null;
+  total: number
 }
 
 function getGreeting(): string {
@@ -24,11 +25,10 @@ function getGreeting(): string {
 
 export function DashboardHero({
   timeline,
-  distribution,
+    total,
   timelineLoading,
   user,
 }: DashboardHeroProps) {
-  const total = distribution.reduce((s, d) => s + Number(d.amount), 0);
   const hasData = timeline.length > 0;
 
   // MoM delta: compare the last two timeline entries

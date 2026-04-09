@@ -52,6 +52,7 @@ export function DashboardPage() {
     <div>
       <DashboardHero
         timeline={timeline}
+        total={currentTotal ?? 0}
         distribution={distribution}
         timelineLoading={timelineLoading}
         user={user}
