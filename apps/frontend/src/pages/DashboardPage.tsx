@@ -1,5 +1,9 @@
 import { useAuth } from "@/hooks/useAuth";
-import { useDistribution, useTimeline } from "@/hooks/useAnalytics";
+import {
+  useCurrentTotal,
+  useDistribution,
+  useTimeline,
+} from "@/hooks/useAnalytics";
 import { useSettings } from "@/hooks/useSettings";
 import { Card, CardContent } from "@/components/ui/card";
 import { DashboardHero } from "@/components/DashboardHero";
@@ -7,7 +11,7 @@ import { GoalHero } from "@/components/GoalHero";
 import { QuickActions } from "@/components/QuickActions";
 import { DistributionDonut } from "@/components/DistributionDonut";
 import { PortfolioTimelineChart } from "@/components/PortfolioTimelineChart";
-import { getLatestSignedSnapshot, sortByAmountDesc } from "@/lib/chart";
+import { sortByAmountDesc } from "@/lib/chart";
 
 const CURRENCY_SYMBOLS: Record<string, string> = {
   EUR: "\u20ac",
@@ -18,13 +22,13 @@ const CURRENCY_SYMBOLS: Record<string, string> = {
 export function DashboardPage() {
   const { user } = useAuth();
   const { data: timeline = [], isLoading: timelineLoading } = useTimeline();
+  const { data: current = null } = useCurrentTotal();
   const { settings, updateSettings } = useSettings();
 
-  // Use the most recently created snapshot as the "current" state. This
-  // handles back-filled months correctly: the dashboard shows the last row
-  // the user actually wrote, not the highest calendar month.
-  const latestSigned = getLatestSignedSnapshot(timeline);
-  const latestMonth = latestSigned?.month;
+  // "Current" = the most recently created snapshot, not the highest month.
+  // Back-filled months still surface correctly because the endpoint sorts
+  // by created_at DESC, LIMIT 1.
+  const latestMonth = current?.month;
 
   const { data: distribution = [], isLoading: distLoading } = useDistribution(
     latestMonth ? latestMonth.slice(0, 7) : undefined
@@ -42,7 +46,7 @@ export function DashboardPage() {
   // Goal hero values
   const symbol = CURRENCY_SYMBOLS[settings?.currency ?? "EUR"] ?? "\u20ac";
   const goal = Number(settings?.goal ?? 0);
-  const currentTotal = latestSigned ? Number(latestSigned.total) : null;
+  const currentTotal = current ? Number(current.total) : null;
 
   return (
     <div>

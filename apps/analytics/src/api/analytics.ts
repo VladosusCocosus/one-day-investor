@@ -1,5 +1,5 @@
 import { Elysia } from "elysia";
-import { findDistribution, findTimeline } from "@database";
+import { findCurrentTotal, findDistribution, findTimeline } from "@database";
 import { resolveUser } from "../auth/session";
 
 export const analyticsApi = new Elysia({ prefix: "/api/analytics" })
@@ -25,4 +25,11 @@ export const analyticsApi = new Elysia({ prefix: "/api/analytics" })
       return { error: "Unauthorized" };
     }
     return findTimeline(user.id);
+  })
+  .get("/current", async ({ user, set }) => {
+    if (!user) {
+      set.status = 401;
+      return { error: "Unauthorized" };
+    }
+    return findCurrentTotal(user.id);
   });

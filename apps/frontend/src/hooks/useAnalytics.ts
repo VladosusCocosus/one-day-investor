@@ -9,7 +9,11 @@ export interface DistributionEntry {
 export interface TimelineEntry {
   month: string;
   total: number;
-  created_at: string;
+}
+
+export interface CurrentTotal {
+  month: string;
+  total: number;
 }
 
 export function useDistribution(month: string | undefined) {
@@ -32,6 +36,18 @@ export function useTimeline() {
     queryFn: async () => {
       const res = await analyticsApi.get<TimelineEntry[]>(
         "/api/analytics/timeline"
+      );
+      return res.data;
+    },
+  });
+}
+
+export function useCurrentTotal() {
+  return useQuery({
+    queryKey: ["analytics", "current"],
+    queryFn: async () => {
+      const res = await analyticsApi.get<CurrentTotal | null>(
+        "/api/analytics/current"
       );
       return res.data;
     },
