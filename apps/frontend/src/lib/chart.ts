@@ -40,15 +40,3 @@ export function sortByAmountDesc<T extends { amount: number | string }>(
 ): T[] {
   return [...items].sort((a, b) => Number(b.amount) - Number(a.amount));
 }
-
-// Picks the most recently created snapshot, regardless of its `month` field.
-// Used to drive "current total" displays — users may back-fill older months,
-// and the signal that should surface is the latest row they wrote.
-export function getLatestSignedSnapshot<
-  T extends { created_at: string },
->(timeline: T[]): T | undefined {
-  if (timeline.length === 0) return undefined;
-  return timeline.reduce((latest, entry) =>
-    new Date(entry.created_at) > new Date(latest.created_at) ? entry : latest,
-  );
-}
