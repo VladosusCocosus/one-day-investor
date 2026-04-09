@@ -71,6 +71,18 @@ export function AssetDrawer({
   const [searched, setSearched] = useState(false);
   const [searchOpen, setSearchOpen] = useState(false);
   const debounceRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const mountedRef = useRef(true);
+  const searchSeqRef = useRef(0);
+
+  useEffect(() => {
+    return () => {
+      mountedRef.current = false;
+      if (debounceRef.current) clearTimeout(debounceRef.current);
+    };
+  }, []);
+
+  const modeKind = mode.kind;
+  const editingId = mode.kind === "edit" ? mode.asset.id : null;
 
   // Reset form whenever the drawer opens
   useEffect(() => {
@@ -106,7 +118,7 @@ export function AssetDrawer({
       setSearched(false);
       setSearchOpen(false);
     }
-  }, [open, mode, leafPockets]);
+  }, [open, modeKind, editingId, leafPockets]);
 
   // Asset search (add mode)
   const handleSearchChange = (value: string) => {
@@ -118,8 +130,11 @@ export function AssetDrawer({
       setSearchOpen(false);
       return;
     }
+    const seq = ++searchSeqRef.current;
     debounceRef.current = setTimeout(async () => {
       const res = await searchAssetCatalog(value);
+      // Ignore result if component unmounted OR a newer search superseded this one.
+      if (!mountedRef.current || seq !== searchSeqRef.current) return;
       setResults(res);
       setSearched(true);
       setSearchOpen(true);
@@ -211,6 +226,7 @@ export function AssetDrawer({
       onOpenChange(false);
     } catch (e) {
       setError(e instanceof Error ? e.message : "Delete failed");
+    } finally {
       setSaving(false);
     }
   };
