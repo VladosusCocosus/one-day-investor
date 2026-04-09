@@ -7,7 +7,7 @@ import { GoalHero } from "@/components/GoalHero";
 import { QuickActions } from "@/components/QuickActions";
 import { DistributionDonut } from "@/components/DistributionDonut";
 import { PortfolioTimelineChart } from "@/components/PortfolioTimelineChart";
-import { sortByAmountDesc } from "@/lib/chart";
+import { getLatestSignedSnapshot, sortByAmountDesc } from "@/lib/chart";
 
 const CURRENCY_SYMBOLS: Record<string, string> = {
   EUR: "\u20ac",
@@ -20,8 +20,11 @@ export function DashboardPage() {
   const { data: timeline = [], isLoading: timelineLoading } = useTimeline();
   const { settings, updateSettings } = useSettings();
 
-  // timeline is oldest-first → last entry is the latest month
-  const latestMonth = timeline[timeline.length - 1]?.month;
+  // Use the most recently created snapshot as the "current" state. This
+  // handles back-filled months correctly: the dashboard shows the last row
+  // the user actually wrote, not the highest calendar month.
+  const latestSigned = getLatestSignedSnapshot(timeline);
+  const latestMonth = latestSigned?.month;
 
   const { data: distribution = [], isLoading: distLoading } = useDistribution(
     latestMonth ? latestMonth.slice(0, 7) : undefined
@@ -39,8 +42,7 @@ export function DashboardPage() {
   // Goal hero values
   const symbol = CURRENCY_SYMBOLS[settings?.currency ?? "EUR"] ?? "\u20ac";
   const goal = Number(settings?.goal ?? 0);
-  const currentTotal =
-    timeline.length > 0 ? Number(timeline[timeline.length - 1].total) : null;
+  const currentTotal = latestSigned ? Number(latestSigned.total) : null;
 
   return (
     <div>
