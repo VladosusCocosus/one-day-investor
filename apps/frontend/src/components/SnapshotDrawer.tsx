@@ -190,6 +190,11 @@ export function SnapshotDrawer({
     return map;
   }, [allAssets, prices]);
 
+  // Stable reference to edit-mode stored entries — keeps runningTotal's
+  // dep array primitive-stable (mode is a fresh object each parent render).
+  const editEntries =
+    mode.kind === "edit" ? mode.snapshot.entries : null;
+
   const runningTotal = useMemo(() => {
     if (modeKind === "create") {
       let t = 0;
@@ -199,9 +204,9 @@ export function SnapshotDrawer({
       return t;
     }
     // Edit mode: asset amounts come from stored entries; common amounts come from state
-    if (mode.kind !== "edit") return 0;
+    if (!editEntries) return 0;
     let t = 0;
-    for (const e of mode.snapshot.entries) {
+    for (const e of editEntries) {
       if (e.pocket_asset_id) t += Number(e.amount) || 0;
     }
     for (const c of commonServices) {
@@ -214,7 +219,7 @@ export function SnapshotDrawer({
     assetTotalByService,
     commonServices,
     amounts,
-    mode,
+    editEntries,
   ]);
 
   const monthInputValue = month.slice(0, 7);
