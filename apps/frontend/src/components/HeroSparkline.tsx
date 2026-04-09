@@ -6,11 +6,7 @@ import {
   YAxis,
 } from "recharts";
 import type { TimelineEntry } from "@/hooks/useAnalytics";
-import {
-  CHART_COLORS,
-  formatAmount,
-  formatMonthLong,
-} from "@/components/DistributionDonut";
+import { CHART_COLORS, formatAmount, formatMonthLong } from "@/lib/chart";
 
 interface HeroSparklineProps {
   timeline: TimelineEntry[];

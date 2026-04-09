@@ -9,11 +9,7 @@ import {
 } from "recharts";
 import { Card, CardContent } from "@/components/ui/card";
 import type { TimelineEntry } from "@/hooks/useAnalytics";
-import {
-  CHART_COLORS,
-  formatAmount,
-  formatMonthLong,
-} from "@/components/DistributionDonut";
+import { CHART_COLORS, formatAmount, formatMonthLong } from "@/lib/chart";
 
 interface PortfolioTimelineChartProps {
   timeline: TimelineEntry[];
