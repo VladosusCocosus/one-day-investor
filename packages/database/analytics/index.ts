@@ -41,7 +41,7 @@ export async function findCurrentTotal(
      LEFT JOIN snapshot_entries e ON e.snapshot_id = s.id
      WHERE s.user_id = $1
      GROUP BY s.id, s.month, s.created_at
-     ORDER BY s.created_at DESC
+     ORDER BY s.month DESC
      LIMIT 1`,
     [userId]
   );
