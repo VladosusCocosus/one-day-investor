@@ -3,11 +3,7 @@ import { Plus } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { useServices } from "@/hooks/useServices";
-import {
-  useSnapshots,
-  useSnapshotDetail,
-  type SnapshotDetail as SnapshotDetailData,
-} from "@/hooks/useSnapshots";
+import { useSnapshots, useSnapshotDetail } from "@/hooks/useSnapshots";
 import { useSettings } from "@/hooks/useSettings";
 import { SnapshotListRail } from "@/components/SnapshotListRail";
 import { SnapshotDetail } from "@/components/SnapshotDetail";
@@ -63,7 +59,7 @@ export function SnapshotsPage() {
 
   const openEdit = () => {
     if (!detail) return;
-    setDrawerMode({ kind: "edit", snapshot: detail as SnapshotDetailData });
+    setDrawerMode({ kind: "edit", snapshot: detail });
     setDrawerOpen(true);
   };
 
