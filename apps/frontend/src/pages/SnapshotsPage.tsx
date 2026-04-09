@@ -1,257 +1,158 @@
-import { useState } from "react";
-import { ChevronLeft, ChevronRight, Plus, Pencil, Settings } from "lucide-react";
+import { useEffect, useState } from "react";
+import { Plus } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { useServices } from "@/hooks/useServices";
-import { useSnapshots, useSnapshotDetail, type SnapshotDetail } from "@/hooks/useSnapshots";
-import { SnapshotForm } from "@/components/SnapshotForm";
-import { ServiceManager } from "@/components/ServiceManager";
+import { useSnapshots, useSnapshotDetail } from "@/hooks/useSnapshots";
+import { useSettings } from "@/hooks/useSettings";
+import { SnapshotListRail } from "@/components/SnapshotListRail";
+import { SnapshotDetail } from "@/components/SnapshotDetail";
+import {
+  SnapshotDrawer,
+  type SnapshotDrawerMode,
+} from "@/components/SnapshotDrawer";
 
-function formatMonth(dateStr: string): string {
-  return new Date(dateStr).toLocaleDateString("en-US", {
-    month: "long",
-    year: "numeric",
-    timeZone: "UTC",
-  });
-}
-
-function formatAmount(value: string | number): string {
-  return Number(value).toLocaleString("en-US", {
-    minimumFractionDigits: 0,
-    maximumFractionDigits: 0,
-  });
-}
+const CURRENCY_SYMBOLS: Record<string, string> = {
+  EUR: "\u20ac",
+  USD: "$",
+  GBP: "\u00a3",
+};
 
 export function SnapshotsPage() {
-  const { tree, addService, removeService, editService } = useServices();
-  const { summaries, loading, createSnapshot, updateSnapshot } = useSnapshots();
+  const { tree } = useServices();
+  const { summaries, loading, removeSnapshot } = useSnapshots();
+  const { settings } = useSettings();
+  const currency = settings?.currency ?? "EUR";
+  const currencySymbol = CURRENCY_SYMBOLS[currency] ?? currency;
 
-  const [currentIndex, setCurrentIndex] = useState(0);
-  const [mode, setMode] = useState<"view" | "form" | "services">("view");
-  const [editingSnapshot, setEditingSnapshot] = useState<SnapshotDetail | null>(null);
+  // Selection is id-based so it survives create/delete without reindexing.
+  const [selectedId, setSelectedId] = useState<string | undefined>();
 
-  const currentSummary = summaries[currentIndex];
-  const prevSummary = summaries[currentIndex + 1];
+  // Default selection + recovery after delete: jump to the newest snapshot.
+  useEffect(() => {
+    if (loading) return;
+    const present = summaries.some((s) => s.id === selectedId);
+    if (!present) {
+      setSelectedId(summaries[0]?.id);
+    }
+  }, [summaries, loading, selectedId]);
 
-  const { data: detail } = useSnapshotDetail(currentSummary?.id);
+  const selectedIndex = summaries.findIndex((s) => s.id === selectedId);
+  const selectedSummary = selectedIndex >= 0 ? summaries[selectedIndex] : undefined;
+  const prevSummary =
+    selectedIndex >= 0 ? summaries[selectedIndex + 1] : undefined;
+
+  const { data: detail, isLoading: detailLoading } = useSnapshotDetail(
+    selectedSummary?.id
+  );
   const { data: prevDetail } = useSnapshotDetail(prevSummary?.id);
 
-  const handleSave = async (month: string, entries: { service_id: string; amount: number }[]) => {
-    if (editingSnapshot) {
-      await updateSnapshot(editingSnapshot.id, entries);
-    } else {
-      await createSnapshot(month, entries);
+  const [drawerOpen, setDrawerOpen] = useState(false);
+  const [drawerMode, setDrawerMode] = useState<SnapshotDrawerMode>({
+    kind: "create",
+  });
+
+  const openCreate = () => {
+    setDrawerMode({ kind: "create" });
+    setDrawerOpen(true);
+  };
+
+  const openEdit = () => {
+    if (!detail) return;
+    setDrawerMode({ kind: "edit", snapshot: detail });
+    setDrawerOpen(true);
+  };
+
+  const handleDelete = async () => {
+    if (!selectedSummary) return;
+    const ok = window.confirm("Delete this snapshot? This can't be undone.");
+    if (!ok) return;
+    try {
+      await removeSnapshot(selectedSummary.id);
+      // Selection recovery runs via the effect above once summaries refresh.
+    } catch (e) {
+      // Surface via alert — this is a rare failure path. The drawer and
+      // detail view don't show a persistent error banner here because
+      // the delete button lives on the detail header.
+      alert(
+        e instanceof Error ? `Delete failed: ${e.message}` : "Delete failed"
+      );
     }
-    setMode("view");
-    setEditingSnapshot(null);
-    setCurrentIndex(0);
   };
 
-  const handleNewSnapshot = () => {
-    setEditingSnapshot(null);
-    setMode("form");
-  };
-
-  const handleEditSnapshot = () => {
-    if (detail) setEditingSnapshot(detail);
-    setMode("form");
-  };
-
-  const handleServicesClose = () => {
-    setMode("view");
-  };
-
-  const change = currentSummary && prevSummary
-    ? Number(currentSummary.total) - Number(prevSummary.total)
-    : null;
-
-  const newSnapshotMonth = () => {
-    const now = new Date();
-    return `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, "0")}-01`;
-  };
-
-  if (mode === "services") {
-    return (
-      <div>
-        <h1 className="text-xl font-bold text-foreground">Snapshots</h1>
-        <p className="mt-1 mb-4 text-sm text-muted-foreground">Manage your services</p>
-        <ServiceManager
-          tree={tree}
-          onAdd={async (name, parentId) => { await addService(name, parentId); }}
-          onRemove={removeService}
-          onEdit={async (id, params) => { await editService(id, params); }}
-          onClose={handleServicesClose}
-        />
-      </div>
-    );
-  }
-
-  if (mode === "form") {
-    return (
-      <div>
-        <h1 className="text-xl font-bold text-foreground">Snapshots</h1>
-        <p className="mt-1 mb-4 text-sm text-muted-foreground">
-          {editingSnapshot ? "Edit snapshot" : "Create new snapshot"}
-        </p>
-        <SnapshotForm
-          month={editingSnapshot ? editingSnapshot.month : newSnapshotMonth()}
-          prefill={detail ?? null}
-          tree={tree}
-          existing={editingSnapshot}
-          onSave={handleSave}
-          onCancel={() => { setMode("view"); setEditingSnapshot(null); }}
-        />
-      </div>
-    );
-  }
+  const hasNoSnapshots = !loading && summaries.length === 0;
 
   return (
     <div>
-      <div className="flex items-center justify-between">
+      <div className="flex items-start justify-between gap-4">
         <div>
           <h1 className="text-xl font-bold text-foreground">Snapshots</h1>
-          <p className="mt-1 text-sm text-muted-foreground">Track your portfolio snapshots</p>
+          <p className="mt-1 text-sm text-muted-foreground">
+            Track your portfolio snapshots
+          </p>
         </div>
-        <div className="flex gap-2">
-          <Button variant="ghost" size="icon" className="h-8 w-8" onClick={() => setMode("services")}>
-            <Settings className="h-4 w-4" />
+        {!hasNoSnapshots && (
+          <Button size="sm" onClick={openCreate}>
+            <Plus className="mr-1.5 h-3.5 w-3.5" />
+            New snapshot
           </Button>
-          {detail && (
-            <Button variant="ghost" size="sm" onClick={handleEditSnapshot}>
-              <Pencil className="h-3.5 w-3.5 mr-1.5" />
-              Edit
-            </Button>
-          )}
-          <Button size="sm" onClick={handleNewSnapshot}>
-            <Plus className="h-3.5 w-3.5 mr-1.5" />
-            New Snapshot
-          </Button>
-        </div>
+        )}
       </div>
 
       {loading ? (
-        <p className="mt-8 text-sm text-muted-foreground text-center">Loading...</p>
-      ) : summaries.length === 0 ? (
+        <div className="mt-6 grid grid-cols-1 gap-6 lg:grid-cols-[280px_1fr]">
+          <div className="space-y-2">
+            {[0, 1, 2, 3].map((i) => (
+              <div
+                key={i}
+                className="h-14 animate-pulse rounded-md bg-muted/50"
+              />
+            ))}
+          </div>
+          <div className="h-64 animate-pulse rounded-xl bg-muted/40" />
+        </div>
+      ) : hasNoSnapshots ? (
         <Card className="mt-6">
-          <CardContent className="flex flex-col items-center justify-center py-12 gap-3">
+          <CardContent className="flex flex-col items-center justify-center gap-3 py-12">
             <p className="text-sm text-muted-foreground">No snapshots yet</p>
-            <Button size="sm" onClick={handleNewSnapshot}>
-              <Plus className="h-3.5 w-3.5 mr-1.5" />
-              Create First Snapshot
+            <Button size="sm" onClick={openCreate}>
+              <Plus className="mr-1.5 h-3.5 w-3.5" />
+              Create first snapshot
             </Button>
           </CardContent>
         </Card>
       ) : (
-        <>
-          <div className="mt-6 flex items-center justify-between">
-            <Button
-              variant="ghost"
-              size="icon"
-              className="h-8 w-8"
-              disabled={currentIndex >= summaries.length - 1}
-              onClick={() => setCurrentIndex((i) => i + 1)}
-            >
-              <ChevronLeft className="h-4 w-4" />
-            </Button>
-            <div className="text-center">
-              <p className="text-lg font-semibold text-foreground">
-                {formatMonth(currentSummary.month)}
-              </p>
-              <p className="text-sm text-muted-foreground">
-                Total: €{formatAmount(currentSummary.total)}
-                {change !== null && (
-                  <span className={`ml-2 ${change >= 0 ? "text-green-600" : "text-red-500"}`}>
-                    ({change >= 0 ? "+" : ""}€{formatAmount(Math.abs(change))})
-                  </span>
-                )}
-              </p>
-            </div>
-            <Button
-              variant="ghost"
-              size="icon"
-              className="h-8 w-8"
-              disabled={currentIndex <= 0}
-              onClick={() => setCurrentIndex((i) => i - 1)}
-            >
-              <ChevronRight className="h-4 w-4" />
-            </Button>
-          </div>
-
-          {detail && (
-            <div className="mt-4 grid gap-3">
-              {tree.map((group) => {
-                const childEntries = group.children.length > 0
-                  ? group.children.map((child) => {
-                      const amount = detail.entries.find((e) => e.service_id === child.id)?.amount ?? "0";
-                      const prevAmount = prevDetail?.entries.find((e) => e.service_id === child.id)?.amount ?? null;
-                      const diff = prevAmount !== null ? Number(amount) - Number(prevAmount) : null;
-                      return { name: child.name, amount, diff };
-                    })
-                  : [];
-                const standaloneAmount = group.children.length === 0
-                  ? detail.entries.find((e) => e.service_id === group.service.id)?.amount ?? "0"
-                  : null;
-                const prevStandaloneAmount = group.children.length === 0 && prevDetail
-                  ? prevDetail.entries.find((e) => e.service_id === group.service.id)?.amount ?? null
-                  : null;
-                const subtotal = group.children.length > 0
-                  ? childEntries.reduce((sum, e) => sum + Number(e.amount), 0)
-                  : Number(standaloneAmount);
-                const prevSubtotal = group.children.length > 0 && prevDetail
-                  ? group.children.reduce((sum, child) => {
-                      const prev = prevDetail.entries.find((e) => e.service_id === child.id);
-                      return sum + Number(prev?.amount ?? 0);
-                    }, 0)
-                  : prevStandaloneAmount !== null ? Number(prevStandaloneAmount) : null;
-                const groupDiff = prevSubtotal !== null ? subtotal - prevSubtotal : null;
-
-                if (subtotal === 0 && !detail.entries.some((e) =>
-                  e.service_id === group.service.id || group.children.some((c) => c.id === e.service_id)
-                )) {
-                  return null;
-                }
-
-                return (
-                  <Card key={group.service.id}>
-                    <CardContent className="pt-4 pb-4">
-                      <div className="flex items-center justify-between mb-1">
-                        <p className="text-sm font-semibold text-foreground">{group.service.name}</p>
-                        <div className="text-right">
-                          <p className="text-sm font-semibold text-foreground">
-                            €{formatAmount(subtotal)}
-                          </p>
-                          {groupDiff !== null && groupDiff !== 0 && (
-                            <p className={`text-xs ${groupDiff >= 0 ? "text-green-600" : "text-red-500"}`}>
-                              {groupDiff >= 0 ? "+" : ""}€{formatAmount(Math.abs(groupDiff))}
-                            </p>
-                          )}
-                        </div>
-                      </div>
-                      {childEntries.length > 0 && (
-                        <div className="mt-2 space-y-1">
-                          {childEntries.map((entry) => (
-                            <div key={entry.name} className="flex items-center justify-between">
-                              <p className="text-sm text-muted-foreground pl-3">{entry.name}</p>
-                              <div className="text-right">
-                                <p className="text-sm text-muted-foreground">€{formatAmount(entry.amount)}</p>
-                                {entry.diff !== null && entry.diff !== 0 && (
-                                  <p className={`text-xs ${entry.diff >= 0 ? "text-green-600" : "text-red-500"}`}>
-                                    {entry.diff >= 0 ? "+" : ""}€{formatAmount(Math.abs(entry.diff))}
-                                  </p>
-                                )}
-                              </div>
-                            </div>
-                          ))}
-                        </div>
-                      )}
-                    </CardContent>
-                  </Card>
-                );
-              })}
-            </div>
-          )}
-        </>
+        <div className="mt-6 grid grid-cols-1 gap-6 lg:grid-cols-[280px_1fr]">
+          <SnapshotListRail
+            summaries={summaries}
+            selectedId={selectedId}
+            currencySymbol={currencySymbol}
+            onSelect={setSelectedId}
+          />
+          <SnapshotDetail
+            detail={detail}
+            prevDetail={prevDetail}
+            tree={tree}
+            currencySymbol={currencySymbol}
+            loading={detailLoading}
+            onEdit={openEdit}
+            onDelete={handleDelete}
+          />
+        </div>
       )}
+
+      <SnapshotDrawer
+        open={drawerOpen}
+        onOpenChange={setDrawerOpen}
+        mode={drawerMode}
+        tree={tree}
+        currency={currency}
+        currencySymbol={currencySymbol}
+        onCreated={(id) => setSelectedId(id)}
+        onDeleted={() => {
+          // Nothing to do — the summaries refetch + effect fallback handle it.
+        }}
+      />
     </div>
   );
 }
