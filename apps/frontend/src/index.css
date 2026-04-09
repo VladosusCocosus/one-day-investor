@@ -4,35 +4,50 @@
 @layer base {
   :root {
     --radius: 0.5rem;
+
+    /* Shared chart palette — Emerald Fintech */
+    --chart-1: hsl(160 84% 25%); /* emerald deep */
+    --chart-2: hsl(160 70% 40%); /* emerald mid */
+    --chart-3: hsl(150 60% 55%); /* green */
+    --chart-4: hsl(170 55% 55%); /* teal */
+    --chart-5: hsl(145 45% 65%); /* sage */
+    --chart-6: hsl(175 40% 45%); /* deep teal */
   }
 }
 
 @theme inline {
-  --color-background: hsl(0 0% 100%);
+  --color-background: hsl(140 20% 97%);
   --color-foreground: hsl(222.2 84% 4.9%);
   --color-card: hsl(0 0% 100%);
   --color-card-foreground: hsl(222.2 84% 4.9%);
   --color-popover: hsl(0 0% 100%);
   --color-popover-foreground: hsl(222.2 84% 4.9%);
-  --color-primary: hsl(238.7 83.5% 66.7%);
+  --color-primary: hsl(160 84% 25%);
   --color-primary-foreground: hsl(210 40% 98%);
-  --color-secondary: hsl(210 40% 96.1%);
+  --color-secondary: hsl(140 15% 94%);
   --color-secondary-foreground: hsl(222.2 47.4% 11.2%);
-  --color-muted: hsl(210 40% 96.1%);
+  --color-muted: hsl(140 15% 94%);
   --color-muted-foreground: hsl(215.4 16.3% 46.9%);
-  --color-accent: hsl(210 40% 96.1%);
+  --color-accent: hsl(140 15% 94%);
   --color-accent-foreground: hsl(222.2 47.4% 11.2%);
   --color-destructive: hsl(0 84.2% 60.2%);
   --color-destructive-foreground: hsl(210 40% 98%);
-  --color-border: hsl(214.3 31.8% 91.4%);
-  --color-input: hsl(214.3 31.8% 91.4%);
-  --color-ring: hsl(238.7 83.5% 66.7%);
+  --color-border: hsl(140 12% 88%);
+  --color-input: hsl(140 12% 88%);
+  --color-ring: hsl(160 84% 25%);
   --color-sidebar: hsl(0 0% 100%);
-  --color-sidebar-border: hsl(220 13% 91%);
+  --color-sidebar-border: hsl(140 12% 88%);
   --color-sidebar-foreground: hsl(222.2 84% 4.9%);
-  --color-sidebar-muted: hsl(210 40% 96.1%);
+  --color-sidebar-muted: hsl(140 15% 94%);
   --color-sidebar-muted-foreground: hsl(215.4 16.3% 46.9%);
-  --color-sidebar-accent: hsl(238.7 83.5% 66.7%);
+  --color-sidebar-accent: hsl(160 84% 25%);
+
+  --color-chart-1: var(--chart-1);
+  --color-chart-2: var(--chart-2);
+  --color-chart-3: var(--chart-3);
+  --color-chart-4: var(--chart-4);
+  --color-chart-5: var(--chart-5);
+  --color-chart-6: var(--chart-6);
 }
 
 @layer base {
