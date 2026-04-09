@@ -1,12 +1,12 @@
 import { useMemo, useState } from "react";
 import { Plus, AlertTriangle } from "lucide-react";
-import { useQuery, useQueries } from "@tanstack/react-query";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { AssetDrawer } from "@/components/AssetDrawer";
 import { useServices, getLeafPockets, getPocketLabels } from "@/hooks/useServices";
 import { useSettings } from "@/hooks/useSettings";
-import { marketApi } from "@/lib/market-api";
+import { useAllPocketAssets } from "@/hooks/useAllPocketAssets";
+import { usePriceLookup } from "@/hooks/useMarketPriceLookup";
 import type { PocketAsset } from "@/hooks/usePocketAssets";
 import { cn } from "@/lib/utils";
 
@@ -15,58 +15,6 @@ const CURRENCY_SYMBOLS: Record<string, string> = {
   USD: "$",
   GBP: "\u00a3",
 };
-
-function useAllPocketAssets(serviceIds: string[]): PocketAsset[] {
-  const results = useQueries({
-    queries: serviceIds.map((sid) => ({
-      queryKey: ["pocket-assets", sid],
-      queryFn: async () => {
-        const res = await marketApi.get<PocketAsset[]>(
-          `/api/pocket-assets/${sid}`
-        );
-        return res.data;
-      },
-    })),
-  });
-  return results.flatMap((r) => r.data ?? []);
-}
-
-function useAllPrices(
-  assets: PocketAsset[],
-  currency: string
-): Record<string, number> {
-  const assetKeys = useMemo(
-    () =>
-      assets
-        .map((a) => `${a.api_id ?? a.symbol}|${a.asset_type}`)
-        .sort()
-        .join(","),
-    [assets]
-  );
-
-  const { data = {} } = useQuery({
-    queryKey: ["market-prices", assetKeys, currency],
-    queryFn: async () => {
-      const payload = assets.map((a) => ({
-        api_id: a.api_id ?? a.symbol,
-        asset_type: a.asset_type,
-      }));
-      const res = await marketApi.post<Record<string, number | null>>(
-        "/api/market/prices",
-        { assets: payload, currency }
-      );
-      const normalized: Record<string, number> = {};
-      for (const [k, v] of Object.entries(res.data)) {
-        if (v != null) normalized[k] = v;
-      }
-      return normalized;
-    },
-    enabled: assets.length > 0,
-    staleTime: 5 * 60_000,
-  });
-
-  return data;
-}
 
 type DrawerMode =
   | { kind: "add" }
@@ -94,7 +42,7 @@ export function AssetsPage() {
   );
 
   const allAssets = useAllPocketAssets(allInvestableIds);
-  const prices = useAllPrices(allAssets, currency);
+  const { prices } = usePriceLookup(allAssets, currency);
 
   const leafPockets = useMemo(() => getLeafPockets(services), [services]);
   const pocketLabels = useMemo(() => getPocketLabels(services), [services]);
