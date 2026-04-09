@@ -1,15 +1,24 @@
 import { useAuth } from "@/hooks/useAuth";
 import { useDistribution, useTimeline } from "@/hooks/useAnalytics";
+import { useSettings } from "@/hooks/useSettings";
 import { Card, CardContent } from "@/components/ui/card";
 import { DashboardHero } from "@/components/DashboardHero";
+import { GoalHero } from "@/components/GoalHero";
 import { QuickActions } from "@/components/QuickActions";
 import { DistributionDonut } from "@/components/DistributionDonut";
 import { PortfolioTimelineChart } from "@/components/PortfolioTimelineChart";
 import { sortByAmountDesc } from "@/lib/chart";
 
+const CURRENCY_SYMBOLS: Record<string, string> = {
+  EUR: "\u20ac",
+  USD: "$",
+  GBP: "\u00a3",
+};
+
 export function DashboardPage() {
   const { user } = useAuth();
   const { data: timeline = [], isLoading: timelineLoading } = useTimeline();
+  const { settings, updateSettings } = useSettings();
 
   // timeline is oldest-first → last entry is the latest month
   const latestMonth = timeline[timeline.length - 1]?.month;
@@ -27,6 +36,12 @@ export function DashboardPage() {
       ? Math.round((Number(largest.amount) / total) * 100)
       : null;
 
+  // Goal hero values
+  const symbol = CURRENCY_SYMBOLS[settings?.currency ?? "EUR"] ?? "\u20ac";
+  const goal = Number(settings?.goal ?? 0);
+  const currentTotal =
+    timeline.length > 0 ? Number(timeline[timeline.length - 1].total) : null;
+
   return (
     <div>
       <DashboardHero
@@ -35,6 +50,15 @@ export function DashboardPage() {
         timelineLoading={timelineLoading}
         user={user}
       />
+
+      <div className="mt-4">
+        <GoalHero
+          goal={goal}
+          currentTotal={currentTotal}
+          symbol={symbol}
+          onSave={(newGoal) => updateSettings({ goal: newGoal })}
+        />
+      </div>
 
       <div className="mt-6">
         <QuickActions />
