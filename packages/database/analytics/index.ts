@@ -13,7 +13,7 @@ export async function findDistribution(userId: string, month: string) {
                  LEFT JOIN services s3 on s2.parent_id = s3.id
         WHERE sn.user_id = $1 AND sn.month = $2
         ORDER BY e.amount DESC
-    ) select name, sum(amount) from services group by name`,
+    ) select name, sum(amount) as amount from services group by name`,
     [userId, normalized]
   );
   return rows;
