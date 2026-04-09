@@ -77,6 +77,10 @@ export function AssetDrawer({
   const searchSeqRef = useRef(0);
 
   useEffect(() => {
+    // Reset to true on mount — React Strict Mode double-invokes effects
+    // in dev, so an earlier cleanup may have set this to false before the
+    // real mount completes.
+    mountedRef.current = true;
     return () => {
       mountedRef.current = false;
       if (debounceRef.current) clearTimeout(debounceRef.current);
