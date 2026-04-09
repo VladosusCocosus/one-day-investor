@@ -56,8 +56,8 @@ export function GoalHero({
   const progressWidth = Math.min(100, percent);
 
   const wrapperClass = reached
-    ? "rounded-xl p-5 text-primary-foreground relative overflow-hidden bg-gradient-to-br from-primary via-primary to-amber-400/60"
-    : "rounded-xl p-5 text-primary-foreground relative overflow-hidden bg-gradient-to-br from-primary to-primary/80";
+    ? "rounded-xl p-5 text-primary-foreground relative overflow-hidden bg-gradient-to-br from-primary/85 via-primary/65 to-amber-300/45"
+    : "rounded-xl p-5 text-primary-foreground relative overflow-hidden bg-gradient-to-br from-primary/85 to-primary/55";
 
   return (
     <div className={wrapperClass}>
