@@ -26,6 +26,10 @@ export function usePocketAssets(serviceId: string | undefined) {
     enabled: !!serviceId,
   });
 
+  const invalidateAll = () => {
+    queryClient.invalidateQueries({ queryKey: ["pocket-assets"] });
+  };
+
   const addMutation = useMutation({
     mutationFn: async (params: {
       service_id: string;
@@ -37,28 +41,39 @@ export function usePocketAssets(serviceId: string | undefined) {
       const res = await marketApi.post<PocketAsset>("/api/pocket-assets", params);
       return res.data;
     },
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["pocket-assets", serviceId] });
-    },
+    onSuccess: invalidateAll,
   });
 
   const updateQuantityMutation = useMutation({
     mutationFn: async ({ id, quantity }: { id: string; quantity: number }) => {
-      const res = await marketApi.put<PocketAsset>(`/api/pocket-assets/${id}/quantity`, { quantity });
+      const res = await marketApi.put<PocketAsset>(
+        `/api/pocket-assets/${id}/quantity`,
+        { quantity }
+      );
       return res.data;
     },
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["pocket-assets", serviceId] });
+    onSuccess: invalidateAll,
+  });
+
+  const updateAssetMutation = useMutation({
+    mutationFn: async ({
+      id,
+      patch,
+    }: {
+      id: string;
+      patch: { service_id?: string; quantity?: number };
+    }) => {
+      const res = await marketApi.put<PocketAsset>(`/api/pocket-assets/${id}`, patch);
+      return res.data;
     },
+    onSuccess: invalidateAll,
   });
 
   const removeMutation = useMutation({
     mutationFn: async (id: string) => {
       await marketApi.delete(`/api/pocket-assets/${id}`);
     },
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["pocket-assets", serviceId] });
-    },
+    onSuccess: invalidateAll,
   });
 
   const addAsset = async (params: {
@@ -75,9 +90,16 @@ export function usePocketAssets(serviceId: string | undefined) {
     return updateQuantityMutation.mutateAsync({ id, quantity });
   };
 
+  const updateAsset = async (
+    id: string,
+    patch: { service_id?: string; quantity?: number }
+  ) => {
+    return updateAssetMutation.mutateAsync({ id, patch });
+  };
+
   const removeAsset = async (id: string) => {
     await removeMutation.mutateAsync(id);
   };
 
-  return { assets, loading, addAsset, updateQuantity, removeAsset };
+  return { assets, loading, addAsset, updateQuantity, updateAsset, removeAsset };
 }
