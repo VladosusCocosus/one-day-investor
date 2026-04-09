@@ -9,6 +9,7 @@ export interface DistributionEntry {
 export interface TimelineEntry {
   month: string;
   total: number;
+  created_at: string;
 }
 
 export function useDistribution(month: string | undefined) {
