@@ -18,11 +18,11 @@ export async function findDistribution(userId: string, month: string) {
 
 export async function findTimeline(userId: string) {
   const { rows } = await pool.query(
-    `SELECT s.month, COALESCE(SUM(e.amount), 0) as total
+    `SELECT s.month, s.created_at, COALESCE(SUM(e.amount), 0) as total
      FROM snapshots s
      LEFT JOIN snapshot_entries e ON e.snapshot_id = s.id
      WHERE s.user_id = $1
-     GROUP BY s.id, s.month
+     GROUP BY s.id, s.month, s.created_at
      ORDER BY s.month ASC`,
     [userId]
   );
