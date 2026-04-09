@@ -6,16 +6,13 @@ import type {
   TimelineEntry,
 } from "@/hooks/useAnalytics";
 import type { User } from "@/hooks/AuthContext";
+import { formatCurrency } from "@/lib/chart";
 
 interface DashboardHeroProps {
   timeline: TimelineEntry[];
   distribution: DistributionEntry[];
   timelineLoading: boolean;
   user: User | null;
-}
-
-function formatCurrency(value: number): string {
-  return `€${Math.round(value).toLocaleString("en-US")}`;
 }
 
 function getGreeting(): string {

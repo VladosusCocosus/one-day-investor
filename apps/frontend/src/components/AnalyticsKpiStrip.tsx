@@ -1,15 +1,12 @@
 import { ArrowDownRight, ArrowUpRight } from "lucide-react";
 import { Card, CardContent } from "@/components/ui/card";
 import type { DistributionEntry, TimelineEntry } from "@/hooks/useAnalytics";
+import { formatCurrency, sortByAmountDesc } from "@/lib/chart";
 
 interface AnalyticsKpiStripProps {
   distribution: DistributionEntry[];
   timeline: TimelineEntry[];
   activeMonth: string | undefined;
-}
-
-function formatCurrency(value: number): string {
-  return `€${Math.round(value).toLocaleString("en-US")}`;
 }
 
 export function AnalyticsKpiStrip({
@@ -43,10 +40,7 @@ export function AnalyticsKpiStrip({
 
   const servicesCount = distribution.length;
 
-  const sorted = [...distribution].sort(
-    (a, b) => Number(b.amount) - Number(a.amount)
-  );
-  const largest = sorted[0];
+  const largest = sortByAmountDesc(distribution)[0];
   const largestPct =
     largest && total > 0
       ? Math.round((Number(largest.amount) / total) * 100)

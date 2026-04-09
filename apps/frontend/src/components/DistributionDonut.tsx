@@ -7,6 +7,7 @@ import {
   formatAmount,
   formatCompact,
   formatMonthLong,
+  sortByAmountDesc,
 } from "@/lib/chart";
 
 interface DistributionDonutProps {
@@ -21,8 +22,7 @@ export function DistributionDonut({
   loading,
 }: DistributionDonutProps) {
   const sortedDistribution = useMemo(
-    () =>
-      [...distribution].sort((a, b) => Number(b.amount) - Number(a.amount)),
+    () => sortByAmountDesc(distribution),
     [distribution]
   );
 

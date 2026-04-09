@@ -5,6 +5,7 @@ import { DashboardHero } from "@/components/DashboardHero";
 import { QuickActions } from "@/components/QuickActions";
 import { DistributionDonut } from "@/components/DistributionDonut";
 import { PortfolioTimelineChart } from "@/components/PortfolioTimelineChart";
+import { sortByAmountDesc } from "@/lib/chart";
 
 export function DashboardPage() {
   const { user } = useAuth();
@@ -20,10 +21,7 @@ export function DashboardPage() {
   // Derived meta chip values
   const servicesCount = distribution.length;
   const total = distribution.reduce((s, d) => s + Number(d.amount), 0);
-  const sorted = [...distribution].sort(
-    (a, b) => Number(b.amount) - Number(a.amount)
-  );
-  const largest = sorted[0];
+  const largest = sortByAmountDesc(distribution)[0];
   const largestPct =
     largest && total > 0
       ? Math.round((Number(largest.amount) / total) * 100)

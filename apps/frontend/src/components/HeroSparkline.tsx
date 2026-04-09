@@ -1,3 +1,4 @@
+import { useId } from "react";
 import {
   AreaChart,
   Area,
@@ -14,6 +15,8 @@ interface HeroSparklineProps {
 }
 
 export function HeroSparkline({ timeline, loading }: HeroSparklineProps) {
+  const gradientId = `hero-sparkline-${useId()}`;
+
   // Empty state: show a flat gray line across the width
   if (loading) {
     return <div className="h-[70px]" aria-hidden />;
@@ -62,7 +65,7 @@ export function HeroSparkline({ timeline, loading }: HeroSparklineProps) {
         >
           <defs>
             <linearGradient
-              id="heroSparklineFill"
+              id={gradientId}
               x1="0"
               y1="0"
               x2="0"
@@ -97,7 +100,7 @@ export function HeroSparkline({ timeline, loading }: HeroSparklineProps) {
             dataKey="total"
             stroke={CHART_COLORS[0]}
             strokeWidth={2}
-            fill="url(#heroSparklineFill)"
+            fill={`url(#${gradientId})`}
             dot={false}
             activeDot={{ r: 4, fill: CHART_COLORS[0], strokeWidth: 0 }}
           />
