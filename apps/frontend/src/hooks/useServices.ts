@@ -89,3 +89,36 @@ export function useServices() {
 
   return { services, tree, loading, addService, removeService, editService };
 }
+
+/**
+ * Returns services that are valid pocket targets for asset rows.
+ * A leaf pocket is a crypto/invest service that has no child services.
+ */
+export function getLeafPockets(services: Service[]): Service[] {
+  const parentIds = new Set(
+    services.filter((s) => s.parent_id).map((s) => s.parent_id!)
+  );
+  return services.filter(
+    (s) =>
+      (s.service_type === "crypto" || s.service_type === "invest") &&
+      !parentIds.has(s.id)
+  );
+}
+
+/**
+ * Returns a map of service id → "Parent · Child" display label for leaves.
+ * Leaves at the root level just show their own name.
+ */
+export function getPocketLabels(services: Service[]): Map<string, string> {
+  const byId = new Map(services.map((s) => [s.id, s]));
+  const labels = new Map<string, string>();
+  for (const leaf of getLeafPockets(services)) {
+    if (leaf.parent_id) {
+      const parent = byId.get(leaf.parent_id);
+      labels.set(leaf.id, parent ? `${parent.name} · ${leaf.name}` : leaf.name);
+    } else {
+      labels.set(leaf.id, leaf.name);
+    }
+  }
+  return labels;
+}
