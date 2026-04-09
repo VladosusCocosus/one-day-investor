@@ -5,12 +5,15 @@ export async function findDistribution(userId: string, month: string) {
   // so a bare YYYY-MM must be normalized to the first of the month.
   const normalized = /^\d{4}-\d{2}$/.test(month) ? `${month}-01` : month;
   const { rows } = await pool.query(
-    `SELECT s2.name, e.amount
-     FROM snapshot_entries e
-     JOIN snapshots sn ON sn.id = e.snapshot_id
-     JOIN services s2 ON s2.id = e.service_id
-     WHERE sn.user_id = $1 AND sn.month = $2
-     ORDER BY e.amount DESC`,
+    `WITH services as (
+        SELECT trim(concat(s3.name, ' ', s2.name)) as name, e.amount
+        FROM snapshot_entries e
+                 JOIN snapshots sn ON sn.id = e.snapshot_id
+                 JOIN services s2 ON s2.id = e.service_id
+                 LEFT JOIN services s3 on s2.parent_id = s3.id
+        WHERE sn.user_id = $1 AND sn.month = $2
+        ORDER BY e.amount DESC
+    ) select name, sum(amount) from services group by name`,
     [userId, normalized]
   );
   return rows;
