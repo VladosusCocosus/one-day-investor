@@ -3,6 +3,7 @@ import {
   findPocketAssetsByServiceId,
   addPocketAsset,
   updatePocketAssetQuantity,
+  updatePocketAsset,
   removePocketAsset,
 } from "@database";
 import { resolveUser } from "../auth/session";
@@ -49,6 +50,31 @@ export const pocketAssetsApi = new Elysia({ prefix: "/api/pocket-assets" })
       return { error: "quantity is required" };
     }
     const result = await updatePocketAssetQuantity(params.id, quantity);
+    if (!result) {
+      set.status = 404;
+      return { error: "Pocket asset not found" };
+    }
+    return result;
+  })
+  .put("/:id", async ({ user, set, params, body }) => {
+    if (!user) {
+      set.status = 401;
+      return { error: "Unauthorized" };
+    }
+    const patch = body as { service_id?: string; quantity?: number };
+    if (patch.service_id === undefined && patch.quantity === undefined) {
+      set.status = 400;
+      return { error: "At least one of service_id or quantity is required" };
+    }
+    if (patch.quantity !== undefined && typeof patch.quantity !== "number") {
+      set.status = 400;
+      return { error: "quantity must be a number" };
+    }
+    if (patch.service_id !== undefined && typeof patch.service_id !== "string") {
+      set.status = 400;
+      return { error: "service_id must be a string" };
+    }
+    const result = await updatePocketAsset(params.id, patch);
     if (!result) {
       set.status = 404;
       return { error: "Pocket asset not found" };
