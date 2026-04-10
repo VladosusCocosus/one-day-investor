@@ -2,6 +2,8 @@ import { Navigate } from "react-router";
 import { useAuth } from "@/hooks/useAuth";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
+import { usePageMeta } from "@/lib/use-page-meta";
+import { pageMeta } from "@/lib/metadata";
 
 function GoogleIcon() {
   return (
@@ -27,6 +29,7 @@ function GoogleIcon() {
 }
 
 export function LoginPage() {
+  usePageMeta(pageMeta.login);
   const { user, loading, login } = useAuth();
 
   if (loading) {

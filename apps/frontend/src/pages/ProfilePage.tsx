@@ -8,6 +8,8 @@ import { useCatalog } from "@/hooks/useCatalog";
 import { useServices } from "@/hooks/useServices";
 import { useSettings } from "@/hooks/useSettings";
 import { cn } from "@/lib/utils";
+import { usePageMeta } from "@/lib/use-page-meta";
+import { pageMeta } from "@/lib/metadata";
 import type { CatalogService, ServiceType } from "@/hooks/useCatalog";
 
 function ordinal(n: number): string {
@@ -145,6 +147,7 @@ function CurrencyEditor({
 }
 
 export function ProfilePage() {
+  usePageMeta(pageMeta.profile);
   const { user } = useAuth();
   const { searchCatalog, getChildren, subscribe, unsubscribe } = useCatalog();
   const { services, tree, loading, addService, removeService, editService } =
