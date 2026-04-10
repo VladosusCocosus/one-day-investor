@@ -377,7 +377,7 @@ export function PocketDrawer({ mode, onModeChange }: PocketDrawerProps) {
 // ---- Child row ---------------------------------------------------------------
 
 function ChildRow({
-  child,
+  child: _child,
   draft,
   highlighted,
   removing,
