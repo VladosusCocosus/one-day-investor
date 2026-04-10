@@ -3,15 +3,8 @@ WORKDIR /app
 
 # Copy workspace structure for dependency install caching
 COPY package.json bun.lock ./
-COPY packages/config/package.json packages/config/
-COPY packages/database/package.json packages/database/
-COPY packages/logger/package.json packages/logger/
-COPY packages/types/package.json packages/types/
-COPY apps/core/package.json apps/core/
-COPY apps/analytics/package.json apps/analytics/
 COPY apps/frontend/package.json apps/frontend/
 COPY tsconfig.base.json ./
-COPY packages/types/ packages/types/
 COPY apps/frontend/ apps/frontend/
 
 RUN bun install
