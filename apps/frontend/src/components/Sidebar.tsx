@@ -10,6 +10,7 @@ import {
   TooltipTrigger,
 } from "@/components/ui/tooltip";
 import { cn } from "@/lib/utils";
+import Icon from "../assets/logo.svg?react"
 
 const navItems = [
   { label: "Dashboard", icon: LayoutDashboard, path: "/dashboard" },
@@ -58,12 +59,10 @@ export function Sidebar({ collapsed, onToggle }: SidebarProps) {
           )}
         >
           <div className="flex items-center gap-2.5">
-            <div className="flex h-7 w-7 flex-shrink-0 items-center justify-center rounded-lg bg-primary">
-              <span className="text-xs font-bold text-white">I</span>
-            </div>
+              <Icon width={24} height={24}/>
             {!collapsed && (
               <span className="text-[15px] font-semibold text-sidebar-foreground">
-                Investor
+                ODInvestor
               </span>
             )}
           </div>
