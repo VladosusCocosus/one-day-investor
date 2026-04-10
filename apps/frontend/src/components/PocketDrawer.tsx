@@ -68,6 +68,7 @@ export function PocketDrawer({ mode, onModeChange }: PocketDrawerProps) {
   const [newChildName, setNewChildName] = useState("");
   const [newChildType, setNewChildType] = useState<ServiceType>("common");
   const [saving, setSaving] = useState(false);
+  const [addingChild, setAddingChild] = useState(false);
   const [deleting, setDeleting] = useState(false);
   const [removingChildId, setRemovingChildId] = useState<string | null>(null);
 
@@ -106,16 +107,26 @@ export function PocketDrawer({ mode, onModeChange }: PocketDrawerProps) {
 
   // ---- Add-mode handlers -----------------------------------------------------
   const handleSelectCatalog = async (service: CatalogService, childIds: string[]) => {
-    const created = await subscribe(service.id, childIds);
-    const parent = created[0];
-    if (parent) {
-      onModeChange({ kind: "edit", parentId: parent.id });
+    try {
+      const created = await subscribe(service.id, childIds);
+      const parent = created[0];
+      if (parent) {
+        onModeChange({ kind: "edit", parentId: parent.id });
+      }
+    } catch (err) {
+      console.error("Failed to subscribe to catalog service", err);
+      throw err;
     }
   };
 
   const handleCreateCustom = async (name: string, serviceType: ServiceType) => {
-    const parent = await addService(name, null, serviceType);
-    onModeChange({ kind: "edit", parentId: parent.id });
+    try {
+      const parent = await addService(name, null, serviceType);
+      onModeChange({ kind: "edit", parentId: parent.id });
+    } catch (err) {
+      console.error("Failed to create custom pocket", err);
+      throw err;
+    }
   };
 
   // ---- Edit-mode handlers ----------------------------------------------------
@@ -135,13 +146,13 @@ export function PocketDrawer({ mode, onModeChange }: PocketDrawerProps) {
     if (!parentId) return;
     const name = newChildName.trim();
     if (!name) return;
-    setSaving(true);
+    setAddingChild(true);
     try {
       await addService(name, parentId, newChildType);
       setNewChildName("");
       setNewChildType("common");
     } finally {
-      setSaving(false);
+      setAddingChild(false);
     }
   };
 
@@ -235,19 +246,20 @@ export function PocketDrawer({ mode, onModeChange }: PocketDrawerProps) {
           {isAdd ? (
             <SheetTitle className="mt-0.5">{titleText}</SheetTitle>
           ) : (
-            /* Use SheetTitle for a11y (radix Dialog requires it), but render an editable input inside.
-               pr-8 reserves space for the Sheet's absolute-positioned close button so text never bleeds
-               behind the X. */
-            <SheetTitle asChild>
+            <>
+              {/* Screen-reader-only title: radix Dialog requires SheetTitle for the aria-labelledby link.
+                  The visible UI is the editable <input> below. */}
+              <SheetTitle className="sr-only">{titleText}</SheetTitle>
               <input
                 type="text"
                 value={parentDraft?.name ?? ""}
                 onChange={(e) =>
                   setParentDraft((prev) => (prev ? { ...prev, name: e.target.value } : prev))
                 }
+                aria-label="Pocket name"
                 className="mt-0.5 w-full border-none bg-transparent p-0 pr-8 text-base font-semibold text-foreground outline-none"
               />
-            </SheetTitle>
+            </>
           )}
           {description && <SheetDescription>{description}</SheetDescription>}
         </SheetHeader>
@@ -321,6 +333,7 @@ export function PocketDrawer({ mode, onModeChange }: PocketDrawerProps) {
                         }
                       }}
                       placeholder="+ Add sub-pocket"
+                      aria-label="New sub-pocket name"
                       className="flex-1 border-none bg-transparent text-[13px] text-foreground outline-none placeholder:text-muted-foreground"
                     />
                     <PocketTypePill value={newChildType} onChange={setNewChildType} />
@@ -329,7 +342,7 @@ export function PocketDrawer({ mode, onModeChange }: PocketDrawerProps) {
                       variant="ghost"
                       className="h-7 text-xs"
                       onClick={handleAddChild}
-                      disabled={!newChildName.trim() || saving}
+                      disabled={!newChildName.trim() || addingChild || saving || deleting}
                     >
                       Add
                     </Button>
@@ -348,7 +361,7 @@ export function PocketDrawer({ mode, onModeChange }: PocketDrawerProps) {
                 variant="outline"
                 size="sm"
                 onClick={handleDeleteParent}
-                disabled={deleting || saving}
+                disabled={deleting || saving || addingChild}
                 className="border-red-200 text-red-600 hover:bg-red-50 hover:text-red-700"
               >
                 <Trash2 className="mr-1 h-3.5 w-3.5" />
@@ -362,7 +375,7 @@ export function PocketDrawer({ mode, onModeChange }: PocketDrawerProps) {
               Cancel
             </Button>
             {!isAdd && (
-              <Button size="sm" onClick={handleSave} disabled={saving || deleting}>
+              <Button size="sm" onClick={handleSave} disabled={saving || deleting || addingChild}>
                 {saving ? "..." : "Save"}
               </Button>
             )}

@@ -28,6 +28,8 @@ export function PocketTypePill({ value, onChange, className }: PocketTypePillPro
       <PopoverTrigger asChild>
         <button
           type="button"
+          aria-label={`Type: ${current.label}, change`}
+          aria-haspopup="listbox"
           className={cn(
             "inline-flex items-center gap-1.5 rounded-full border border-border bg-muted px-2.5 py-1 cursor-pointer hover:bg-muted/80 transition-colors",
             open && "bg-primary/10 border-primary/35",
