@@ -1,11 +1,13 @@
 import { useEffect, useState } from "react";
-import { Link } from "react-router";
+import { Link, useLocation } from "react-router";
 import { useAuth } from "@/hooks/useAuth";
 import { cn } from "@/lib/utils";
 
 export function LandingNav() {
   const { user, loading } = useAuth();
   const [scrolled, setScrolled] = useState(false);
+  const { pathname } = useLocation();
+  const isLanding = pathname === "/";
 
   useEffect(() => {
     const onScroll = () => setScrolled(window.scrollY > 24);
@@ -38,12 +40,21 @@ export function LandingNav() {
           </span>
         </Link>
         <nav className="flex items-center gap-6">
-          <a
-            href="#features"
+          {isLanding && (
+            <a
+              href="#features"
+              className="hidden text-sm font-medium text-emerald-200 hover:text-white transition-colors md:inline"
+            >
+              Features
+            </a>
+          )}
+          <Link
+            to="/philosophy"
+            aria-current={pathname === "/philosophy" ? "page" : undefined}
             className="hidden text-sm font-medium text-emerald-200 hover:text-white transition-colors md:inline"
           >
-            Features
-          </a>
+            Philosophy
+          </Link>
           {loading ? (
             <span
               aria-hidden="true"
