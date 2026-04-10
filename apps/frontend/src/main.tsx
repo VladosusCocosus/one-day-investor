@@ -7,6 +7,7 @@ import { RouterProvider } from "react-router/dom";
 import { AuthProvider } from "./hooks/AuthContext";
 import { LandingPage } from "./pages/LandingPage";
 import { LoginPage } from "./pages/LoginPage";
+import { PhilosophyPage } from "./pages/PhilosophyPage";
 import { ProtectedRoute } from "./components/ProtectedRoute";
 import { AppLayout } from "./components/AppLayout";
 import { DashboardPage } from "./pages/DashboardPage";
@@ -32,6 +33,10 @@ const router = createBrowserRouter([
   {
     path: "/login",
     element: <LoginPage />,
+  },
+  {
+    path: "/philosophy",
+    element: <PhilosophyPage />,
   },
   {
     element: <ProtectedRoute />,
