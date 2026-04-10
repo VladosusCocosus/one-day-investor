@@ -1,0 +1,126 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <title>Dashboard preview — One Day Investor</title>
+    <style>
+      @import url("https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap");
+      html, body { margin: 0; padding: 0; }
+      body {
+        width: 1600px;
+        height: 1000px;
+        font-family: "Inter", -apple-system, "Segoe UI", sans-serif;
+        background: #f7fbf9;
+        color: #0f172a;
+        padding: 56px 72px;
+        -webkit-font-smoothing: antialiased;
+      }
+      .hero-card {
+        background: linear-gradient(135deg, #ecfdf5 0%, #d1fae5 100%);
+        border: 1px solid #a7f3d0;
+        border-radius: 24px;
+        padding: 40px 48px;
+        display: flex;
+        justify-content: space-between;
+        align-items: flex-start;
+        box-shadow: 0 12px 40px -20px rgba(16, 185, 129, 0.25);
+      }
+      .hero-label { font-size: 14px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.12em; color: #059669; }
+      .hero-total { font-size: 64px; font-weight: 800; letter-spacing: -0.02em; color: #064e36; margin-top: 12px; font-variant-numeric: tabular-nums; }
+      .hero-delta { font-size: 18px; color: #047857; margin-top: 8px; font-weight: 600; }
+      .hero-spark { width: 420px; height: 140px; }
+      .row { display: grid; grid-template-columns: 1fr 1fr; gap: 24px; margin-top: 32px; }
+      .card {
+        background: white;
+        border: 1px solid #e5e7eb;
+        border-radius: 20px;
+        padding: 32px;
+        box-shadow: 0 4px 20px -8px rgba(15, 23, 42, 0.08);
+      }
+      .card-title { font-size: 12px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.12em; color: #64748b; }
+      .donut-wrap { display: flex; align-items: center; gap: 40px; margin-top: 24px; }
+      .donut {
+        width: 200px; height: 200px; border-radius: 50%;
+        background: conic-gradient(#059669 0 42%, #10b981 42% 66%, #34d399 66% 82%, #6ee7b7 82% 93%, #a7f3d0 93% 100%);
+        position: relative;
+      }
+      .donut::after {
+        content: "";
+        position: absolute; inset: 34px;
+        background: white; border-radius: 50%;
+      }
+      .donut-center {
+        position: absolute; inset: 0; display: flex; flex-direction: column;
+        align-items: center; justify-content: center; z-index: 1;
+      }
+      .donut-center-val { font-size: 28px; font-weight: 800; color: #064e36; font-variant-numeric: tabular-nums; }
+      .donut-center-lbl { font-size: 11px; text-transform: uppercase; letter-spacing: 0.12em; color: #64748b; margin-top: 4px; }
+      .legend { flex: 1; display: flex; flex-direction: column; gap: 14px; }
+      .legend-row { display: flex; align-items: center; justify-content: space-between; font-size: 15px; }
+      .legend-name { display: flex; align-items: center; gap: 12px; color: #0f172a; font-weight: 600; }
+      .legend-dot { width: 12px; height: 12px; border-radius: 3px; }
+      .legend-pct { color: #64748b; font-variant-numeric: tabular-nums; }
+      .chart-wrap { margin-top: 24px; height: 220px; position: relative; }
+      .chart-svg { width: 100%; height: 100%; }
+    </style>
+  </head>
+  <body>
+    <div class="hero-card">
+      <div>
+        <div class="hero-label">Total portfolio · April 2026</div>
+        <div class="hero-total">€ 142,380</div>
+        <div class="hero-delta">+ €8,220 this month · +6.1%</div>
+      </div>
+      <svg class="hero-spark" viewBox="0 0 420 140">
+        <defs>
+          <linearGradient id="hs-fill" x1="0" y1="0" x2="0" y2="1">
+            <stop offset="0%" stop-color="#10b981" stop-opacity="0.35" />
+            <stop offset="100%" stop-color="#10b981" stop-opacity="0" />
+          </linearGradient>
+        </defs>
+        <path d="M 0 110 C 40 100, 70 95, 110 85 S 180 70, 220 65 S 280 45, 320 40 S 380 20, 420 15 L 420 140 L 0 140 Z" fill="url(#hs-fill)" />
+        <path d="M 0 110 C 40 100, 70 95, 110 85 S 180 70, 220 65 S 280 45, 320 40 S 380 20, 420 15" stroke="#059669" stroke-width="4" fill="none" stroke-linecap="round" />
+        <circle cx="420" cy="15" r="6" fill="#059669" />
+      </svg>
+    </div>
+
+    <div class="row">
+      <div class="card">
+        <div class="card-title">Distribution</div>
+        <div class="donut-wrap">
+          <div style="position:relative">
+            <div class="donut"></div>
+            <div class="donut-center"><div class="donut-center-val">12</div><div class="donut-center-lbl">pockets</div></div>
+          </div>
+          <div class="legend">
+            <div class="legend-row"><span class="legend-name"><span class="legend-dot" style="background:#059669"></span>Stocks</span><span class="legend-pct">42%</span></div>
+            <div class="legend-row"><span class="legend-name"><span class="legend-dot" style="background:#10b981"></span>Crypto</span><span class="legend-pct">24%</span></div>
+            <div class="legend-row"><span class="legend-name"><span class="legend-dot" style="background:#34d399"></span>Cash</span><span class="legend-pct">16%</span></div>
+            <div class="legend-row"><span class="legend-name"><span class="legend-dot" style="background:#6ee7b7"></span>Bonds</span><span class="legend-pct">11%</span></div>
+            <div class="legend-row"><span class="legend-name"><span class="legend-dot" style="background:#a7f3d0"></span>Other</span><span class="legend-pct">7%</span></div>
+          </div>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-title">Portfolio timeline</div>
+        <div class="chart-wrap">
+          <svg class="chart-svg" viewBox="0 0 600 220" preserveAspectRatio="none">
+            <defs>
+              <linearGradient id="tl-fill" x1="0" y1="0" x2="0" y2="1">
+                <stop offset="0%" stop-color="#10b981" stop-opacity="0.3" />
+                <stop offset="100%" stop-color="#10b981" stop-opacity="0" />
+              </linearGradient>
+            </defs>
+            <line x1="0" y1="50" x2="600" y2="50" stroke="#e5e7eb" stroke-dasharray="3 4" />
+            <line x1="0" y1="110" x2="600" y2="110" stroke="#e5e7eb" stroke-dasharray="3 4" />
+            <line x1="0" y1="170" x2="600" y2="170" stroke="#e5e7eb" stroke-dasharray="3 4" />
+            <path d="M 0 180 L 50 170 L 100 165 L 150 150 L 200 140 L 250 120 L 300 125 L 350 100 L 400 95 L 450 75 L 500 60 L 550 40 L 600 30 L 600 220 L 0 220 Z" fill="url(#tl-fill)" />
+            <polyline points="0,180 50,170 100,165 150,150 200,140 250,120 300,125 350,100 400,95 450,75 500,60 550,40 600,30" fill="none" stroke="#059669" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" />
+            <circle cx="600" cy="30" r="5" fill="#059669" />
+          </svg>
+        </div>
+      </div>
+    </div>
+  </body>
+</html>

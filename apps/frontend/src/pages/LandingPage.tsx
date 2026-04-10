@@ -1,5 +1,6 @@
 import { LandingNav } from "@/components/landing/LandingNav";
 import { LandingHero } from "@/components/landing/LandingHero";
+import { LandingDashboardPreview } from "@/components/landing/LandingDashboardPreview";
 
 export function LandingPage() {
   return (
@@ -13,6 +14,7 @@ export function LandingPage() {
       <LandingNav />
       <main id="main">
         <LandingHero />
+        <LandingDashboardPreview />
       </main>
     </div>
   );
