@@ -1,0 +1,45 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" width="64" height="64">
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#10b981" />
+      <stop offset="55%" stop-color="#064e36" />
+      <stop offset="100%" stop-color="#02281c" />
+    </linearGradient>
+    <linearGradient id="line" x1="0" y1="1" x2="1" y2="0">
+      <stop offset="0%" stop-color="#6ee7b7" />
+      <stop offset="100%" stop-color="#ecfdf5" />
+    </linearGradient>
+    <linearGradient id="fill" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#6ee7b7" stop-opacity="0.55" />
+      <stop offset="100%" stop-color="#6ee7b7" stop-opacity="0" />
+    </linearGradient>
+    <radialGradient id="halo" cx="50%" cy="30%" r="70%">
+      <stop offset="0%" stop-color="#ecfdf5" stop-opacity="0.22" />
+      <stop offset="100%" stop-color="#ecfdf5" stop-opacity="0" />
+    </radialGradient>
+  </defs>
+
+  <!-- Rounded emerald square -->
+  <rect x="0" y="0" width="64" height="64" rx="14" ry="14" fill="url(#bg)" />
+  <rect x="0" y="0" width="64" height="64" rx="14" ry="14" fill="url(#halo)" />
+
+  <!-- Ascending chart -->
+  <g>
+    <!-- Area under the curve -->
+    <path
+      d="M 11 46 L 22 38 L 33 32 L 44 22 L 53 14 L 53 52 L 11 52 Z"
+      fill="url(#fill)"
+    />
+    <!-- Ascending line -->
+    <polyline
+      points="11,46 22,38 33,32 44,22 53,14"
+      fill="none"
+      stroke="url(#line)"
+      stroke-width="4.5"
+      stroke-linecap="round"
+      stroke-linejoin="round"
+    />
+    <!-- Endpoint highlight -->
+    <circle cx="53" cy="14" r="3.5" fill="#ecfdf5" />
+  </g>
+</svg>
