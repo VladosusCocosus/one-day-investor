@@ -70,7 +70,7 @@ export function SnapshotListRail({
   }, [summaries]);
 
   return (
-    <div className="overflow-hidden rounded-xl border bg-card">
+    <div className="overflow-hidden rounded-xl border bg-card h-fit">
       <div className="max-h-[calc(100vh-12rem)] overflow-y-auto">
         {sections.map((section) => (
           <div key={section.year}>
