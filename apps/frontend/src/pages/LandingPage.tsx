@@ -4,6 +4,7 @@ import { LandingDashboardPreview } from "@/components/landing/LandingDashboardPr
 import { LandingFeatures } from "@/components/landing/LandingFeatures";
 import { LandingHowItWorks } from "@/components/landing/LandingHowItWorks";
 import { LandingFinalCta } from "@/components/landing/LandingFinalCta";
+import { LandingFooter } from "@/components/landing/LandingFooter";
 
 export function LandingPage() {
   return (
@@ -22,6 +23,7 @@ export function LandingPage() {
         <LandingHowItWorks />
         <LandingFinalCta />
       </main>
+      <LandingFooter />
     </div>
   );
 }
