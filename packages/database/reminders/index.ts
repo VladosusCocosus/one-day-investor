@@ -1,6 +1,5 @@
-import { pool } from "@database";
+import { pool } from "../pool";
 import config from "@config";
-import type { ReminderData } from "../template/reminder";
 
 const CURRENCY_SYMBOLS: Record<string, string> = {
   EUR: "\u20ac",
@@ -18,6 +17,20 @@ interface DueRow {
   last_snapshot_month: Date;
   last_snapshot_created_at: Date;
   last_snapshot_total: string; // numeric → string
+}
+
+export interface ReminderData {
+  user_id: string;
+  email: string;
+  name: string;               // full name, used for the "To:" header
+  firstName: string;          // "Pavel" — derived below
+  currentMonthLabel: string;  // "April" — the month we're nagging them about
+  lastMonthLabel: string;     // "March 2026"
+  lastCreatedAtLabel: string; // "Mar 1"
+  lastTotal: number;          // 21240
+  goal: number;               // 50000
+  symbol: string;             // "€"
+  ctaHref: string;            // "https://odinvestor.net/snapshots"
 }
 
 function formatMonthYear(d: Date): string {
@@ -100,4 +113,11 @@ export async function findDueUsers(): Promise<ReminderData[]> {
       ctaHref,
     };
   });
+}
+
+export async function markReminderSent(userId: string): Promise<void> {
+  await pool.query(
+    "UPDATE reminder_state SET last_reminder_sent_at = now() WHERE user_id = $1",
+    [userId]
+  );
 }

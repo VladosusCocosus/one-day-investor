@@ -14,7 +14,7 @@ const mg = mailgun.client({
 const DOMAIN = config.get("mailgun.domain");
 const FROM = config.get("mailgun.from");
 
-export async function sendReminderEmail(params: {
+export async function sendEmail(params: {
   to: string;
   subject: string;
   html: string;
