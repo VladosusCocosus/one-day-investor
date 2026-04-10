@@ -1,8 +1,11 @@
 import { useCallback, useState } from "react";
+import { useNavigate } from "react-router";
+import { Sparkles } from "lucide-react";
 import { PocketList } from "@/components/PocketList";
 import { PocketDrawer, type PocketDrawerMode } from "@/components/PocketDrawer";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { Button } from "@/components/ui/button";
+import { WELCOME_OVERLAY_STORAGE_KEY } from "@/components/WelcomeOverlay";
 import { useAuth } from "@/hooks/useAuth";
 import { useServices } from "@/hooks/useServices";
 import { useSettings } from "@/hooks/useSettings";
@@ -149,10 +152,16 @@ export function ProfilePage() {
   const { user } = useAuth();
   const { tree, loading } = useServices();
   const { settings, updateSettings } = useSettings();
+  const navigate = useNavigate();
 
   const [snapshotChipOpen, setSnapshotChipOpen] = useState(false);
   const [currencyChipOpen, setCurrencyChipOpen] = useState(false);
   const [drawerMode, setDrawerMode] = useState<PocketDrawerMode | null>(null);
+
+  const handleReplayWelcome = () => {
+    window.localStorage.removeItem(WELCOME_OVERLAY_STORAGE_KEY);
+    navigate("/dashboard");
+  };
 
   const initials = user?.name
     ? user.name
@@ -240,6 +249,25 @@ export function ProfilePage() {
         onOpenAdd={handleOpenAdd}
         onOpenEdit={handleOpenEdit}
       />
+
+      {/* Help */}
+      <section className="mt-10 border-t border-border pt-6">
+        <h2 className="text-[10px] font-semibold uppercase tracking-wider text-muted-foreground">
+          Help
+        </h2>
+        <p className="mt-2 text-xs text-muted-foreground">
+          Forgotten how things work? Replay the welcome tour any time.
+        </p>
+        <Button
+          variant="outline"
+          size="sm"
+          className="mt-3"
+          onClick={handleReplayWelcome}
+        >
+          <Sparkles className="mr-1.5 h-3.5 w-3.5" aria-hidden="true" />
+          Show welcome tour
+        </Button>
+      </section>
 
       <PocketDrawer mode={drawerMode} onModeChange={setDrawerMode} />
     </div>
