@@ -296,7 +296,6 @@ export function PocketDrawer({ mode, onModeChange }: PocketDrawerProps) {
                     return (
                       <ChildRow
                         key={child.id}
-                        child={child}
                         draft={draft}
                         highlighted={highlighted}
                         removing={removingChildId === child.id}
@@ -377,7 +376,6 @@ export function PocketDrawer({ mode, onModeChange }: PocketDrawerProps) {
 // ---- Child row ---------------------------------------------------------------
 
 function ChildRow({
-  child: _child,
   draft,
   highlighted,
   removing,
@@ -385,7 +383,6 @@ function ChildRow({
   onTypeChange,
   onRemove,
 }: {
-  child: Service;
   draft: ChildDraft;
   highlighted: boolean;
   removing: boolean;
