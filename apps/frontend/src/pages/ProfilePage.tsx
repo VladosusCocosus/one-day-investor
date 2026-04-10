@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useCallback, useState } from "react";
 import { PocketList } from "@/components/PocketList";
 import { PocketDrawer, type PocketDrawerMode } from "@/components/PocketDrawer";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
@@ -163,6 +163,14 @@ export function ProfilePage() {
   const snapshotDay = settings?.snapshot_day ?? 1;
   const currency = settings?.currency ?? "EUR";
 
+  const handleOpenAdd = useCallback(() => {
+    setDrawerMode({ kind: "add" });
+  }, []);
+
+  const handleOpenEdit = useCallback((parentId: string, focusChildId?: string) => {
+    setDrawerMode({ kind: "edit", parentId, focusChildId });
+  }, []);
+
   return (
     <div>
       {/* Page header */}
@@ -226,10 +234,8 @@ export function ProfilePage() {
       <PocketList
         tree={tree}
         loading={loading}
-        onOpenAdd={() => setDrawerMode({ kind: "add" })}
-        onOpenEdit={(parentId, focusChildId) =>
-          setDrawerMode({ kind: "edit", parentId, focusChildId })
-        }
+        onOpenAdd={handleOpenAdd}
+        onOpenEdit={handleOpenEdit}
       />
 
       <PocketDrawer mode={drawerMode} onModeChange={setDrawerMode} />
