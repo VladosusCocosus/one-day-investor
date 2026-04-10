@@ -16,6 +16,7 @@ interface DueRow {
   goal: string;                // numeric comes back as string from pg
   currency: string;
   last_snapshot_month: Date;
+  last_snapshot_created_at: Date;
   last_snapshot_total: string; // numeric → string
 }
 
@@ -58,12 +59,13 @@ export async function findDueUsers(): Promise<ReminderData[]> {
          us.goal,
          us.currency,
          ls.month AS last_snapshot_month,
+         ls.created_at AS last_snapshot_created_at,
          ls.total AS last_snapshot_total
      FROM reminder_state rs
      JOIN users u           ON u.id = rs.user_id
      JOIN user_settings us  ON us.user_id = rs.user_id
      JOIN LATERAL (
-         SELECT s.month, COALESCE(SUM(e.amount), 0) AS total
+         SELECT s.month, s.created_at, COALESCE(SUM(e.amount), 0) AS total
          FROM snapshots s
          LEFT JOIN snapshot_entries e ON e.snapshot_id = s.id
          WHERE s.user_id = rs.user_id
@@ -91,7 +93,7 @@ export async function findDueUsers(): Promise<ReminderData[]> {
       firstName: firstNameOf(row.name),
       currentMonthLabel: formatCurrentMonthLabel(now),
       lastMonthLabel: formatMonthYear(row.last_snapshot_month),
-      lastCreatedAtLabel: formatShortDate(row.last_snapshot_month),
+      lastCreatedAtLabel: formatShortDate(row.last_snapshot_created_at),
       lastTotal: Number(row.last_snapshot_total),
       goal: Number(row.goal),
       symbol,
