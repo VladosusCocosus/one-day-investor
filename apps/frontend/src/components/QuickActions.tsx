@@ -19,7 +19,7 @@ export function QuickActions() {
   return (
     <nav
       aria-label="Quick actions"
-      className="flex gap-1 rounded-full border bg-card p-1.5 shadow-sm max-sm:grid max-sm:grid-cols-2 max-sm:gap-1.5 max-sm:rounded-xl"
+      className="flex gap-1 rounded-full border bg-card p-1.5 max-sm:grid max-sm:grid-cols-2 max-sm:gap-1.5 max-sm:rounded-xl"
     >
       {ACTIONS.map(({ label, to, icon: Icon }) => (
         <Link
