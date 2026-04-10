@@ -16,7 +16,7 @@ export function LandingDashboardPreview() {
             src="/landing-dashboard-preview.png"
             alt="The One Day Investor dashboard showing portfolio total, distribution donut, and timeline chart."
             width={1600}
-            height={1000}
+            height={680}
             loading="eager"
             fetchPriority="high"
             className="block h-auto w-full"
