@@ -69,6 +69,27 @@ const config = convict({
       env: "SESSION_MAX_AGE",
     },
   },
+  mailgun: {
+    apiKey: {
+      doc: "Mailgun API key (EU or US)",
+      format: String,
+      default: "",
+      env: "MAILGUN_API_KEY",
+      sensitive: true,
+    },
+    domain: {
+      doc: "Mailgun sending domain",
+      format: String,
+      default: "",
+      env: "MAILGUN_DOMAIN",
+    },
+    from: {
+      doc: "Mailgun From header value",
+      format: String,
+      default: "",
+      env: "MAILGUN_FROM",
+    },
+  },
 });
 
 config.validate({ allowed: "strict" });
