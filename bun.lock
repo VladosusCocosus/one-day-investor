@@ -95,8 +95,7 @@
         "@config": "workspace:*",
         "@database": "workspace:*",
         "@logger": "workspace:*",
-        "form-data": "^4.0.1",
-        "mailgun.js": "^11.1.0",
+        "@mailgun": "workspace:*",
       },
       "devDependencies": {
         "bun-types": "latest",
@@ -139,6 +138,17 @@
       "name": "@logger",
       "dependencies": {
         "pino": "^10.3.1",
+      },
+      "peerDependencies": {
+        "typescript": "^5",
+      },
+    },
+    "packages/mailgun": {
+      "name": "@mailgun",
+      "dependencies": {
+        "@config": "workspace:*",
+        "form-data": "^4.0.1",
+        "mailgun.js": "^11.1.0",
       },
       "peerDependencies": {
         "typescript": "^5",
@@ -263,6 +273,8 @@
     "@jridgewell/trace-mapping": ["@jridgewell/trace-mapping@0.3.31", "", { "dependencies": { "@jridgewell/resolve-uri": "^3.1.0", "@jridgewell/sourcemap-codec": "^1.4.14" } }, "sha512-zzNR+SdQSDJzc8joaeP8QQoCQr8NuYx2dIIytl1QeBEZHJ9uW6hebsrYgbz8hJwUQao3TWCMtmfV8Nu1twOLAw=="],
 
     "@logger": ["@logger@workspace:packages/logger"],
+
+    "@mailgun": ["@mailgun@workspace:packages/mailgun"],
 
     "@market": ["@market@workspace:packages/market"],
 

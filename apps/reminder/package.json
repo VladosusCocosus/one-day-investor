@@ -3,14 +3,14 @@
   "version": "1.0.0",
   "private": true,
   "scripts": {
-    "send-reminders": "bun run src/cli/send-due-reminders.ts"
+    "send-reminders": "bun run src/cli/send-due-reminders.ts",
+    "send-example": "bun run src/cli/send-example.ts"
   },
   "dependencies": {
     "@config": "workspace:*",
     "@database": "workspace:*",
     "@logger": "workspace:*",
-    "form-data": "^4.0.1",
-    "mailgun.js": "^11.1.0"
+    "@mailgun": "workspace:*"
   },
   "devDependencies": {
     "bun-types": "latest"

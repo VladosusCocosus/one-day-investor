@@ -1,16 +1,6 @@
-export interface ReminderData {
-  user_id: string;
-  email: string;
-  name: string;               // full name, used for the "To:" header
-  firstName: string;          // "Pavel" — derived in find-due-users.ts
-  currentMonthLabel: string;  // "April" — the month we're nagging them about
-  lastMonthLabel: string;     // "March 2026"
-  lastCreatedAtLabel: string; // "Mar 1"
-  lastTotal: number;          // 21240
-  goal: number;               // 50000
-  symbol: string;             // "€"
-  ctaHref: string;            // "https://odinvestor.net/snapshots"
-}
+import type { ReminderData } from "@database";
+
+export type { ReminderData };
 
 function formatAmount(n: number, symbol: string): string {
   return `${symbol}${Number(n).toLocaleString("en-US")}`;

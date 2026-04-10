@@ -1,7 +1,6 @@
 import { createLogger } from "@logger";
-import { pool } from "@database";
-import { findDueUsers } from "../query/find-due-users";
-import { sendReminderEmail } from "../mailer/mailgun";
+import { pool, findDueUsers, markReminderSent } from "@database";
+import { sendEmail } from "@mailgun";
 import { renderReminderEmail } from "../template/reminder";
 
 const log = createLogger("reminder-cli");
@@ -26,15 +25,12 @@ async function main(): Promise<number> {
     try {
       const html = renderReminderEmail(user);
       const subject = `Your ${user.currentMonthLabel} snapshot is due, ${user.firstName}`;
-      await sendReminderEmail({
+      await sendEmail({
         to: `${user.name} <${user.email}>`,
         subject,
         html,
       });
-      await pool.query(
-        "UPDATE reminder_state SET last_reminder_sent_at = now() WHERE user_id = $1",
-        [user.user_id]
-      );
+      await markReminderSent(user.user_id);
       sent++;
       log.info({ user_id: user.user_id, email: user.email }, "reminder sent");
     } catch (err) {

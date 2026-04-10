@@ -1,0 +1,14 @@
+{
+  "name": "@mailgun",
+  "module": "index.ts",
+  "type": "module",
+  "private": true,
+  "dependencies": {
+    "@config": "workspace:*",
+    "form-data": "^4.0.1",
+    "mailgun.js": "^11.1.0"
+  },
+  "peerDependencies": {
+    "typescript": "^5"
+  }
+}
