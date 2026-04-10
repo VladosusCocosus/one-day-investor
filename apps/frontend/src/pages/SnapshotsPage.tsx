@@ -11,6 +11,8 @@ import {
   SnapshotDrawer,
   type SnapshotDrawerMode,
 } from "@/components/SnapshotDrawer";
+import { usePageMeta } from "@/lib/use-page-meta";
+import { pageMeta } from "@/lib/metadata";
 
 const CURRENCY_SYMBOLS: Record<string, string> = {
   EUR: "\u20ac",
@@ -19,6 +21,7 @@ const CURRENCY_SYMBOLS: Record<string, string> = {
 };
 
 export function SnapshotsPage() {
+  usePageMeta(pageMeta.snapshots);
   const { tree } = useServices();
   const { summaries, loading, removeSnapshot } = useSnapshots();
   const { settings } = useSettings();

@@ -12,6 +12,8 @@ import { QuickActions } from "@/components/QuickActions";
 import { DistributionDonut } from "@/components/DistributionDonut";
 import { PortfolioTimelineChart } from "@/components/PortfolioTimelineChart";
 import { sortByAmountDesc } from "@/lib/chart";
+import { usePageMeta } from "@/lib/use-page-meta";
+import { pageMeta } from "@/lib/metadata";
 
 const CURRENCY_SYMBOLS: Record<string, string> = {
   EUR: "\u20ac",
@@ -20,6 +22,7 @@ const CURRENCY_SYMBOLS: Record<string, string> = {
 };
 
 export function DashboardPage() {
+  usePageMeta(pageMeta.dashboard);
   const { user } = useAuth();
   const { data: timeline = [], isLoading: timelineLoading } = useTimeline();
   const { data: current = null } = useCurrentTotal();

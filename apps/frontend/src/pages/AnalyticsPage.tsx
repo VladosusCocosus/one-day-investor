@@ -4,8 +4,11 @@ import { MonthPicker } from "@/components/MonthPicker";
 import { AnalyticsKpiStrip } from "@/components/AnalyticsKpiStrip";
 import { DistributionDonut } from "@/components/DistributionDonut";
 import { PortfolioTimelineChart } from "@/components/PortfolioTimelineChart";
+import { usePageMeta } from "@/lib/use-page-meta";
+import { pageMeta } from "@/lib/metadata";
 
 export function AnalyticsPage() {
+  usePageMeta(pageMeta.analytics);
   const { data: timeline = [], isLoading: timelineLoading } = useTimeline();
   const [selectedMonth, setSelectedMonth] = useState<string | undefined>();
 

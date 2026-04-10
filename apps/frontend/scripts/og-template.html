@@ -1,0 +1,219 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <title>OG — One Day Investor</title>
+    <style>
+      @import url("https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap");
+
+      html,
+      body {
+        margin: 0;
+        padding: 0;
+      }
+
+      body {
+        width: 1200px;
+        height: 630px;
+        font-family: "Inter", -apple-system, "Segoe UI", sans-serif;
+        color: #ecfdf5;
+        /* Layered background: radial emerald gradient + soft vignette */
+        background:
+          radial-gradient(ellipse 900px 700px at 85% 115%, rgba(16, 185, 129, 0.28) 0%, transparent 55%),
+          radial-gradient(ellipse 1400px 900px at 10% -10%, #0f6d4f 0%, #064e36 38%, #02281c 100%);
+        position: relative;
+        overflow: hidden;
+        -webkit-font-smoothing: antialiased;
+        text-rendering: optimizeLegibility;
+      }
+
+      /* Horizontal grid texture */
+      .grid {
+        position: absolute;
+        inset: 0;
+        background-image: repeating-linear-gradient(
+          to bottom,
+          rgba(16, 185, 129, 0.07) 0px,
+          rgba(16, 185, 129, 0.07) 1px,
+          transparent 1px,
+          transparent 42px
+        );
+        pointer-events: none;
+      }
+
+      /* Subtle noise overlay via SVG filter */
+      .noise {
+        position: absolute;
+        inset: 0;
+        opacity: 0.06;
+        mix-blend-mode: overlay;
+        pointer-events: none;
+      }
+
+      /* Soft glow behind headline */
+      .glow {
+        position: absolute;
+        top: 150px;
+        left: -100px;
+        width: 700px;
+        height: 400px;
+        background: radial-gradient(circle, rgba(110, 231, 183, 0.18) 0%, transparent 60%);
+        filter: blur(40px);
+        pointer-events: none;
+      }
+
+      .frame {
+        position: absolute;
+        inset: 72px;
+        display: flex;
+        flex-direction: column;
+        justify-content: space-between;
+      }
+
+      /* Top: wordmark */
+      .wordmark {
+        display: flex;
+        align-items: center;
+        gap: 14px;
+      }
+      .dot {
+        width: 14px;
+        height: 14px;
+        border-radius: 4px;
+        background: linear-gradient(135deg, #6ee7b7, #10b981);
+        box-shadow: 0 0 20px rgba(110, 231, 183, 0.6);
+      }
+      .wordmark-text {
+        font-size: 18px;
+        font-weight: 600;
+        text-transform: uppercase;
+        letter-spacing: 0.22em;
+        color: #86efac;
+      }
+
+      /* Middle: headline */
+      .body {
+        margin-top: 40px;
+        position: relative;
+        z-index: 2;
+      }
+      .headline {
+        font-size: 96px;
+        line-height: 1.02;
+        font-weight: 700;
+        letter-spacing: -0.025em;
+        color: #ecfdf5;
+        margin: 0;
+        max-width: 900px;
+        text-shadow: 0 2px 30px rgba(2, 40, 28, 0.4);
+      }
+      .headline .accent {
+        background: linear-gradient(90deg, #ecfdf5 0%, #a7f3d0 50%, #6ee7b7 100%);
+        -webkit-background-clip: text;
+        background-clip: text;
+        color: transparent;
+      }
+
+      .features {
+        margin-top: 36px;
+        font-size: 20px;
+        font-weight: 600;
+        text-transform: uppercase;
+        letter-spacing: 0.24em;
+        color: #6ee7b7;
+      }
+      .features .sep {
+        margin: 0 14px;
+        color: rgba(110, 231, 183, 0.4);
+      }
+
+      /* Bottom-left: URL */
+      .url {
+        font-size: 20px;
+        font-weight: 500;
+        letter-spacing: 0.04em;
+        color: rgba(167, 243, 208, 0.7);
+      }
+
+      /* Bottom-right: sparkline */
+      .spark {
+        position: absolute;
+        right: 72px;
+        bottom: 140px;
+        width: 440px;
+        height: 200px;
+        pointer-events: none;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="grid"></div>
+
+    <svg class="noise" xmlns="http://www.w3.org/2000/svg">
+      <filter id="n">
+        <feTurbulence type="fractalNoise" baseFrequency="0.9" numOctaves="2" stitchTiles="stitch" />
+        <feColorMatrix type="matrix" values="0 0 0 0 1  0 0 0 0 1  0 0 0 0 1  0 0 0 0.6 0" />
+      </filter>
+      <rect width="100%" height="100%" filter="url(#n)" />
+    </svg>
+
+    <div class="glow"></div>
+
+    <!-- Sparkline -->
+    <svg class="spark" viewBox="0 0 440 200" xmlns="http://www.w3.org/2000/svg">
+      <defs>
+        <linearGradient id="fill" x1="0" y1="0" x2="0" y2="1">
+          <stop offset="0%" stop-color="#10b981" stop-opacity="0.5" />
+          <stop offset="100%" stop-color="#10b981" stop-opacity="0" />
+        </linearGradient>
+        <linearGradient id="stroke" x1="0" y1="0" x2="1" y2="0">
+          <stop offset="0%" stop-color="#34d399" />
+          <stop offset="100%" stop-color="#a7f3d0" />
+        </linearGradient>
+        <filter id="glow" x="-50%" y="-50%" width="200%" height="200%">
+          <feGaussianBlur stdDeviation="6" result="b" />
+          <feMerge>
+            <feMergeNode in="b" />
+            <feMergeNode in="SourceGraphic" />
+          </feMerge>
+        </filter>
+      </defs>
+      <!-- Fill under the curve -->
+      <path
+        d="M 0 160 C 40 150, 60 155, 90 140 S 140 110, 170 115 S 230 90, 260 70 S 320 55, 360 35 S 410 15, 440 10 L 440 200 L 0 200 Z"
+        fill="url(#fill)"
+      />
+      <!-- Ascending curve -->
+      <path
+        d="M 0 160 C 40 150, 60 155, 90 140 S 140 110, 170 115 S 230 90, 260 70 S 320 55, 360 35 S 410 15, 440 10"
+        fill="none"
+        stroke="url(#stroke)"
+        stroke-width="5"
+        stroke-linecap="round"
+        filter="url(#glow)"
+      />
+      <!-- End dot -->
+      <circle cx="440" cy="10" r="7" fill="#ecfdf5" />
+      <circle cx="440" cy="10" r="13" fill="none" stroke="rgba(236,253,245,0.35)" stroke-width="2" />
+    </svg>
+
+    <div class="frame">
+      <div class="wordmark">
+        <div class="dot"></div>
+        <div class="wordmark-text">One Day Investor</div>
+      </div>
+
+      <div class="body">
+        <h1 class="headline">
+          A calm, visual way<br />
+          <span class="accent">to watch your wealth grow.</span>
+        </h1>
+        <div class="features">
+          Pockets<span class="sep">·</span>Assets<span class="sep">·</span>Snapshots<span class="sep">·</span>Analytics
+        </div>
+      </div>
+
+      <div class="url">odinvestor.net</div>
+    </div>
+  </body>
+</html>

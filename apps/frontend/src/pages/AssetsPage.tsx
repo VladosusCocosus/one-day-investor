@@ -9,6 +9,8 @@ import { useAllPocketAssets } from "@/hooks/useAllPocketAssets";
 import { usePriceLookup } from "@/hooks/useMarketPriceLookup";
 import type { PocketAsset } from "@/hooks/usePocketAssets";
 import { cn } from "@/lib/utils";
+import { usePageMeta } from "@/lib/use-page-meta";
+import { pageMeta } from "@/lib/metadata";
 
 const CURRENCY_SYMBOLS: Record<string, string> = {
   EUR: "\u20ac",
@@ -21,6 +23,7 @@ type DrawerMode =
   | { kind: "edit"; asset: PocketAsset };
 
 export function AssetsPage() {
+  usePageMeta(pageMeta.assets);
   const { services, loading: servicesLoading } = useServices();
   const { settings } = useSettings();
   const currency = settings?.currency ?? "EUR";
