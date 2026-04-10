@@ -22,6 +22,7 @@ export function PocketList({ tree, loading, onOpenAdd, onOpenEdit }: PocketListP
     <div>
       {/* Section header */}
       <div className="mt-6 flex items-center justify-between">
+        {/* Counts parent groups (same as the prior PocketCard implementation), not total pockets. */}
         <div className="text-[11px] font-medium uppercase tracking-wider text-muted-foreground">
           Pockets · {tree.length}
         </div>
@@ -64,39 +65,47 @@ function PocketGroup({
   const parent = group.service;
 
   return (
-    <>
+    <li>
       {/* Parent row */}
-      <li>
-        <button
-          type="button"
-          onClick={() => onOpenEdit(parent.id)}
-          className="flex w-full items-center gap-2 rounded-md px-2.5 py-2 text-left text-sm font-semibold text-foreground transition-colors hover:bg-muted/60 focus-visible:bg-muted/60 focus-visible:outline-none"
-        >
-          {isLeaf && (
-            <span className={cn("h-2 w-2 shrink-0 rounded-full", DOT_CLASS[parent.service_type])} />
-          )}
-          <span className="flex-1 truncate">{parent.name}</span>
-          {!isLeaf && (
-            <span className="text-[11px] font-medium text-muted-foreground">
-              {group.children.length}
-            </span>
-          )}
-        </button>
-      </li>
+      <button
+        type="button"
+        onClick={() => onOpenEdit(parent.id)}
+        aria-label={`Edit ${parent.name}`}
+        className="flex w-full items-center gap-2 rounded-md px-2.5 py-2 text-left text-sm font-semibold text-foreground transition-colors hover:bg-muted/60 focus-visible:bg-muted/60 focus-visible:outline-none"
+      >
+        {isLeaf && (
+          <span className={cn("h-2 w-2 shrink-0 rounded-full", DOT_CLASS[parent.service_type])} />
+        )}
+        <span className="flex-1 truncate">{parent.name}</span>
+        {!isLeaf && (
+          <span className="text-[11px] font-medium text-muted-foreground">
+            {group.children.length}
+          </span>
+        )}
+      </button>
 
-      {/* Child rows */}
-      {group.children.map((child) => (
-        <li key={child.id}>
-          <button
-            type="button"
-            onClick={() => onOpenEdit(parent.id, child.id)}
-            className="flex w-full items-center gap-2 rounded-md py-1.5 pl-8 pr-2.5 text-left text-[13px] text-muted-foreground transition-colors hover:bg-muted/60 focus-visible:bg-muted/60 focus-visible:outline-none"
-          >
-            <span className={cn("h-2 w-2 shrink-0 rounded-full", DOT_CLASS[child.service_type])} />
-            <span className="flex-1 truncate">{child.name}</span>
-          </button>
-        </li>
-      ))}
-    </>
+      {/* Child rows — nested list for semantic hierarchy */}
+      {!isLeaf && (
+        <ul
+          role="group"
+          aria-label={`${parent.name} sub-pockets`}
+          className="list-none p-0 m-0"
+        >
+          {group.children.map((child) => (
+            <li key={child.id}>
+              <button
+                type="button"
+                onClick={() => onOpenEdit(parent.id, child.id)}
+                aria-label={`Edit ${child.name}`}
+                className="flex w-full items-center gap-2 rounded-md py-1.5 pl-8 pr-2.5 text-left text-[13px] text-muted-foreground transition-colors hover:bg-muted/60 focus-visible:bg-muted/60 focus-visible:outline-none"
+              >
+                <span className={cn("h-2 w-2 shrink-0 rounded-full", DOT_CLASS[child.service_type])} />
+                <span className="flex-1 truncate">{child.name}</span>
+              </button>
+            </li>
+          ))}
+        </ul>
+      )}
+    </li>
   );
 }
