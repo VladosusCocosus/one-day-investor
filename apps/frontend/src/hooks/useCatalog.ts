@@ -1,5 +1,6 @@
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { api } from "@/lib/api";
+import type { Service } from "@/hooks/useServices";
 
 export type ServiceType = "common" | "invest" | "crypto";
 
@@ -49,7 +50,7 @@ export function useCatalog() {
       catalog_service_id: string;
       child_ids: string[];
     }) => {
-      const res = await api.post("/api/services/subscribe", {
+      const res = await api.post<Service[]>("/api/services/subscribe", {
         catalog_service_id,
         child_ids,
       });

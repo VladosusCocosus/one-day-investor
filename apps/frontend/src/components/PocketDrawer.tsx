@@ -14,10 +14,22 @@ import { useCatalog } from "@/hooks/useCatalog";
 import { useServices, type ServiceTree } from "@/hooks/useServices";
 import type { CatalogService, ServiceType } from "@/hooks/useCatalog";
 
+/**
+ * Discriminated mode for the pocket drawer. `add` shows the catalog search;
+ * `edit` shows the children editor for a given parent (optionally focusing a child).
+ */
 export type PocketDrawerMode =
   | { kind: "add" }
   | { kind: "edit"; parentId: string; focusChildId?: string };
 
+/**
+ * The drawer is controlled via a single `mode: PocketDrawerMode | null` prop.
+ * Passing `null` closes the drawer; passing a value both opens it and selects
+ * the mode. This is intentionally different from AssetDrawer/SnapshotDrawer
+ * (which separate `open` + `mode`) because the add→edit transition must be
+ * atomic — the unified prop avoids a split-second window where open/mode are
+ * inconsistent.
+ */
 interface PocketDrawerProps {
   mode: PocketDrawerMode | null;
   onModeChange: (mode: PocketDrawerMode | null) => void;
@@ -82,6 +94,7 @@ export function PocketDrawer({ mode, onModeChange }: PocketDrawerProps) {
               onCreateCustom={handleCreateCustom}
             />
           ) : editingGroup ? (
+            // Task 4 replacement target — the full edit UI replaces this entire branch.
             <div className="text-xs text-muted-foreground">
               Edit UI arrives in the next task.
             </div>
