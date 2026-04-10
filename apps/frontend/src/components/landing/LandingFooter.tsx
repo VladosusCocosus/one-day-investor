@@ -10,16 +10,7 @@ export function LandingFooter() {
           />
           <span className="font-semibold tracking-[0.18em] uppercase">One Day Investor</span>
         </div>
-        <div className="flex items-center gap-5">
-          <span>© 2026 One Day Investor</span>
-          <span aria-hidden="true">·</span>
-          <a
-            href="https://odinvestor.net"
-            className="hover:text-emerald-100 transition-colors"
-          >
-            odinvestor.net
-          </a>
-        </div>
+        <div className="text-emerald-300/80">© 2026 One Day Investor</div>
       </div>
     </footer>
   );
