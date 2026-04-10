@@ -16,6 +16,15 @@ function formatAmount(n: number, symbol: string): string {
   return `${symbol}${Number(n).toLocaleString("en-US")}`;
 }
 
+function escapeHtml(s: string): string {
+  return s
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;")
+    .replace(/"/g, "&quot;")
+    .replace(/'/g, "&#39;");
+}
+
 export function renderReminderEmail(data: ReminderData): string {
   const percent =
     data.goal > 0 ? Math.round((data.lastTotal / data.goal) * 100) : 0;
@@ -33,7 +42,7 @@ export function renderReminderEmail(data: ReminderData): string {
           &#x25cf; One Day Investor
         </div>
         <h1 style="margin:18px 0 6px;font-size:26px;font-weight:800;line-height:1.15;letter-spacing:-0.015em;">
-          Time for your ${data.currentMonthLabel} snapshot, ${data.firstName}
+          Time for your ${escapeHtml(data.currentMonthLabel)} snapshot, ${escapeHtml(data.firstName)}
         </h1>
         <p style="margin:0;font-size:14px;color:rgba(255,255,255,0.88);line-height:1.5;max-width:420px;">
           It's been a month since you last recorded your portfolio. Take 2 minutes to update it and keep your timeline honest.
@@ -45,8 +54,8 @@ export function renderReminderEmail(data: ReminderData): string {
           <td style="width:50%;padding-right:7px;vertical-align:top;">
             <div style="padding:14px;border:1px solid #e5e7eb;border-radius:10px;">
               <div style="font-size:9px;font-weight:700;letter-spacing:0.09em;text-transform:uppercase;color:#64748b;">Last snapshot</div>
-              <div style="margin-top:4px;font-size:18px;font-weight:800;color:#0f172a;">${data.lastMonthLabel}</div>
-              <div style="margin-top:2px;font-size:11px;color:#64748b;">created ${data.lastCreatedAtLabel}</div>
+              <div style="margin-top:4px;font-size:18px;font-weight:800;color:#0f172a;">${escapeHtml(data.lastMonthLabel)}</div>
+              <div style="margin-top:2px;font-size:11px;color:#64748b;">created ${escapeHtml(data.lastCreatedAtLabel)}</div>
             </div>
           </td>
           <td style="width:50%;padding-left:7px;vertical-align:top;">
@@ -70,9 +79,9 @@ export function renderReminderEmail(data: ReminderData): string {
       </td></tr>
 
       <tr><td style="padding:24px 32px 32px;">
-        <a href="${data.ctaHref}"
+        <a href="${escapeHtml(data.ctaHref)}"
            style="display:block;background:linear-gradient(135deg,#059669,#10b981);color:#ffffff;text-align:center;padding:14px 20px;border-radius:10px;font-size:15px;font-weight:700;text-decoration:none;box-shadow:0 6px 16px rgba(16,185,129,0.3);">
-          Record ${data.currentMonthLabel} snapshot &rarr;
+          Record ${escapeHtml(data.currentMonthLabel)} snapshot &rarr;
         </a>
       </td></tr>
 
