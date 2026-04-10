@@ -1,4 +1,5 @@
 import { LandingNav } from "@/components/landing/LandingNav";
+import { LandingHero } from "@/components/landing/LandingHero";
 
 export function LandingPage() {
   return (
@@ -10,8 +11,8 @@ export function LandingPage() {
       }}
     >
       <LandingNav />
-      <main id="main" className="mx-auto max-w-[1200px] px-6 py-20 md:px-8">
-        <p className="text-center text-emerald-200">Sections coming in later tasks...</p>
+      <main id="main">
+        <LandingHero />
       </main>
     </div>
   );
