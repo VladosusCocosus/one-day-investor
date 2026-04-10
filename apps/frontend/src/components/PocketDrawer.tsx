@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { Trash2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import {
@@ -69,17 +69,32 @@ export function PocketDrawer({ mode, onModeChange }: PocketDrawerProps) {
   const [newChildType, setNewChildType] = useState<ServiceType>("common");
   const [saving, setSaving] = useState(false);
   const [deleting, setDeleting] = useState(false);
+  const [removingChildId, setRemovingChildId] = useState<string | null>(null);
 
   const parentId = mode?.kind === "edit" ? mode.parentId : null;
 
+  const seededForIdRef = useRef<string | null>(null);
+
   useEffect(() => {
-    if (!editingGroup) {
+    // Leaving edit mode (add mode or closed): clear drafts and forget what we seeded.
+    if (!mode || mode.kind !== "edit") {
+      seededForIdRef.current = null;
       setParentDraft(null);
       setChildDrafts(new Map());
       setNewChildName("");
       setNewChildType("common");
       return;
     }
+
+    // In edit mode but the tree hasn't caught up yet (e.g., the add→edit transition
+    // fires before React Query has refetched). Wait for editingGroup to become non-null.
+    if (!editingGroup) return;
+
+    // Already seeded for this parent — don't re-seed on subsequent query invalidations,
+    // which would wipe the user's in-progress field edits.
+    if (seededForIdRef.current === mode.parentId) return;
+
+    seededForIdRef.current = mode.parentId;
     setParentDraft({
       name: editingGroup.service.name,
       service_type: editingGroup.service.service_type,
@@ -87,7 +102,7 @@ export function PocketDrawer({ mode, onModeChange }: PocketDrawerProps) {
     setChildDrafts(new Map());
     setNewChildName("");
     setNewChildType("common");
-  }, [parentId, editingGroup]);
+  }, [mode, editingGroup]);
 
   // ---- Add-mode handlers -----------------------------------------------------
   const handleSelectCatalog = async (service: CatalogService, childIds: string[]) => {
@@ -131,13 +146,19 @@ export function PocketDrawer({ mode, onModeChange }: PocketDrawerProps) {
   };
 
   const handleRemoveChild = async (childId: string) => {
-    await removeService(childId);
-    setChildDrafts((prev) => {
-      if (!prev.has(childId)) return prev;
-      const next = new Map(prev);
-      next.delete(childId);
-      return next;
-    });
+    if (removingChildId) return; // defense in depth against double-fire
+    setRemovingChildId(childId);
+    try {
+      await removeService(childId);
+      setChildDrafts((prev) => {
+        if (!prev.has(childId)) return prev;
+        const next = new Map(prev);
+        next.delete(childId);
+        return next;
+      });
+    } finally {
+      setRemovingChildId(null);
+    }
   };
 
   const handleSave = async () => {
@@ -278,6 +299,7 @@ export function PocketDrawer({ mode, onModeChange }: PocketDrawerProps) {
                         child={child}
                         draft={draft}
                         highlighted={highlighted}
+                        removing={removingChildId === child.id}
                         onNameChange={(name) => updateChildDraft(child.id, { name }, child)}
                         onTypeChange={(service_type) =>
                           updateChildDraft(child.id, { service_type }, child)
@@ -358,6 +380,7 @@ function ChildRow({
   child,
   draft,
   highlighted,
+  removing,
   onNameChange,
   onTypeChange,
   onRemove,
@@ -365,6 +388,7 @@ function ChildRow({
   child: Service;
   draft: ChildDraft;
   highlighted: boolean;
+  removing: boolean;
   onNameChange: (name: string) => void;
   onTypeChange: (value: ServiceType) => void;
   onRemove: () => void;
@@ -375,7 +399,7 @@ function ChildRow({
     if (!highlighted) return;
     const t = setTimeout(() => setRingVisible(false), 800);
     return () => clearTimeout(t);
-  }, [highlighted, child.id]);
+  }, [highlighted]);
 
   return (
     <div
@@ -395,7 +419,8 @@ function ChildRow({
       <button
         type="button"
         onClick={onRemove}
-        className="flex h-6 w-6 items-center justify-center rounded-md text-muted-foreground transition-colors hover:bg-red-50 hover:text-red-600"
+        disabled={removing}
+        className="flex h-6 w-6 items-center justify-center rounded-md text-muted-foreground transition-colors hover:bg-red-50 hover:text-red-600 disabled:opacity-40 disabled:cursor-not-allowed disabled:hover:bg-transparent disabled:hover:text-muted-foreground"
         aria-label="Remove sub-pocket"
       >
         <Trash2 className="h-3 w-3" />
