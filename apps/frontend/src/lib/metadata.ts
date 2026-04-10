@@ -14,7 +14,13 @@ export const SITE = {
 type Meta = { title: string; description: string };
 
 export const pageMeta: Record<
-  "login" | "dashboard" | "profile" | "assets" | "snapshots" | "analytics",
+  | "login"
+  | "dashboard"
+  | "profile"
+  | "assets"
+  | "snapshots"
+  | "analytics"
+  | "philosophy",
   Meta
 > = {
   login: {
@@ -43,5 +49,10 @@ export const pageMeta: Record<
     title: "Analytics",
     description:
       "Distribution, timelines, and performance for your portfolio.",
+  },
+  philosophy: {
+    title: "Philosophy",
+    description:
+      "A letter from the person building One Day Investor: invest one day a month, ignore the other thirty.",
   },
 };
