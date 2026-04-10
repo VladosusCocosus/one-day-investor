@@ -1,16 +1,14 @@
-import { useState } from "react";
-import { AddServiceSearch } from "@/components/AddServiceSearch";
-import { PocketCard } from "@/components/PocketCard";
+import { useCallback, useState } from "react";
+import { PocketList } from "@/components/PocketList";
+import { PocketDrawer, type PocketDrawerMode } from "@/components/PocketDrawer";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { Button } from "@/components/ui/button";
 import { useAuth } from "@/hooks/useAuth";
-import { useCatalog } from "@/hooks/useCatalog";
 import { useServices } from "@/hooks/useServices";
 import { useSettings } from "@/hooks/useSettings";
 import { cn } from "@/lib/utils";
 import { usePageMeta } from "@/lib/use-page-meta";
 import { pageMeta } from "@/lib/metadata";
-import type { CatalogService, ServiceType } from "@/hooks/useCatalog";
 
 function ordinal(n: number): string {
   const s = ["th", "st", "nd", "rd"];
@@ -149,13 +147,12 @@ function CurrencyEditor({
 export function ProfilePage() {
   usePageMeta(pageMeta.profile);
   const { user } = useAuth();
-  const { searchCatalog, getChildren, subscribe, unsubscribe } = useCatalog();
-  const { services, tree, loading, addService, removeService, editService } =
-    useServices();
+  const { tree, loading } = useServices();
   const { settings, updateSettings } = useSettings();
 
   const [snapshotChipOpen, setSnapshotChipOpen] = useState(false);
   const [currencyChipOpen, setCurrencyChipOpen] = useState(false);
+  const [drawerMode, setDrawerMode] = useState<PocketDrawerMode | null>(null);
 
   const initials = user?.name
     ? user.name
@@ -166,28 +163,16 @@ export function ProfilePage() {
         .slice(0, 2)
     : "?";
 
-  const handleSelectCatalog = async (
-    service: CatalogService,
-    childIds: string[]
-  ) => {
-    await subscribe(service.id, childIds);
-  };
-
-  const handleCreateCustom = async (name: string, serviceType: ServiceType) => {
-    await addService(name, null, serviceType);
-  };
-
-  const handleRemove = async (id: string) => {
-    const service = services.find((s) => s.id === id);
-    if (service?.catalog_service_id && !service.parent_id) {
-      await unsubscribe(service.catalog_service_id);
-    } else {
-      await removeService(id);
-    }
-  };
-
   const snapshotDay = settings?.snapshot_day ?? 1;
   const currency = settings?.currency ?? "EUR";
+
+  const handleOpenAdd = useCallback(() => {
+    setDrawerMode({ kind: "add" });
+  }, []);
+
+  const handleOpenEdit = useCallback((parentId: string, focusChildId?: string) => {
+    setDrawerMode({ kind: "edit", parentId, focusChildId });
+  }, []);
 
   return (
     <div>
@@ -249,40 +234,14 @@ export function ProfilePage() {
       </div>
 
       {/* Pockets */}
-      <div className="mt-6 text-[11px] font-medium uppercase tracking-wider text-muted-foreground">
-        Pockets · {tree.length}
-      </div>
-      <div className="mt-2">
-        <AddServiceSearch
-          searchCatalog={searchCatalog}
-          getChildren={getChildren}
-          onSelectCatalog={handleSelectCatalog}
-          onCreateCustom={handleCreateCustom}
-        />
-      </div>
-      {loading ? (
-        <p className="mt-3 text-sm text-muted-foreground text-center py-6">
-          Loading...
-        </p>
-      ) : tree.length === 0 ? (
-        <p className="mt-3 text-sm text-muted-foreground text-center py-6">
-          No pockets yet. Search above to add one.
-        </p>
-      ) : (
-        <div className="mt-3 flex flex-wrap gap-3">
-          {tree.map((group) => (
-            <PocketCard
-              key={group.service.id}
-              group={group}
-              onEdit={editService}
-              onRemove={handleRemove}
-              onAddChild={async (name, parentId, serviceType) => {
-                await addService(name, parentId, serviceType);
-              }}
-            />
-          ))}
-        </div>
-      )}
+      <PocketList
+        tree={tree}
+        loading={loading}
+        onOpenAdd={handleOpenAdd}
+        onOpenEdit={handleOpenEdit}
+      />
+
+      <PocketDrawer mode={drawerMode} onModeChange={setDrawerMode} />
     </div>
   );
 }
