@@ -1,3 +1,4 @@
+import { useState } from "react";
 import { useAuth } from "@/hooks/useAuth";
 import {
   useCurrentTotal,
@@ -11,6 +12,10 @@ import { GoalHero } from "@/components/GoalHero";
 import { QuickActions } from "@/components/QuickActions";
 import { DistributionDonut } from "@/components/DistributionDonut";
 import { PortfolioTimelineChart } from "@/components/PortfolioTimelineChart";
+import {
+  WelcomeOverlay,
+  WELCOME_OVERLAY_STORAGE_KEY,
+} from "@/components/WelcomeOverlay";
 import { sortByAmountDesc } from "@/lib/chart";
 import { usePageMeta } from "@/lib/use-page-meta";
 import { pageMeta } from "@/lib/metadata";
@@ -27,6 +32,17 @@ export function DashboardPage() {
   const { data: timeline = [], isLoading: timelineLoading } = useTimeline();
   const { data: current = null } = useCurrentTotal();
   const { settings, updateSettings } = useSettings();
+
+  const [welcomeOpen, setWelcomeOpen] = useState<boolean>(() => {
+    if (typeof window === "undefined") return false;
+    return (
+      window.localStorage.getItem(WELCOME_OVERLAY_STORAGE_KEY) !== "true"
+    );
+  });
+  const handleWelcomeDismiss = () => {
+    window.localStorage.setItem(WELCOME_OVERLAY_STORAGE_KEY, "true");
+    setWelcomeOpen(false);
+  };
 
   // "Current" = the most recently created snapshot, not the highest month.
   // Back-filled months still surface correctly because the endpoint sorts
@@ -53,6 +69,8 @@ export function DashboardPage() {
 
   return (
     <div>
+      <WelcomeOverlay open={welcomeOpen} onDismiss={handleWelcomeDismiss} />
+
       <DashboardHero
         timeline={timeline}
         total={currentTotal ?? 0}
