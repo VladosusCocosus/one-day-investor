@@ -117,6 +117,15 @@ export async function createSnapshot(params: {
       entries.push(entryResult.rows[0]);
     }
 
+    await client.query(
+      `INSERT INTO reminder_state (user_id, last_snapshot_at, last_reminder_sent_at)
+       VALUES ($1, now(), NULL)
+       ON CONFLICT (user_id) DO UPDATE
+         SET last_snapshot_at = EXCLUDED.last_snapshot_at,
+             last_reminder_sent_at = NULL`,
+      [params.user_id]
+    );
+
     await client.query("COMMIT");
     return {
       id: snapshot.id,
