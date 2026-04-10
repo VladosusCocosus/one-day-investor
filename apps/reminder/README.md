@@ -26,6 +26,16 @@ All three are also surfaced in `@config` as `mailgun.apiKey`, `mailgun.domain`, 
 
 ## Running locally
 
+First-time setup: run `bun install` from the repo root to pull `mailgun.js` and `form-data` into the workspace.
+
+Confirm the `reminder_state` table exists (created by `packages/database/migrations/<timestamp>_add-reminder-state.sql`):
+
+```bash
+PGPASSWORD=postgres psql -h localhost -U postgres -d one_day_investor -c "\d reminder_state"
+```
+
+Expected: three columns (`user_id`, `last_snapshot_at`, `last_reminder_sent_at`), the `idx_reminder_state_due` index, and the `reminder_state_user_id_fkey` foreign key to `users`. If the table is missing, run the migrations (`cd packages/database && bun run migrate:up`).
+
 ```bash
 bun run -F @reminder-app send-reminders
 ```
@@ -80,6 +90,6 @@ Host cron surfaces non-zero exits via its mail mechanism if configured. Operator
 
 **Script hangs after "run complete"** — a `pool.end()` failure probably swallowed cleanup; force-kill and check the logger output.
 
-**Same user emailed twice in one hour** — shouldn't happen (the `UPDATE` is inside the per-user try). If it does, the `UPDATE` failed after the Mailgun call succeeded; investigate DB connectivity.
+**Same user emailed twice** — the CLI uses mark-after-send: `sendReminderEmail` runs, then `UPDATE reminder_state`. If the Mailgun call succeeds but the `UPDATE` fails (or the process crashes between them), the next hourly tick will see the user as still due and re-send. This is a deliberate at-least-once tradeoff over silent under-send. If you see it happening repeatedly, investigate DB connectivity and check for unexpected exceptions in the log between the `reminder sent` line and the next `reminder run complete`.
 
 **"Parameter 'key' is required" on startup** — `MAILGUN_API_KEY` is empty. The Mailgun SDK fails fast at module load. Set the env var before invoking the CLI. This is a known tradeoff of eager client initialization in `src/mailer/mailgun.ts`.
