@@ -4,7 +4,7 @@ import { useAuth } from "@/hooks/useAuth";
 import { cn } from "@/lib/utils";
 
 export function LandingNav() {
-  const { user } = useAuth();
+  const { user, loading } = useAuth();
   const [scrolled, setScrolled] = useState(false);
 
   useEffect(() => {
@@ -44,12 +44,19 @@ export function LandingNav() {
           >
             Features
           </a>
-          <Link
-            to={ctaHref}
-            className="inline-flex h-9 items-center rounded-md bg-emerald-50 px-4 text-sm font-semibold text-emerald-950 shadow-sm hover:bg-white transition-colors"
-          >
-            {ctaLabel}
-          </Link>
+          {loading ? (
+            <span
+              aria-hidden="true"
+              className="inline-flex h-9 w-[84px] items-center rounded-md bg-emerald-50/20"
+            />
+          ) : (
+            <Link
+              to={ctaHref}
+              className="inline-flex h-9 items-center rounded-md bg-emerald-50 px-4 text-sm font-semibold text-emerald-950 shadow-sm hover:bg-white transition-colors"
+            >
+              {ctaLabel}
+            </Link>
+          )}
         </nav>
       </div>
     </header>
