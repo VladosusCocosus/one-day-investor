@@ -1,0 +1,40 @@
+FROM oven/bun:latest AS base
+WORKDIR /app
+
+# cron for scheduled execution inside the container
+RUN apt-get update \
+    && apt-get install -y --no-install-recommends cron \
+    && rm -rf /var/lib/apt/lists/*
+
+# Copy workspace structure for dependency install caching
+COPY package.json bun.lock ./
+COPY packages/config/package.json packages/config/
+COPY packages/database/package.json packages/database/
+COPY packages/logger/package.json packages/logger/
+COPY packages/mailgun/package.json packages/mailgun/
+COPY apps/reminder/package.json apps/reminder/
+COPY packages/ packages/
+COPY apps/reminder/ apps/reminder/
+
+RUN bun install
+
+# Entrypoint: snapshot runtime env (cron strips it), install crontab, run cron in foreground
+RUN cat > /entrypoint.sh <<'SH' && chmod +x /entrypoint.sh
+#!/bin/sh
+set -e
+
+# cron jobs run with a minimal env — dump the vars we need so the job can source them
+printenv | grep -E '^(POSTGRES_|NODE_ENV|FRONTEND_URL|MAILGUN_|DATABASE_URL|LOG_LEVEL)=' > /etc/reminder.env
+
+# Install crontab. Logs go to container stdout/stderr via PID 1 (cron).
+cat > /etc/cron.d/reminder <<'CRON'
+SHELL=/bin/sh
+0 * * * * root . /etc/reminder.env && cd /app && /usr/local/bin/bun run apps/reminder/src/cli/send-due-reminders.ts >> /proc/1/fd/1 2>> /proc/1/fd/2
+CRON
+chmod 0644 /etc/cron.d/reminder
+
+echo "reminder cron installed — running every hour at :00"
+exec cron -f
+SH
+
+CMD ["/entrypoint.sh"]
