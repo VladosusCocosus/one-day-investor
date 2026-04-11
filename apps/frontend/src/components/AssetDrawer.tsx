@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useRef, useState } from "react";
-import { Search, Trash2, AlertTriangle } from "lucide-react";
+import { Search, Trash2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import {
   Sheet,
@@ -12,14 +12,12 @@ import {
 } from "@/components/ui/sheet";
 import { useAssetCatalog } from "@/hooks/useAssetCatalog";
 import { usePocketAssets, type PocketAsset } from "@/hooks/usePocketAssets";
-import { getLeafPockets, getPocketLabels, type Service } from "@/hooks/useServices";
+import { getPocketLabels, type Service } from "@/hooks/useServices";
 import type { AssetCatalog, AssetType } from "@/hooks/useAssetCatalog";
 import { cn } from "@/lib/utils";
 
-const LAST_POCKET_KEY = "assets:lastPocketId";
-
 type Mode =
-  | { kind: "add" }
+  | { kind: "add"; pocketId: string }
   | { kind: "edit"; asset: PocketAsset };
 
 interface AssetDrawerProps {
@@ -55,12 +53,17 @@ export function AssetDrawer({
   // usePocketAssets is called without a serviceId — we only use its mutations here.
   const { addAsset, updateAsset, removeAsset } = usePocketAssets(undefined);
 
-  const leafPockets = useMemo(() => getLeafPockets(services), [services]);
   const pocketLabels = useMemo(() => getPocketLabels(services), [services]);
+
+  // The pocket is fixed by the caller — for add mode it's mode.pocketId,
+  // for edit mode it's the existing asset's service_id. There is no in-drawer
+  // pocket selector anymore.
+  const pocketId =
+    mode.kind === "add" ? mode.pocketId : mode.asset.service_id;
+  const pocketLabel = pocketLabels.get(pocketId) ?? "";
 
   // Form state
   const [selection, setSelection] = useState<AssetSelection | null>(null);
-  const [pocketId, setPocketId] = useState<string>("");
   const [quantity, setQuantity] = useState<string>("");
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -104,10 +107,6 @@ export function AssetDrawer({
         asset_type: a.asset_type,
         api_id: a.api_id,
       });
-      // If the asset lives on a non-leaf pocket, leave the selector empty
-      // so the user is forced to pick a leaf.
-      const isLeaf = leafPockets.some((p) => p.id === a.service_id);
-      setPocketId(isLeaf ? a.service_id : "");
       setQuantity(String(Number(a.quantity) || 0));
       setQuery("");
       setResults([]);
@@ -115,9 +114,6 @@ export function AssetDrawer({
       setSearchOpen(false);
     } else {
       setSelection(null);
-      const lastId = localStorage.getItem(LAST_POCKET_KEY);
-      const lastIsValid = lastId && leafPockets.some((p) => p.id === lastId);
-      setPocketId(lastIsValid ? lastId : leafPockets[0]?.id ?? "");
       setQuantity("");
       setQuery("");
       setResults([]);
@@ -125,7 +121,7 @@ export function AssetDrawer({
       setSearchOpen(false);
       setActiveIndex(-1);
     }
-  }, [open, modeKind, editingId, leafPockets]);
+  }, [open, modeKind, editingId]);
 
   // Keep the keyboard-highlighted row scrolled into view
   useEffect(() => {
@@ -232,15 +228,10 @@ export function AssetDrawer({
   const previewValue =
     previewPrice != null && qtyNum > 0 ? qtyNum * previewPrice : null;
 
-  const canSave =
-    !!selection &&
-    !!pocketId &&
-    leafPockets.some((p) => p.id === pocketId) &&
-    qtyNum > 0 &&
-    !saving;
+  const canSave = !!selection && qtyNum > 0 && !saving;
 
   const handleSave = async () => {
-    if (!selection || !pocketId) return;
+    if (!selection) return;
     setSaving(true);
     setError(null);
     try {
@@ -255,14 +246,10 @@ export function AssetDrawer({
         if (qtyNum > 0) {
           await updateAsset(created.id, { quantity: qtyNum });
         }
-        localStorage.setItem(LAST_POCKET_KEY, pocketId);
       } else {
         const a = mode.asset;
-        const patch: { service_id?: string; quantity?: number } = {};
-        if (pocketId !== a.service_id) patch.service_id = pocketId;
-        if (qtyNum !== Number(a.quantity)) patch.quantity = qtyNum;
-        if (Object.keys(patch).length > 0) {
-          await updateAsset(a.id, patch);
+        if (qtyNum !== Number(a.quantity)) {
+          await updateAsset(a.id, { quantity: qtyNum });
         }
       }
       onOpenChange(false);
@@ -287,10 +274,6 @@ export function AssetDrawer({
     }
   };
 
-  const onLeafPocket =
-    mode.kind === "edit" &&
-    !leafPockets.some((p) => p.id === mode.asset.service_id);
-
   return (
     <Sheet open={open} onOpenChange={onOpenChange}>
       <SheetContent>
@@ -300,8 +283,8 @@ export function AssetDrawer({
           </SheetTitle>
           <SheetDescription>
             {mode.kind === "add"
-              ? "Search for an asset, pick a pocket, and enter the quantity."
-              : "Update quantity, move to a different pocket, or delete."}
+              ? `Search for an asset and enter the quantity. Adding to ${pocketLabel}.`
+              : `Update quantity or delete. Lives in ${pocketLabel}.`}
           </SheetDescription>
         </SheetHeader>
 
@@ -420,34 +403,6 @@ export function AssetDrawer({
                       </div>
                     )}
                 </div>
-              )}
-            </div>
-
-            {/* Pocket field */}
-            <div>
-              <label className="block text-[11px] font-medium uppercase tracking-wider text-muted-foreground">
-                Pocket
-              </label>
-              <select
-                className="mt-1.5 w-full rounded-md border bg-background px-3 py-2 text-sm outline-none focus-visible:ring-2 focus-visible:ring-ring"
-                value={pocketId}
-                onChange={(e) => setPocketId(e.target.value)}
-              >
-                <option value="" disabled>
-                  Select a pocket
-                </option>
-                {leafPockets.map((p) => (
-                  <option key={p.id} value={p.id}>
-                    {pocketLabels.get(p.id) ?? p.name}
-                  </option>
-                ))}
-              </select>
-              {onLeafPocket && (
-                <p className="mt-1.5 flex items-start gap-1.5 text-[11px] text-destructive">
-                  <AlertTriangle className="mt-[1px] h-3 w-3 shrink-0" />
-                  This asset is on a non-leaf pocket — pick a sub-pocket to
-                  save.
-                </p>
               )}
             </div>
 
