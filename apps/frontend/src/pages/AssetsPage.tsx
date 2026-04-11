@@ -236,6 +236,7 @@ export function AssetsPage() {
         services={services}
         prices={prices}
         currencySymbol={currencySymbol}
+        assetsByService={assetsByService}
       />
 
       <PocketDrawer

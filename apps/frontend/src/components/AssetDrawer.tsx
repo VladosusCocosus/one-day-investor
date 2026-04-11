@@ -27,6 +27,11 @@ interface AssetDrawerProps {
   services: Service[];
   prices: Record<string, number>;
   currencySymbol: string;
+  /**
+   * All assets grouped by service_id. Used in add mode to filter out catalog
+   * matches that are already present in the target pocket.
+   */
+  assetsByService: Map<string, PocketAsset[]>;
 }
 
 interface AssetSelection {
@@ -48,6 +53,7 @@ export function AssetDrawer({
   services,
   prices,
   currencySymbol,
+  assetsByService,
 }: AssetDrawerProps) {
   const { searchAssetCatalog } = useAssetCatalog();
   // usePocketAssets is called without a serviceId — we only use its mutations here.
@@ -62,6 +68,25 @@ export function AssetDrawer({
     mode.kind === "add" ? mode.pocketId : mode.asset.service_id;
   const pocketLabel = pocketLabels.get(pocketId) ?? "";
 
+  // Existing-asset filters for add mode: catalog ids and symbols already in
+  // the target pocket. The drawer hides catalog matches whose id is in the
+  // set, and blocks "Add as custom" when the symbol is already present.
+  const existingCatalogIds = useMemo(() => {
+    if (mode.kind !== "add") return new Set<string>();
+    const list = assetsByService.get(mode.pocketId) ?? [];
+    return new Set(
+      list
+        .map((a) => a.asset_catalog_id)
+        .filter((id): id is string => id !== null)
+    );
+  }, [mode, assetsByService]);
+
+  const existingSymbols = useMemo(() => {
+    if (mode.kind !== "add") return new Set<string>();
+    const list = assetsByService.get(mode.pocketId) ?? [];
+    return new Set(list.map((a) => a.symbol.toUpperCase()));
+  }, [mode, assetsByService]);
+
   // Form state
   const [selection, setSelection] = useState<AssetSelection | null>(null);
   const [quantity, setQuantity] = useState<string>("");
@@ -73,6 +98,7 @@ export function AssetDrawer({
   const [results, setResults] = useState<AssetCatalog[]>([]);
   const [searched, setSearched] = useState(false);
   const [searchOpen, setSearchOpen] = useState(false);
+  const [allFilteredOut, setAllFilteredOut] = useState(false);
   const [activeIndex, setActiveIndex] = useState(-1);
   const debounceRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const activeItemRef = useRef<HTMLButtonElement | null>(null);
@@ -135,6 +161,7 @@ export function AssetDrawer({
     setQuery(value);
     setSearched(false);
     setActiveIndex(-1);
+    setAllFilteredOut(false);
     if (debounceRef.current) clearTimeout(debounceRef.current);
     if (!value.trim()) {
       setResults([]);
@@ -146,10 +173,12 @@ export function AssetDrawer({
       const res = await searchAssetCatalog(value);
       // Ignore result if component unmounted OR a newer search superseded this one.
       if (!mountedRef.current || seq !== searchSeqRef.current) return;
-      setResults(res);
+      const filtered = res.filter((r) => !existingCatalogIds.has(r.id));
+      setResults(filtered);
+      setAllFilteredOut(res.length > 0 && filtered.length === 0);
       setSearched(true);
       setSearchOpen(true);
-      setActiveIndex(res.length > 0 ? 0 : -1);
+      setActiveIndex(filtered.length > 0 ? 0 : -1);
     }, 200);
   };
 
@@ -209,6 +238,10 @@ export function AssetDrawer({
   const handleCreateCustom = () => {
     const q = query.trim();
     if (!q) return;
+    if (existingSymbols.has(q.toUpperCase())) {
+      setError(`${q.toUpperCase()} is already in this pocket.`);
+      return;
+    }
     setSelection({
       asset_catalog_id: null,
       symbol: q.toUpperCase(),
@@ -388,7 +421,15 @@ export function AssetDrawer({
                   {searchOpen &&
                     searched &&
                     results.length === 0 &&
-                    query.trim() && (
+                    query.trim() &&
+                    (allFilteredOut ? (
+                      <div className="absolute z-10 mt-1 w-full rounded-md border bg-background p-3 shadow-md">
+                        <p className="text-xs text-muted-foreground">
+                          Every match for "{query.trim().toUpperCase()}" is
+                          already in this pocket.
+                        </p>
+                      </div>
+                    ) : (
                       <div className="absolute z-10 mt-1 w-full rounded-md border bg-background p-3 shadow-md">
                         <p className="text-xs text-muted-foreground">
                           No match for "{query.trim().toUpperCase()}".
@@ -397,11 +438,19 @@ export function AssetDrawer({
                           size="sm"
                           className="mt-2 h-7 text-xs"
                           onClick={handleCreateCustom}
+                          disabled={existingSymbols.has(
+                            query.trim().toUpperCase()
+                          )}
+                          title={
+                            existingSymbols.has(query.trim().toUpperCase())
+                              ? "Already in this pocket"
+                              : undefined
+                          }
                         >
                           Add as custom
                         </Button>
                       </div>
-                    )}
+                    ))}
                 </div>
               )}
             </div>
