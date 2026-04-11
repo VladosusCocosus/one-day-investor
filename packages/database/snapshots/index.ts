@@ -5,14 +5,14 @@ export type { Snapshot, SnapshotEntry } from "@types";
 
 export interface SnapshotWithTotal {
   id: string;
-  month: Date;
+  month: string;
   total: string;
   created_at: Date;
 }
 
 export interface SnapshotWithEntries {
   id: string;
-  month: Date;
+  month: string;
   created_at: Date;
   entries: SnapshotEntry[];
 }
@@ -36,7 +36,7 @@ export async function findSnapshotById(
   userId: string
 ): Promise<SnapshotWithEntries | null> {
   const snapshotResult = await pool.query<Snapshot>(
-    "SELECT * FROM snapshots WHERE id = $1 AND user_id = $2",
+    "SELECT id, month, created_at FROM snapshots WHERE id = $1 AND user_id = $2",
     [id, userId]
   );
   const snapshot = snapshotResult.rows[0];

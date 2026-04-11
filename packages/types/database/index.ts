@@ -78,7 +78,8 @@ export interface PocketAsset {
 export interface Snapshot {
   id: string;
   user_id: string;
-  month: Date;
+  /** "YYYY-MM-DD" — Postgres DATE returned as a raw string by pool/index.ts. */
+  month: string;
   created_at: Date;
 }
 
