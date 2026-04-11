@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { Plus } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
@@ -11,6 +11,10 @@ import {
   SnapshotDrawer,
   type SnapshotDrawerMode,
 } from "@/components/SnapshotDrawer";
+import {
+  FirstSnapshotEmailPrompt,
+  FIRST_SNAPSHOT_EMAIL_PROMPT_KEY,
+} from "@/components/FirstSnapshotEmailPrompt";
 import { usePageMeta } from "@/lib/use-page-meta";
 import { pageMeta } from "@/lib/metadata";
 
@@ -27,6 +31,9 @@ export function SnapshotsPage() {
   const { settings } = useSettings();
   const currency = settings?.currency ?? "EUR";
   const currencySymbol = CURRENCY_SYMBOLS[currency] ?? currency;
+  const emailEnabled = settings?.email_notifications_enabled ?? false;
+  const hadSnapshotsBeforeCreate = useRef(false);
+  const [emailPromptOpen, setEmailPromptOpen] = useState(false);
 
   // Selection is id-based so it survives create/delete without reindexing.
   const [selectedId, setSelectedId] = useState<string | undefined>();
@@ -56,6 +63,7 @@ export function SnapshotsPage() {
   });
 
   const openCreate = () => {
+    hadSnapshotsBeforeCreate.current = summaries.length > 0;
     setDrawerMode({ kind: "create" });
     setDrawerOpen(true);
   };
@@ -151,10 +159,22 @@ export function SnapshotsPage() {
         tree={tree}
         currency={currency}
         currencySymbol={currencySymbol}
-        onCreated={(id) => setSelectedId(id)}
+        onCreated={(id) => {
+          setSelectedId(id);
+          if (hadSnapshotsBeforeCreate.current) return;
+          if (emailEnabled) return;
+          if (window.localStorage.getItem(FIRST_SNAPSHOT_EMAIL_PROMPT_KEY)) return;
+          window.localStorage.setItem(FIRST_SNAPSHOT_EMAIL_PROMPT_KEY, "1");
+          setEmailPromptOpen(true);
+        }}
         onDeleted={() => {
           // Nothing to do — the summaries refetch + effect fallback handle it.
         }}
+      />
+
+      <FirstSnapshotEmailPrompt
+        open={emailPromptOpen}
+        onClose={() => setEmailPromptOpen(false)}
       />
     </div>
   );
