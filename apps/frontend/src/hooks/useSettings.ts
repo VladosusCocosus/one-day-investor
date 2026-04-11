@@ -6,7 +6,15 @@ export interface UserSettings {
   snapshot_day: number;
   goal: string;
   currency: string;
+  email_notifications_enabled: boolean;
 }
+
+type UpdateSettingsParams = {
+  snapshot_day?: number;
+  goal?: number;
+  currency?: string;
+  email_notifications_enabled?: boolean;
+};
 
 export function useSettings() {
   const queryClient = useQueryClient();
@@ -20,7 +28,7 @@ export function useSettings() {
   });
 
   const updateMutation = useMutation({
-    mutationFn: async (params: { snapshot_day?: number; goal?: number; currency?: string }) => {
+    mutationFn: async (params: UpdateSettingsParams) => {
       const res = await api.put<UserSettings>("/api/settings", params);
       return res.data;
     },
@@ -29,7 +37,7 @@ export function useSettings() {
     },
   });
 
-  const updateSettings = async (params: { snapshot_day?: number; goal?: number; currency?: string }) => {
+  const updateSettings = async (params: UpdateSettingsParams) => {
     return updateMutation.mutateAsync(params);
   };
 
