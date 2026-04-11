@@ -17,7 +17,12 @@ export async function getSettings(userId: string): Promise<UserSettings> {
 
 export async function updateSettings(
   userId: string,
-  params: { snapshot_day?: number; goal?: number; currency?: string }
+  params: {
+    snapshot_day?: number;
+    goal?: number;
+    currency?: string;
+    email_notifications_enabled?: boolean;
+  }
 ): Promise<UserSettings> {
   const fields: string[] = [];
   const values: unknown[] = [];
@@ -34,6 +39,10 @@ export async function updateSettings(
   if (params.currency !== undefined) {
     fields.push(`currency = $${idx++}`);
     values.push(params.currency);
+  }
+  if (params.email_notifications_enabled !== undefined) {
+    fields.push(`email_notifications_enabled = $${idx++}`);
+    values.push(params.email_notifications_enabled);
   }
 
   if (fields.length === 0) return getSettings(userId);
