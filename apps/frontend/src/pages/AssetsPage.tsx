@@ -25,7 +25,7 @@ const CURRENCY_SYMBOLS: Record<string, string> = {
 };
 
 type AssetDrawerMode =
-  | { kind: "add" }
+  | { kind: "add"; pocketId: string }
   | { kind: "edit"; asset: PocketAsset };
 
 export function AssetsPage() {
@@ -38,6 +38,7 @@ export function AssetsPage() {
   const [assetDrawerOpen, setAssetDrawerOpen] = useState(false);
   const [assetDrawerMode, setAssetDrawerMode] = useState<AssetDrawerMode>({
     kind: "add",
+    pocketId: "",
   });
   const [pocketDrawerMode, setPocketDrawerMode] =
     useState<PocketDrawerMode | null>(null);
@@ -112,8 +113,8 @@ export function AssetsPage() {
   const formatMoney = (v: number) =>
     `${currencySymbol}${Math.round(v).toLocaleString("en-US")}`;
 
-  const openAddAsset = () => {
-    setAssetDrawerMode({ kind: "add" });
+  const openAddAsset = (pocketId: string) => {
+    setAssetDrawerMode({ kind: "add", pocketId });
     setAssetDrawerOpen(true);
   };
 
@@ -152,27 +153,10 @@ export function AssetsPage() {
           </p>
         </div>
         {!servicesLoading && (
-          <div className="flex items-center gap-2">
-            <Button variant="outline" size="sm" onClick={openAddPocket}>
-              <Plus className="mr-1.5 h-3.5 w-3.5" />
-              Add pocket
-            </Button>
-            {!hasNoPockets && (
-              <Button
-                size="sm"
-                onClick={openAddAsset}
-                disabled={!hasInvestmentPockets}
-                title={
-                  !hasInvestmentPockets
-                    ? "Create a crypto or invest pocket first"
-                    : undefined
-                }
-              >
-                <Plus className="mr-1.5 h-3.5 w-3.5" />
-                Add asset
-              </Button>
-            )}
-          </div>
+          <Button variant="outline" size="sm" onClick={openAddPocket}>
+            <Plus className="mr-1.5 h-3.5 w-3.5" />
+            Add pocket
+          </Button>
         )}
       </div>
 
@@ -220,6 +204,7 @@ export function AssetsPage() {
                 rowValue={rowValue}
                 formatMoney={formatMoney}
                 onHeaderClick={() => openEditPocket(pocket.id)}
+                onAddAsset={() => openAddAsset(pocket.id)}
                 onRowClick={openEditAsset}
               />
             );
@@ -268,6 +253,7 @@ interface PocketSectionProps {
   rowValue: (a: PocketAsset) => number;
   formatMoney: (v: number) => string;
   onHeaderClick: () => void;
+  onAddAsset: () => void;
   onRowClick: (a: PocketAsset) => void;
 }
 
@@ -278,34 +264,52 @@ function PocketSection({
   rowValue,
   formatMoney,
   onHeaderClick,
+  onAddAsset,
   onRowClick,
 }: PocketSectionProps) {
   return (
     <div className="border-b last:border-b-0">
-      {/* Section header (clickable → edits the pocket) */}
-      <button
-        type="button"
-        onClick={onHeaderClick}
-        className={cn(
-          "flex w-full items-center justify-between bg-muted/30 px-4 py-2 text-left transition-colors",
-          "hover:bg-muted/50 focus-visible:bg-muted/50 focus-visible:outline-none"
-        )}
-        aria-label={`Edit pocket ${label}`}
-      >
-        <span className="text-[11px] font-semibold uppercase tracking-wider text-muted-foreground">
-          {label}
-        </span>
-        <span className="text-xs font-medium text-foreground tabular-nums">
+      {/* Section header — left button edits the pocket, right button adds an asset */}
+      <div className="flex items-center bg-muted/30">
+        <button
+          type="button"
+          onClick={onHeaderClick}
+          className={cn(
+            "flex flex-1 items-center px-4 py-2 text-left transition-colors",
+            "hover:bg-muted/50 focus-visible:bg-muted/50 focus-visible:outline-none"
+          )}
+          aria-label={`Edit pocket ${label}`}
+        >
+          <span className="text-[11px] font-semibold uppercase tracking-wider text-muted-foreground">
+            {label}
+          </span>
+        </button>
+        <span className="px-2 text-xs font-medium text-foreground tabular-nums">
           {total}
         </span>
-      </button>
+        <button
+          type="button"
+          onClick={onAddAsset}
+          aria-label={`Add asset to ${label}`}
+          className={cn(
+            "mr-2 flex h-6 w-6 items-center justify-center rounded-md text-muted-foreground transition-colors",
+            "hover:bg-emerald-50 hover:text-emerald-700",
+            "focus-visible:bg-emerald-50 focus-visible:text-emerald-700 focus-visible:outline-none"
+          )}
+        >
+          <Plus className="h-3.5 w-3.5" />
+        </button>
+      </div>
 
       {/* Asset rows */}
       {assets.length === 0 ? (
-        <div className="px-4 py-3 text-xs italic text-muted-foreground">
-          No assets — click <span className="font-medium">Add asset</span> to
-          create one
-        </div>
+        <button
+          type="button"
+          onClick={onAddAsset}
+          className="block w-full px-4 py-3 text-left text-xs italic text-muted-foreground transition-colors hover:bg-muted/40 focus-visible:bg-muted/40 focus-visible:outline-none"
+        >
+          No assets — click <span className="font-medium">+</span> to add one
+        </button>
       ) : (
         assets.map((a) => {
           const qty = Number(a.quantity) || 0;
