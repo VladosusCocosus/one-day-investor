@@ -19,6 +19,11 @@ export const settingsApi = new Elysia({ prefix: "/api/settings" })
       set.status = 401;
       return { error: "Unauthorized" };
     }
-    const params = body as { snapshot_day?: number; goal?: number; currency?: string };
+    const params = body as {
+      snapshot_day?: number;
+      goal?: number;
+      currency?: string;
+      email_notifications_enabled?: boolean;
+    };
     return updateSettings(user.id, params);
   });
