@@ -118,17 +118,25 @@ export function getLeafCommonPockets(services: Service[]): Service[] {
 
 /**
  * Returns a map of service id → "Parent · Child" display label for every leaf
- * pocket (all types). Leaves at the root level just show their own name.
+ * pocket (all types). Leaves at the root level just show their own name. When
+ * a leaf's name matches its parent's (the auto-created common-pocket child),
+ * the label collapses to the bare name to avoid "Cash · Cash".
  */
 export function getPocketLabels(services: Service[]): Map<string, string> {
   const byId = new Map(services.map((s) => [s.id, s]));
   const labels = new Map<string, string>();
   for (const leaf of leafServices(services, ALL_TYPES)) {
-    if (leaf.parent_id) {
-      const parent = byId.get(leaf.parent_id);
-      labels.set(leaf.id, parent ? `${parent.name} · ${leaf.name}` : leaf.name);
-    } else {
+    if (!leaf.parent_id) {
       labels.set(leaf.id, leaf.name);
+      continue;
+    }
+    const parent = byId.get(leaf.parent_id);
+    if (!parent) {
+      labels.set(leaf.id, leaf.name);
+    } else if (parent.name === leaf.name) {
+      labels.set(leaf.id, parent.name);
+    } else {
+      labels.set(leaf.id, `${parent.name} · ${leaf.name}`);
     }
   }
   return labels;

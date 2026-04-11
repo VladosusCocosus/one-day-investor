@@ -74,26 +74,38 @@ export function SnapshotDrawer({
   const modeKind = mode.kind;
   const editingId = mode.kind === "edit" ? mode.snapshot.id : null;
 
-  // Service classification from the tree
+  // Service classification from the tree.
+  //
+  // Common pockets are containers — money lives only on a leaf child. We never
+  // treat a common parent as its own leaf, even if it happens to be childless.
+  // Invest/crypto pockets keep the legacy "parent-as-leaf when childless"
+  // behavior because their balances are derived from pocket_assets, not direct
+  // snapshot entries.
   const { investServiceIds, commonServices, allLeafServices } = useMemo(() => {
     const invest: string[] = [];
     const commons: { id: string; label: string }[] = [];
     const leaves: { id: string; label: string; type: string }[] = [];
     for (const group of tree) {
+      const isCommonParent = group.service.service_type === "common";
       const iterate =
         group.children.length > 0
           ? group.children.map((c) => ({
               id: c.id,
-              label: `${group.service.name} · ${c.name}`,
+              label:
+                c.name === group.service.name
+                  ? group.service.name
+                  : `${group.service.name} · ${c.name}`,
               type: c.service_type,
             }))
-          : [
-              {
-                id: group.service.id,
-                label: group.service.name,
-                type: group.service.service_type,
-              },
-            ];
+          : isCommonParent
+            ? [] // Common parent without children — invisible in snapshot UI.
+            : [
+                {
+                  id: group.service.id,
+                  label: group.service.name,
+                  type: group.service.service_type,
+                },
+              ];
       for (const leaf of iterate) {
         leaves.push(leaf);
         if (leaf.type === "common") {

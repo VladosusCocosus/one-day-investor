@@ -236,6 +236,12 @@ export function PocketDrawer({ mode, onModeChange }: PocketDrawerProps) {
   const isLeafParent = editingGroup?.children.length === 0;
   const focusChildId = mode?.kind === "edit" ? mode.focusChildId : undefined;
 
+  // Every pocket must have at least one leaf — block save and surface a hint
+  // until the user adds a sub-pocket. Applies regardless of service_type, and
+  // covers freshly subscribed catalog pockets that arrived without children.
+  const needsChild =
+    !!editingGroup && editingGroup.children.length === 0;
+
   return (
     <Sheet open={open} onOpenChange={handleOpenChange}>
       <SheetContent widthClass="w-full sm:max-w-[480px]">
@@ -298,6 +304,11 @@ export function PocketDrawer({ mode, onModeChange }: PocketDrawerProps) {
                 <div className="text-[10px] font-semibold uppercase tracking-wider text-muted-foreground">
                   Sub-pockets · {editingGroup.children.length}
                 </div>
+                {needsChild && (
+                  <p className="mt-1 text-[11px] text-destructive">
+                    A pocket needs at least one sub-pocket before you can save.
+                  </p>
+                )}
                 <div className="mt-2 space-y-1.5">
                   {editingGroup.children.map((child) => {
                     const draft = childDrafts.get(child.id) ?? {
@@ -305,12 +316,21 @@ export function PocketDrawer({ mode, onModeChange }: PocketDrawerProps) {
                       service_type: child.service_type,
                     };
                     const highlighted = child.id === focusChildId;
+                    // Every pocket must keep at least one leaf — block removal
+                    // of the only child regardless of service_type.
+                    const isOnlyChild = editingGroup.children.length === 1;
                     return (
                       <ChildRow
                         key={child.id}
                         draft={draft}
                         highlighted={highlighted}
                         removing={removingChildId === child.id}
+                        removeDisabled={isOnlyChild}
+                        removeDisabledReason={
+                          isOnlyChild
+                            ? "A pocket must keep at least one sub-pocket."
+                            : undefined
+                        }
                         onNameChange={(name) => updateChildDraft(child.id, { name }, child)}
                         onTypeChange={(service_type) =>
                           updateChildDraft(child.id, { service_type }, child)
@@ -375,7 +395,16 @@ export function PocketDrawer({ mode, onModeChange }: PocketDrawerProps) {
               Cancel
             </Button>
             {!isAdd && (
-              <Button size="sm" onClick={handleSave} disabled={saving || deleting || addingChild}>
+              <Button
+                size="sm"
+                onClick={handleSave}
+                disabled={saving || deleting || addingChild || needsChild}
+                title={
+                  needsChild
+                    ? "Add at least one sub-pocket first"
+                    : undefined
+                }
+              >
                 {saving ? "..." : "Save"}
               </Button>
             )}
@@ -392,6 +421,8 @@ function ChildRow({
   draft,
   highlighted,
   removing,
+  removeDisabled,
+  removeDisabledReason,
   onNameChange,
   onTypeChange,
   onRemove,
@@ -399,6 +430,8 @@ function ChildRow({
   draft: ChildDraft;
   highlighted: boolean;
   removing: boolean;
+  removeDisabled?: boolean;
+  removeDisabledReason?: string;
   onNameChange: (name: string) => void;
   onTypeChange: (value: ServiceType) => void;
   onRemove: () => void;
@@ -429,7 +462,8 @@ function ChildRow({
       <button
         type="button"
         onClick={onRemove}
-        disabled={removing}
+        disabled={removing || removeDisabled}
+        title={removeDisabled ? removeDisabledReason : undefined}
         className="flex h-6 w-6 items-center justify-center rounded-md text-muted-foreground transition-colors hover:bg-red-50 hover:text-red-600 disabled:opacity-40 disabled:cursor-not-allowed disabled:hover:bg-transparent disabled:hover:text-muted-foreground"
         aria-label="Remove sub-pocket"
       >
