@@ -9,9 +9,11 @@ import {
   CalendarDays,
   LineChart,
   Repeat,
+  Check,
   type LucideIcon,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { useSettings } from "@/hooks/useSettings";
 import { cn } from "@/lib/utils";
 
 type Step = {
@@ -87,6 +89,14 @@ export function WelcomeOverlay({ open, onDismiss }: WelcomeOverlayProps) {
   const [current, setCurrent] = useState(0);
   const [prevOpen, setPrevOpen] = useState(open);
   const navigate = useNavigate();
+  const { settings, updateSettings } = useSettings();
+  const emailEnabled = settings?.email_notifications_enabled ?? false;
+
+  const enableReminder = () => {
+    updateSettings({ email_notifications_enabled: true }).catch(() => {
+      /* nudge surface — silently ignore */
+    });
+  };
 
   // Reset to first step when the overlay transitions from closed to open.
   // This uses the React 19 "setState during render" pattern for derived state,
@@ -127,6 +137,7 @@ export function WelcomeOverlay({ open, onDismiss }: WelcomeOverlayProps) {
   const Icon = step.icon;
   const isLast = current === steps.length - 1;
   const isFirst = current === 0;
+  const isReminderStep = current === 3;
 
   return (
     <DialogPrimitive.Root open={open} onOpenChange={handleOpenChange}>
@@ -217,6 +228,25 @@ export function WelcomeOverlay({ open, onDismiss }: WelcomeOverlayProps) {
                 <p className="mt-3 text-sm leading-relaxed text-slate-600">
                   {step.body[1]}
                 </p>
+                {isReminderStep && (
+                  <div className="mt-4">
+                    {emailEnabled ? (
+                      <div className="inline-flex items-center gap-1.5 rounded-full border border-emerald-200 bg-emerald-50 px-3 py-1.5 text-xs font-semibold text-emerald-800">
+                        <Check className="h-3.5 w-3.5" aria-hidden="true" />
+                        Reminder enabled
+                      </div>
+                    ) : (
+                      <Button
+                        onClick={enableReminder}
+                        size="sm"
+                        variant="outline"
+                        className="border-emerald-300 text-emerald-800 hover:bg-emerald-50"
+                      >
+                        Enable monthly reminder
+                      </Button>
+                    )}
+                  </div>
+                )}
               </div>
 
               <div className="mt-6 flex items-center justify-between border-t border-slate-100 pt-4">
