@@ -90,29 +90,40 @@ export function useServices() {
   return { services, tree, loading, addService, removeService, editService };
 }
 
+function leafServices(services: Service[], types: ReadonlySet<ServiceType>): Service[] {
+  const parentIds = new Set(
+    services.filter((s) => s.parent_id).map((s) => s.parent_id!)
+  );
+  return services.filter((s) => types.has(s.service_type) && !parentIds.has(s.id));
+}
+
+const INVESTABLE_TYPES: ReadonlySet<ServiceType> = new Set(["crypto", "invest"]);
+const COMMON_TYPES: ReadonlySet<ServiceType> = new Set(["common"]);
+const ALL_TYPES: ReadonlySet<ServiceType> = new Set(["crypto", "invest", "common"]);
+
 /**
  * Returns services that are valid pocket targets for asset rows.
  * A leaf pocket is a crypto/invest service that has no child services.
  */
 export function getLeafPockets(services: Service[]): Service[] {
-  const parentIds = new Set(
-    services.filter((s) => s.parent_id).map((s) => s.parent_id!)
-  );
-  return services.filter(
-    (s) =>
-      (s.service_type === "crypto" || s.service_type === "invest") &&
-      !parentIds.has(s.id)
-  );
+  return leafServices(services, INVESTABLE_TYPES);
 }
 
 /**
- * Returns a map of service id → "Parent · Child" display label for leaves.
- * Leaves at the root level just show their own name.
+ * Returns leaf common pockets (non-investable accounts/containers with no children).
+ */
+export function getLeafCommonPockets(services: Service[]): Service[] {
+  return leafServices(services, COMMON_TYPES);
+}
+
+/**
+ * Returns a map of service id → "Parent · Child" display label for every leaf
+ * pocket (all types). Leaves at the root level just show their own name.
  */
 export function getPocketLabels(services: Service[]): Map<string, string> {
   const byId = new Map(services.map((s) => [s.id, s]));
   const labels = new Map<string, string>();
-  for (const leaf of getLeafPockets(services)) {
+  for (const leaf of leafServices(services, ALL_TYPES)) {
     if (leaf.parent_id) {
       const parent = byId.get(leaf.parent_id);
       labels.set(leaf.id, parent ? `${parent.name} · ${leaf.name}` : leaf.name);

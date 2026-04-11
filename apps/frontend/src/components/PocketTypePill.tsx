@@ -4,7 +4,6 @@ import { cn } from "@/lib/utils";
 import type { ServiceType } from "@/hooks/useCatalog";
 
 // Emerald = invest, amber = crypto, slate = common.
-// Keep in sync with PocketList row dots.
 const TYPE_COLORS: Record<ServiceType, { dotClass: string; label: string }> = {
   invest: { dotClass: "bg-emerald-500", label: "Invest" },
   crypto: { dotClass: "bg-amber-500", label: "Crypto" },

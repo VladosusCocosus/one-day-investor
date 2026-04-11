@@ -105,7 +105,7 @@ export function WelcomeOverlay({ open, onDismiss }: WelcomeOverlayProps) {
       setCurrent((c) => c + 1);
     } else {
       onDismiss();
-      navigate("/profile");
+      navigate("/assets");
     }
   };
 
