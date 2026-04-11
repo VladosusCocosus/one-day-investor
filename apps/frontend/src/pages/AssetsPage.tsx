@@ -1,9 +1,15 @@
 import { useMemo, useState } from "react";
-import { Plus, AlertTriangle } from "lucide-react";
+import { Plus } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { AssetDrawer } from "@/components/AssetDrawer";
-import { useServices, getLeafPockets, getPocketLabels } from "@/hooks/useServices";
+import { PocketDrawer, type PocketDrawerMode } from "@/components/PocketDrawer";
+import {
+  useServices,
+  getLeafPockets,
+  getLeafCommonPockets,
+  getPocketLabels,
+} from "@/hooks/useServices";
 import { useSettings } from "@/hooks/useSettings";
 import { useAllPocketAssets } from "@/hooks/useAllPocketAssets";
 import { usePriceLookup } from "@/hooks/useMarketPriceLookup";
@@ -18,7 +24,7 @@ const CURRENCY_SYMBOLS: Record<string, string> = {
   GBP: "\u00a3",
 };
 
-type DrawerMode =
+type AssetDrawerMode =
   | { kind: "add" }
   | { kind: "edit"; asset: PocketAsset };
 
@@ -29,11 +35,22 @@ export function AssetsPage() {
   const currency = settings?.currency ?? "EUR";
   const currencySymbol = CURRENCY_SYMBOLS[currency] ?? currency;
 
-  const [drawerOpen, setDrawerOpen] = useState(false);
-  const [drawerMode, setDrawerMode] = useState<DrawerMode>({ kind: "add" });
+  const [assetDrawerOpen, setAssetDrawerOpen] = useState(false);
+  const [assetDrawerMode, setAssetDrawerMode] = useState<AssetDrawerMode>({
+    kind: "add",
+  });
+  const [pocketDrawerMode, setPocketDrawerMode] =
+    useState<PocketDrawerMode | null>(null);
 
-  // All crypto/invest services (parents + children) so findPocketAssetsByServiceId
-  // is queried for every potential holder, including legacy non-leaf holders.
+  const leafPockets = useMemo(() => getLeafPockets(services), [services]);
+  const leafCommonPockets = useMemo(
+    () => getLeafCommonPockets(services),
+    [services]
+  );
+  const pocketLabels = useMemo(() => getPocketLabels(services), [services]);
+
+  // All crypto/invest service IDs — parents + children — so legacy non-leaf
+  // holders are also queried. Sub-pocket totals still attribute correctly.
   const allInvestableIds = useMemo(
     () =>
       services
@@ -47,11 +64,12 @@ export function AssetsPage() {
   const allAssets = useAllPocketAssets(allInvestableIds);
   const { prices } = usePriceLookup(allAssets, currency);
 
-  const leafPockets = useMemo(() => getLeafPockets(services), [services]);
-  const pocketLabels = useMemo(() => getPocketLabels(services), [services]);
+  const rowValue = (a: PocketAsset) => {
+    const price = prices[a.api_id ?? a.symbol] ?? 0;
+    return (Number(a.quantity) || 0) * price;
+  };
 
-  // Group assets by service_id. A "non-leaf" service_id may appear too — we
-  // render those at the bottom with a warning icon.
+  // Group assets by service_id, sorted by value descending within each pocket.
   const assetsByService = useMemo(() => {
     const map = new Map<string, PocketAsset[]>();
     for (const a of allAssets) {
@@ -59,13 +77,16 @@ export function AssetsPage() {
       arr.push(a);
       map.set(a.service_id, arr);
     }
+    for (const [id, arr] of map) {
+      arr.sort((x, y) => {
+        const vx = (Number(x.quantity) || 0) * (prices[x.api_id ?? x.symbol] ?? 0);
+        const vy = (Number(y.quantity) || 0) * (prices[y.api_id ?? y.symbol] ?? 0);
+        return vy - vx;
+      });
+      map.set(id, arr);
+    }
     return map;
-  }, [allAssets]);
-
-  const rowValue = (a: PocketAsset) => {
-    const price = prices[a.api_id ?? a.symbol] ?? 0;
-    return (Number(a.quantity) || 0) * price;
-  };
+  }, [allAssets, prices]);
 
   const pocketTotal = (serviceId: string) =>
     (assetsByService.get(serviceId) ?? []).reduce(
@@ -73,36 +94,53 @@ export function AssetsPage() {
       0
     );
 
-  const grandTotal = allAssets.reduce((s, a) => s + rowValue(a), 0);
-  const grandAssetCount = allAssets.length;
+  const grandTotal = leafPockets.reduce(
+    (s, p) => s + pocketTotal(p.id),
+    0
+  );
+  const grandAssetCount = leafPockets.reduce(
+    (s, p) => s + (assetsByService.get(p.id)?.length ?? 0),
+    0
+  );
   const grandPocketCount = leafPockets.length;
 
-  // Non-leaf pockets that still contain assets (legacy data)
-  const orphanServices = useMemo(() => {
-    const leafIds = new Set(leafPockets.map((p) => p.id));
-    const byId = new Map(services.map((s) => [s.id, s]));
-    const orphanIds = Array.from(assetsByService.keys()).filter(
-      (id) => !leafIds.has(id)
-    );
-    return orphanIds
-      .map((id) => byId.get(id))
-      .filter((s): s is NonNullable<typeof s> => !!s);
-  }, [assetsByService, leafPockets, services]);
+  const hasInvestmentPockets = leafPockets.length > 0;
+  const hasCommonPockets = leafCommonPockets.length > 0;
+  const hasNoPockets =
+    !servicesLoading && !hasInvestmentPockets && !hasCommonPockets;
 
   const formatMoney = (v: number) =>
     `${currencySymbol}${Math.round(v).toLocaleString("en-US")}`;
 
-  const openAdd = () => {
-    setDrawerMode({ kind: "add" });
-    setDrawerOpen(true);
+  const openAddAsset = () => {
+    setAssetDrawerMode({ kind: "add" });
+    setAssetDrawerOpen(true);
   };
 
-  const openEdit = (asset: PocketAsset) => {
-    setDrawerMode({ kind: "edit", asset });
-    setDrawerOpen(true);
+  const openEditAsset = (asset: PocketAsset) => {
+    setAssetDrawerMode({ kind: "edit", asset });
+    setAssetDrawerOpen(true);
   };
 
-  const hasNoInvestables = !servicesLoading && leafPockets.length === 0;
+  const openAddPocket = () => {
+    setPocketDrawerMode({ kind: "add" });
+  };
+
+  const openEditPocket = (pocketId: string) => {
+    // The drawer is parent-centric: if this leaf is a child, open its parent
+    // and focus it; otherwise open it as its own root.
+    const leaf = services.find((s) => s.id === pocketId);
+    if (!leaf) return;
+    if (leaf.parent_id) {
+      setPocketDrawerMode({
+        kind: "edit",
+        parentId: leaf.parent_id,
+        focusChildId: leaf.id,
+      });
+    } else {
+      setPocketDrawerMode({ kind: "edit", parentId: leaf.id });
+    }
+  };
 
   return (
     <div>
@@ -113,15 +151,32 @@ export function AssetsPage() {
             Manage your investment holdings
           </p>
         </div>
-        {!hasNoInvestables && (
-          <Button onClick={openAdd} size="sm">
-            <Plus className="mr-1.5 h-3.5 w-3.5" />
-            Add asset
-          </Button>
+        {!servicesLoading && (
+          <div className="flex items-center gap-2">
+            <Button variant="outline" size="sm" onClick={openAddPocket}>
+              <Plus className="mr-1.5 h-3.5 w-3.5" />
+              Add pocket
+            </Button>
+            {!hasNoPockets && (
+              <Button
+                size="sm"
+                onClick={openAddAsset}
+                disabled={!hasInvestmentPockets}
+                title={
+                  !hasInvestmentPockets
+                    ? "Create a crypto or invest pocket first"
+                    : undefined
+                }
+              >
+                <Plus className="mr-1.5 h-3.5 w-3.5" />
+                Add asset
+              </Button>
+            )}
+          </div>
         )}
       </div>
 
-      {!hasNoInvestables && (
+      {!servicesLoading && !hasNoPockets && (
         <div className="mt-5">
           <p className="text-2xl font-semibold text-foreground tabular-nums">
             {formatMoney(grandTotal)}
@@ -143,11 +198,11 @@ export function AssetsPage() {
             />
           ))}
         </div>
-      ) : hasNoInvestables ? (
+      ) : hasNoPockets ? (
         <Card className="mt-6">
           <CardContent className="flex items-center justify-center py-12">
             <p className="text-sm text-muted-foreground">
-              No crypto or invest pockets yet. Add them on the Profile page.
+              No pockets yet. Click <span className="font-medium">Add pocket</span> to start.
             </p>
           </CardContent>
         </Card>
@@ -164,44 +219,43 @@ export function AssetsPage() {
                 assets={assets}
                 rowValue={rowValue}
                 formatMoney={formatMoney}
-                onRowClick={openEdit}
+                onHeaderClick={() => openEditPocket(pocket.id)}
+                onRowClick={openEditAsset}
               />
             );
           })}
-          {orphanServices.map((svc) => {
-            const assets = assetsByService.get(svc.id) ?? [];
-            const total = pocketTotal(svc.id);
-            return (
-              <PocketSection
-                key={svc.id}
-                label={svc.name}
-                total={formatMoney(total)}
-                assets={assets}
-                rowValue={rowValue}
-                formatMoney={formatMoney}
-                onRowClick={openEdit}
-                warning="Non-leaf pocket — edit each asset to move it to a sub-pocket"
-              />
-            );
-          })}
-          <div className="flex items-center justify-between border-t bg-muted/20 px-4 py-3">
-            <span className="text-[11px] font-semibold uppercase tracking-wider text-muted-foreground">
-              Total
-            </span>
-            <span className="text-sm font-semibold text-foreground tabular-nums">
-              {formatMoney(grandTotal)}
-            </span>
-          </div>
+          {leafCommonPockets.map((pocket) => (
+            <CommonPocketRow
+              key={pocket.id}
+              label={pocketLabels.get(pocket.id) ?? pocket.name}
+              onClick={() => openEditPocket(pocket.id)}
+            />
+          ))}
+          {hasInvestmentPockets && (
+            <div className="flex items-center justify-between border-t bg-muted/20 px-4 py-3">
+              <span className="text-[11px] font-semibold uppercase tracking-wider text-muted-foreground">
+                Total
+              </span>
+              <span className="text-sm font-semibold text-foreground tabular-nums">
+                {formatMoney(grandTotal)}
+              </span>
+            </div>
+          )}
         </div>
       )}
 
       <AssetDrawer
-        open={drawerOpen}
-        onOpenChange={setDrawerOpen}
-        mode={drawerMode}
+        open={assetDrawerOpen}
+        onOpenChange={setAssetDrawerOpen}
+        mode={assetDrawerMode}
         services={services}
         prices={prices}
         currencySymbol={currencySymbol}
+      />
+
+      <PocketDrawer
+        mode={pocketDrawerMode}
+        onModeChange={setPocketDrawerMode}
       />
     </div>
   );
@@ -213,8 +267,8 @@ interface PocketSectionProps {
   assets: PocketAsset[];
   rowValue: (a: PocketAsset) => number;
   formatMoney: (v: number) => string;
+  onHeaderClick: () => void;
   onRowClick: (a: PocketAsset) => void;
-  warning?: string;
 }
 
 function PocketSection({
@@ -223,27 +277,28 @@ function PocketSection({
   assets,
   rowValue,
   formatMoney,
+  onHeaderClick,
   onRowClick,
-  warning,
 }: PocketSectionProps) {
   return (
     <div className="border-b last:border-b-0">
-      {/* Section header */}
-      <div className="flex items-center justify-between bg-muted/30 px-4 py-2">
-        <div className="flex items-center gap-1.5">
-          {warning && (
-            <span title={warning}>
-              <AlertTriangle className="h-3 w-3 text-destructive" />
-            </span>
-          )}
-          <span className="text-[11px] font-semibold uppercase tracking-wider text-muted-foreground">
-            {label}
-          </span>
-        </div>
+      {/* Section header (clickable → edits the pocket) */}
+      <button
+        type="button"
+        onClick={onHeaderClick}
+        className={cn(
+          "flex w-full items-center justify-between bg-muted/30 px-4 py-2 text-left transition-colors",
+          "hover:bg-muted/50 focus-visible:bg-muted/50 focus-visible:outline-none"
+        )}
+        aria-label={`Edit pocket ${label}`}
+      >
+        <span className="text-[11px] font-semibold uppercase tracking-wider text-muted-foreground">
+          {label}
+        </span>
         <span className="text-xs font-medium text-foreground tabular-nums">
           {total}
         </span>
-      </div>
+      </button>
 
       {/* Asset rows */}
       {assets.length === 0 ? (
@@ -283,5 +338,29 @@ function PocketSection({
         })
       )}
     </div>
+  );
+}
+
+function CommonPocketRow({
+  label,
+  onClick,
+}: {
+  label: string;
+  onClick: () => void;
+}) {
+  return (
+    <button
+      type="button"
+      onClick={onClick}
+      className={cn(
+        "flex w-full items-center justify-between border-b bg-muted/10 px-4 py-2 text-left transition-colors last:border-b-0",
+        "hover:bg-muted/30 focus-visible:bg-muted/30 focus-visible:outline-none"
+      )}
+      aria-label={`Edit pocket ${label}`}
+    >
+      <span className="text-[11px] font-semibold uppercase tracking-wider text-muted-foreground/70">
+        {label}
+      </span>
+    </button>
   );
 }

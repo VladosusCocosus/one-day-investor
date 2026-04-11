@@ -1,13 +1,10 @@
-import { useCallback, useState } from "react";
+import { useState } from "react";
 import { useNavigate } from "react-router";
 import { Sparkles } from "lucide-react";
-import { PocketList } from "@/components/PocketList";
-import { PocketDrawer, type PocketDrawerMode } from "@/components/PocketDrawer";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { Button } from "@/components/ui/button";
 import { WELCOME_OVERLAY_STORAGE_KEY } from "@/components/WelcomeOverlay";
 import { useAuth } from "@/hooks/useAuth";
-import { useServices } from "@/hooks/useServices";
 import { useSettings } from "@/hooks/useSettings";
 import { cn } from "@/lib/utils";
 import { usePageMeta } from "@/lib/use-page-meta";
@@ -150,13 +147,11 @@ function CurrencyEditor({
 export function ProfilePage() {
   usePageMeta(pageMeta.profile);
   const { user } = useAuth();
-  const { tree, loading } = useServices();
   const { settings, updateSettings } = useSettings();
   const navigate = useNavigate();
 
   const [snapshotChipOpen, setSnapshotChipOpen] = useState(false);
   const [currencyChipOpen, setCurrencyChipOpen] = useState(false);
-  const [drawerMode, setDrawerMode] = useState<PocketDrawerMode | null>(null);
 
   const handleReplayWelcome = () => {
     window.localStorage.removeItem(WELCOME_OVERLAY_STORAGE_KEY);
@@ -175,20 +170,12 @@ export function ProfilePage() {
   const snapshotDay = settings?.snapshot_day ?? 1;
   const currency = settings?.currency ?? "EUR";
 
-  const handleOpenAdd = useCallback(() => {
-    setDrawerMode({ kind: "add" });
-  }, []);
-
-  const handleOpenEdit = useCallback((parentId: string, focusChildId?: string) => {
-    setDrawerMode({ kind: "edit", parentId, focusChildId });
-  }, []);
-
   return (
     <div>
       {/* Page header */}
       <h1 className="text-xl font-bold text-foreground">Profile</h1>
       <p className="mt-1 text-sm text-muted-foreground">
-        Your account, preferences and pockets
+        Your account and preferences
       </p>
 
       {/* Identity strip */}
@@ -242,14 +229,6 @@ export function ProfilePage() {
         </SettingsChip>
       </div>
 
-      {/* Pockets */}
-      <PocketList
-        tree={tree}
-        loading={loading}
-        onOpenAdd={handleOpenAdd}
-        onOpenEdit={handleOpenEdit}
-      />
-
       {/* Help */}
       <section className="mt-10 border-t border-border pt-6">
         <h2 className="text-[10px] font-semibold uppercase tracking-wider text-muted-foreground">
@@ -269,7 +248,6 @@ export function ProfilePage() {
         </Button>
       </section>
 
-      <PocketDrawer mode={drawerMode} onModeChange={setDrawerMode} />
     </div>
   );
 }
