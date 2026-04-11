@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { useNavigate } from "react-router";
 import { Sparkles } from "lucide-react";
+import { Switch } from "radix-ui";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { Button } from "@/components/ui/button";
 import { WELCOME_OVERLAY_STORAGE_KEY } from "@/components/WelcomeOverlay";
@@ -144,13 +145,98 @@ function CurrencyEditor({
   );
 }
 
+function EmailSettingsSection({
+  snapshotDay,
+  emailEnabled,
+  onToggleEmail,
+  onSaveDay,
+}: {
+  snapshotDay: number;
+  emailEnabled: boolean;
+  onToggleEmail: (next: boolean) => void;
+  onSaveDay: (value: number) => void;
+}) {
+  const [dayOpen, setDayOpen] = useState(false);
+
+  return (
+    <section className="mt-8 rounded-xl border border-border bg-card p-5">
+      <h2 className="text-[10px] font-semibold uppercase tracking-wider text-muted-foreground">
+        Email settings
+      </h2>
+
+      <div className="mt-4 flex items-start justify-between gap-4">
+        <div className="min-w-0">
+          <div className="text-sm font-semibold text-foreground">
+            Monthly snapshot reminder
+          </div>
+          <p className="mt-1 text-xs text-muted-foreground">
+            A gentle nudge when it's time to take your monthly snapshot.
+          </p>
+        </div>
+        <Switch.Root
+          checked={emailEnabled}
+          onCheckedChange={onToggleEmail}
+          aria-label="Monthly snapshot reminder"
+          className={cn(
+            "relative h-6 w-11 shrink-0 cursor-pointer rounded-full border border-border transition-colors outline-none",
+            "focus-visible:ring-[3px] focus-visible:ring-ring/50",
+            emailEnabled ? "bg-primary" : "bg-muted"
+          )}
+        >
+          <Switch.Thumb
+            className={cn(
+              "block h-5 w-5 rounded-full bg-white shadow-sm transition-transform",
+              "translate-x-0.5 data-[state=checked]:translate-x-[22px]"
+            )}
+          />
+        </Switch.Root>
+      </div>
+
+      <div
+        className={cn(
+          "mt-4 flex items-center justify-between gap-4 border-t border-border pt-4 transition-opacity",
+          !emailEnabled && "opacity-60"
+        )}
+      >
+        <div className="text-xs text-muted-foreground">
+          Remind me on the{" "}
+          <Popover open={dayOpen} onOpenChange={setDayOpen}>
+            <PopoverTrigger asChild>
+              <button
+                type="button"
+                className={cn(
+                  "inline-flex items-center gap-1 rounded-md border border-border bg-muted px-2 py-0.5 text-xs font-semibold text-foreground hover:bg-muted/80 transition-colors",
+                  dayOpen && "bg-primary/10 border-primary/35"
+                )}
+              >
+                {snapshotDay}
+                {ordinal(snapshotDay)}
+              </button>
+            </PopoverTrigger>
+            <PopoverContent align="start" className="w-auto min-w-[220px] p-3">
+              <SnapshotDayEditor
+                value={snapshotDay}
+                onSave={(v) => {
+                  onSaveDay(v);
+                  setDayOpen(false);
+                }}
+                onClose={() => setDayOpen(false)}
+              />
+            </PopoverContent>
+          </Popover>{" "}
+          of each month.
+        </div>
+      </div>
+    </section>
+  );
+}
+
 export function ProfilePage() {
   usePageMeta(pageMeta.profile);
   const { user } = useAuth();
   const { settings, updateSettings } = useSettings();
   const navigate = useNavigate();
 
-  const [snapshotChipOpen, setSnapshotChipOpen] = useState(false);
   const [currencyChipOpen, setCurrencyChipOpen] = useState(false);
 
   const handleReplayWelcome = () => {
@@ -169,6 +255,7 @@ export function ProfilePage() {
 
   const snapshotDay = settings?.snapshot_day ?? 1;
   const currency = settings?.currency ?? "EUR";
+  const emailEnabled = settings?.email_notifications_enabled ?? false;
 
   return (
     <div>
@@ -201,20 +288,8 @@ export function ProfilePage() {
         </div>
       </div>
 
-      {/* Settings chips */}
+      {/* Settings chips (currency only now) */}
       <div className="mt-5 flex flex-wrap gap-2">
-        <SettingsChip
-          label="Snapshot"
-          displayValue={`${snapshotDay}${ordinal(snapshotDay)} of month`}
-          open={snapshotChipOpen}
-          onOpenChange={setSnapshotChipOpen}
-        >
-          <SnapshotDayEditor
-            value={snapshotDay}
-            onSave={(snapshot_day) => updateSettings({ snapshot_day })}
-            onClose={() => setSnapshotChipOpen(false)}
-          />
-        </SettingsChip>
         <SettingsChip
           label="Currency"
           displayValue={currency}
@@ -228,6 +303,16 @@ export function ProfilePage() {
           />
         </SettingsChip>
       </div>
+
+      {/* Email settings */}
+      <EmailSettingsSection
+        snapshotDay={snapshotDay}
+        emailEnabled={emailEnabled}
+        onToggleEmail={(next) =>
+          updateSettings({ email_notifications_enabled: next })
+        }
+        onSaveDay={(snapshot_day) => updateSettings({ snapshot_day })}
+      />
 
       {/* Help */}
       <section className="mt-10 border-t border-border pt-6">
@@ -247,7 +332,6 @@ export function ProfilePage() {
           Show welcome tour
         </Button>
       </section>
-
     </div>
   );
 }
