@@ -1,7 +1,7 @@
 FROM oven/bun:latest AS base
 WORKDIR /app
 
-COPY package.json bun.lock apps/blog/bunfig.toml ./
+COPY package.json bun.lock ./
 COPY packages/config/package.json packages/config/
 COPY packages/database/package.json packages/database/
 COPY packages/types/package.json packages/types/
@@ -14,4 +14,5 @@ COPY apps/blog/ apps/blog/
 RUN bun install
 
 EXPOSE 3003
-CMD ["bun", "run", "apps/blog/src/index.tsx"]
+WORKDIR /app/apps/blog
+CMD ["bun", "run", "src/index.tsx"]
