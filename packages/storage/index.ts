@@ -2,6 +2,7 @@ import {
   S3Client,
   CreateBucketCommand,
   HeadBucketCommand,
+  PutBucketPolicyCommand,
   PutObjectCommand,
   GetObjectCommand,
   DeleteObjectCommand,
@@ -25,7 +26,7 @@ const s3 = new S3Client({
 
 const defaultBucket = config.get("s3.bucket");
 
-/** Ensure default bucket exists on startup */
+/** Ensure default bucket exists and is publicly readable */
 try {
   await s3.send(new HeadBucketCommand({ Bucket: defaultBucket }));
 } catch {
@@ -35,6 +36,26 @@ try {
   } catch (err) {
     log.error({ err, bucket: defaultBucket }, "Failed to create S3 bucket");
   }
+}
+
+// Set public read policy for OG images
+try {
+  const policy = JSON.stringify({
+    Version: "2012-10-17",
+    Statement: [
+      {
+        Effect: "Allow",
+        Principal: "*",
+        Action: "s3:GetObject",
+        Resource: `arn:aws:s3:::${defaultBucket}/*`,
+      },
+    ],
+  });
+  await s3.send(
+    new PutBucketPolicyCommand({ Bucket: defaultBucket, Policy: policy })
+  );
+} catch (err) {
+  log.error({ err, bucket: defaultBucket }, "Failed to set bucket policy");
 }
 
 log.info(
