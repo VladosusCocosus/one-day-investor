@@ -1,4 +1,4 @@
-import { pool } from "../pool";
+import { pool } from "../../pool";
 import type { CatalogService } from "@types";
 
 export type { CatalogService } from "@types";

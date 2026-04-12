@@ -1,4 +1,4 @@
-import { pool } from "../pool";
+import { pool } from "../../pool";
 
 export async function findDistribution(userId: string, month: string) {
   // Accept both "YYYY-MM" and "YYYY-MM-DD"; snapshots.month is a DATE column,

@@ -6,9 +6,7 @@ const mailgun = new Mailgun(FormData);
 
 const mg = mailgun.client({
   username: "api",
-  key: config.get("mailgun.apiKey"),
-  // Add `url: "https://api.eu.mailgun.net"` here if the sending domain
-  // ever moves to the EU region.
+  key: config.get("mailgun.apiKey")
 });
 
 const DOMAIN = config.get("mailgun.domain");

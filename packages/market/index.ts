@@ -93,11 +93,6 @@ export async function fetchStockPrices(
 
   log.info({ symbols, currency }, "Fetching stock prices from Yahoo Finance v8 chart");
 
-  // Fetch exchange rate USD→target in parallel with stock prices
-  const ratePromise = currency.toUpperCase() !== "USD"
-    ? getExchangeRate("USD", currency)
-    : Promise.resolve(1);
-
   await Promise.all(
     symbols.map(async (symbol) => {
       try {

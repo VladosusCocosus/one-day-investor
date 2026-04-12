@@ -1,4 +1,4 @@
-import { pool } from "../pool";
+import { pool } from "../../pool";
 import type { Service, ServiceType } from "@types";
 
 export type { Service } from "@types";

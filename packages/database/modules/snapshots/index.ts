@@ -1,4 +1,4 @@
-import { pool } from "../pool";
+import { pool } from "../../pool";
 import type { Snapshot, SnapshotEntry } from "@types";
 
 export type { Snapshot, SnapshotEntry } from "@types";
