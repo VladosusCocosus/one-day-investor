@@ -16,16 +16,19 @@ services:
     networks:
       - internal
 
-  localstack:
-    image: localstack/localstack:latest
+  minio:
+    image: minio/minio:latest
     restart: unless-stopped
+    command: server /data --console-address ":9001"
     environment:
-      SERVICES: s3
-      DEFAULT_REGION: ${S3_REGION:-eu-central-1}
+      MINIO_ROOT_USER: ${S3_ACCESS_KEY_ID:-minioadmin}
+      MINIO_ROOT_PASSWORD: ${S3_SECRET_ACCESS_KEY:-minioadmin}
+    ports:
+      - "127.0.0.1:9001:9001"
     volumes:
-      - localstack_data:/var/lib/localstack
+      - minio_data:/data
     healthcheck:
-      test: ["CMD-SHELL", "awslocal s3 ls"]
+      test: ["CMD", "mc", "ready", "local"]
       interval: 5s
       timeout: 5s
       retries: 5
@@ -134,17 +137,17 @@ services:
       POSTGRES_USER: ${POSTGRES_USER}
       POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
       BLOG_POSTGRES_DB: ${BLOG_POSTGRES_DB:-blog}
-      S3_ENDPOINT: http://localstack:4566
+      S3_ENDPOINT: http://minio:9000
       S3_REGION: ${S3_REGION:-eu-central-1}
-      S3_ACCESS_KEY_ID: ${S3_ACCESS_KEY_ID:-test}
-      S3_SECRET_ACCESS_KEY: ${S3_SECRET_ACCESS_KEY:-test}
+      S3_ACCESS_KEY_ID: ${S3_ACCESS_KEY_ID:-minioadmin}
+      S3_SECRET_ACCESS_KEY: ${S3_SECRET_ACCESS_KEY:-minioadmin}
       S3_BUCKET: ${S3_BUCKET:-blog-images}
       S3_PUBLIC_URL: ${S3_PUBLIC_URL}
       OG_SERVICE_URL: http://og:3004
     depends_on:
       db:
         condition: service_healthy
-      localstack:
+      minio:
         condition: service_healthy
     networks:
       - internal
@@ -155,13 +158,13 @@ services:
       dockerfile: Dockerfile.og
     restart: unless-stopped
     environment:
-      S3_ENDPOINT: http://localstack:4566
+      S3_ENDPOINT: http://minio:9000
       S3_REGION: ${S3_REGION:-eu-central-1}
-      S3_ACCESS_KEY_ID: ${S3_ACCESS_KEY_ID:-test}
-      S3_SECRET_ACCESS_KEY: ${S3_SECRET_ACCESS_KEY:-test}
+      S3_ACCESS_KEY_ID: ${S3_ACCESS_KEY_ID:-minioadmin}
+      S3_SECRET_ACCESS_KEY: ${S3_SECRET_ACCESS_KEY:-minioadmin}
       S3_BUCKET: ${S3_BUCKET:-blog-images}
     depends_on:
-      localstack:
+      minio:
         condition: service_healthy
     networks:
       - internal
@@ -182,7 +185,7 @@ services:
 
 volumes:
   pgdata:
-  localstack_data:
+  minio_data:
 
 networks:
   internal:

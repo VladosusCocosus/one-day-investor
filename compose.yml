@@ -9,29 +9,29 @@ services:
       - "5432:5432"
     volumes:
       - postgres_data:/var/lib/postgresql
-      - ./docker/init-blog-db.sh:/docker-entrypoint-initdb.d/init-blog-db.sh
     healthcheck:
       test: ["CMD-SHELL", "pg_isready -U postgres"]
       interval: 5s
       timeout: 5s
       retries: 5
 
-  localstack:
-    image: localstack/localstack:latest
+  minio:
+    image: minio/minio:latest
+    command: server /data --console-address ":9001"
     environment:
-      SERVICES: s3
-      DEFAULT_REGION: eu-central-1
+      MINIO_ROOT_USER: test
+      MINIO_ROOT_PASSWORD: testtest1
     ports:
-      - "4566:4566"
+      - "9000:9000"
+      - "9001:9001"
     volumes:
-      - localstack_data:/var/lib/localstack
-      - ./docker/init-s3.sh:/etc/localstack/init/ready.d/init-s3.sh
+      - minio_data:/data
     healthcheck:
-      test: ["CMD-SHELL", "awslocal s3 ls"]
+      test: ["CMD", "mc", "ready", "local"]
       interval: 5s
       timeout: 5s
       retries: 5
 
 volumes:
   postgres_data:
-  localstack_data:
+  minio_data:
