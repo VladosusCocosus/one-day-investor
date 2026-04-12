@@ -1,7 +1,7 @@
 FROM oven/bun:latest AS base
 WORKDIR /app
 
-COPY package.json bun.lock ./
+COPY package.json bun.lock apps/blog/bunfig.toml ./
 COPY packages/config/package.json packages/config/
 COPY packages/database/package.json packages/database/
 COPY packages/types/package.json packages/types/
