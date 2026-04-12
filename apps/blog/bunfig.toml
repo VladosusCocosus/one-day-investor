@@ -1,3 +1,2 @@
-[jsx]
-runtime = "automatic"
-importSource = "@kitajs/html"
+jsx = "react-jsx"
+jsxImportSource = "@kitajs/html"
