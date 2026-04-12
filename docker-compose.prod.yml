@@ -25,7 +25,7 @@ services:
       MINIO_ROOT_PASSWORD: ${S3_SECRET_ACCESS_KEY:-minioadmin}
     ports:
       - "127.0.0.1:9001:9001"
-      - "9000:9000"
+      - "127.0.0.1:9000:9000"
     volumes:
       - minio_data:/data
     healthcheck:
