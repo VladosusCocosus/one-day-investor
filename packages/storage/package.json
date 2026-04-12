@@ -1,0 +1,15 @@
+{
+  "name": "@storage",
+  "module": "index.ts",
+  "type": "module",
+  "private": true,
+  "dependencies": {
+    "@aws-sdk/client-s3": "^3.800.0",
+    "@aws-sdk/s3-request-presigner": "^3.800.0",
+    "@config": "workspace:*",
+    "@logger": "workspace:*"
+  },
+  "devDependencies": {
+    "bun-types": "latest"
+  }
+}

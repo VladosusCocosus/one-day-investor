@@ -10,3 +10,4 @@ export * from "./modules/analytics";
 export * from "./modules/asset-catalog";
 export * from "./modules/pocket-assets";
 export * from "./modules/reminders";
+export * from "./modules/blog";

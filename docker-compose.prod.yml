@@ -8,8 +8,26 @@ services:
       POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
     volumes:
       - pgdata:/var/lib/postgresql/data
+      - ./docker/init-blog-db.sh:/docker-entrypoint-initdb.d/init-blog-db.sh
     healthcheck:
       test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER} -d ${POSTGRES_DB}"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+    networks:
+      - internal
+
+  localstack:
+    image: localstack/localstack:latest
+    restart: unless-stopped
+    environment:
+      SERVICES: s3
+      DEFAULT_REGION: ${S3_REGION:-eu-central-1}
+    volumes:
+      - localstack_data:/var/lib/localstack
+      - ./docker/init-s3.sh:/etc/localstack/init/ready.d/init-s3.sh
+    healthcheck:
+      test: ["CMD-SHELL", "awslocal s3 ls"]
       interval: 5s
       timeout: 5s
       retries: 5
@@ -104,6 +122,52 @@ services:
     networks:
       - internal
 
+  blog:
+    build:
+      context: .
+      dockerfile: Dockerfile.blog
+    restart: unless-stopped
+    ports:
+      - "127.0.0.1:3003:3003"
+    environment:
+      POSTGRES_HOST: db
+      POSTGRES_PORT: 5432
+      POSTGRES_DB: ${POSTGRES_DB}
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+      BLOG_POSTGRES_DB: ${BLOG_POSTGRES_DB:-blog}
+      S3_ENDPOINT: http://localstack:4566
+      S3_REGION: ${S3_REGION:-eu-central-1}
+      S3_ACCESS_KEY_ID: ${S3_ACCESS_KEY_ID:-test}
+      S3_SECRET_ACCESS_KEY: ${S3_SECRET_ACCESS_KEY:-test}
+      S3_BUCKET: ${S3_BUCKET:-blog-images}
+      S3_PUBLIC_URL: ${S3_PUBLIC_URL}
+      OG_SERVICE_URL: http://og:3004
+    depends_on:
+      db:
+        condition: service_healthy
+      localstack:
+        condition: service_healthy
+    networks:
+      - internal
+
+  og:
+    build:
+      context: .
+      dockerfile: Dockerfile.og
+    restart: unless-stopped
+    environment:
+      S3_ENDPOINT: http://localstack:4566
+      S3_REGION: ${S3_REGION:-eu-central-1}
+      S3_ACCESS_KEY_ID: ${S3_ACCESS_KEY_ID:-test}
+      S3_SECRET_ACCESS_KEY: ${S3_SECRET_ACCESS_KEY:-test}
+      S3_BUCKET: ${S3_BUCKET:-blog-images}
+    depends_on:
+      localstack:
+        condition: service_healthy
+    networks:
+      - internal
+
   frontend:
     build:
       context: .
@@ -120,6 +184,7 @@ services:
 
 volumes:
   pgdata:
+  localstack_data:
 
 networks:
   internal:

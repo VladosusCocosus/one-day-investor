@@ -1,0 +1,148 @@
+import Html from "@kitajs/html";
+import { Elysia } from "elysia";
+import { html } from "@elysiajs/html";
+import { createLogger } from "@logger";
+import { findSessionByToken, findUserById } from "@database";
+import type { User } from "@types";
+import {
+  initBlogSchema,
+  listPublishedPosts,
+  listAllPosts,
+  getPostBySlug,
+  getPostById,
+  getAllTags,
+  createBlogPost,
+  updateBlogPost,
+  deleteBlogPost,
+  setOgImage,
+} from "./db";
+import type { Block } from "./db";
+import { ListPage } from "./pages/list";
+import { PostPage, NotFoundPage } from "./pages/post";
+import { EditorListPage, EditorFormPage } from "./pages/editor";
+
+const log = createLogger("blog");
+const PORT = 3003;
+const OG_SERVICE_URL = process.env.OG_SERVICE_URL || "http://localhost:3004";
+
+await initBlogSchema();
+
+async function resolveUser(cookie: Record<string, any>): Promise<User | null> {
+  const token = cookie.session?.value;
+  if (!token) return null;
+  try {
+    const session = await findSessionByToken(token);
+    if (!session) return null;
+    return findUserById(session.user_id);
+  } catch {
+    return null;
+  }
+}
+
+const app = new Elysia()
+  .use(html())
+
+  // Blog public routes
+  .get("/", async ({ query, cookie }) => {
+    const tag = query.tag as string | undefined;
+    const [posts, allTags, user] = await Promise.all([
+      listPublishedPosts(tag),
+      getAllTags(),
+      resolveUser(cookie),
+    ]);
+    return <ListPage posts={posts} allTags={allTags} activeTag={tag} user={user} />;
+  })
+
+  // Editor routes
+  .get("/editor", async () => {
+    const posts = await listAllPosts();
+    return <EditorListPage posts={posts} />;
+  })
+  .get("/editor/new", () => {
+    return <EditorFormPage />;
+  })
+  .post("/editor/new", async ({ body, set }) => {
+    const { title, slug, excerpt, tags, content, publish_date } = body as Record<string, string>;
+    try {
+      const parsedContent: Block[] = JSON.parse(content || "[]");
+      const parsedTags = tags
+        ? tags.split(",").map((t: string) => t.trim()).filter(Boolean)
+        : [];
+      await createBlogPost({
+        title,
+        slug,
+        excerpt,
+        tags: parsedTags,
+        content: parsedContent,
+        publish_date: publish_date || null,
+      });
+      set.redirect = `/editor`;
+    } catch (e: any) {
+      return <EditorFormPage error={e.message} />;
+    }
+  })
+  .get("/editor/:id", async ({ params }) => {
+    const post = await getPostById(Number(params.id));
+    if (!post) return <EditorFormPage error="Post not found" />;
+    return <EditorFormPage post={post} />;
+  })
+  .post("/editor/:id", async ({ params, body, set }) => {
+    const id = Number(params.id);
+    const { title, slug, excerpt, tags, content, publish_date } = body as Record<string, string>;
+    try {
+      const parsedContent: Block[] = JSON.parse(content || "[]");
+      const parsedTags = tags
+        ? tags.split(",").map((t: string) => t.trim()).filter(Boolean)
+        : [];
+      await updateBlogPost(id, {
+        title,
+        slug,
+        excerpt,
+        tags: parsedTags,
+        content: parsedContent,
+        publish_date: publish_date || null,
+      });
+      set.redirect = `/editor`;
+    } catch (e: any) {
+      const post = await getPostById(id);
+      return <EditorFormPage post={post ?? undefined} error={e.message} />;
+    }
+  })
+  .post("/editor/:id/og", async ({ params, set }) => {
+    const post = await getPostById(Number(params.id));
+    if (!post) { set.redirect = "/editor"; return; }
+
+    const res = await fetch(`${OG_SERVICE_URL}/generate`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ slug: post.slug, title: post.title, tags: post.tags }),
+    });
+    const { key, error } = (await res.json()) as { key?: string; error?: string };
+
+    if (key) {
+      await setOgImage(post.id, key);
+      log.info({ key, postId: post.id }, "OG image set");
+    } else {
+      log.error({ error, postId: post.id }, "OG generation failed");
+    }
+
+    set.redirect = `/editor/${post.id}`;
+  })
+  .post("/editor/:id/delete", async ({ params, set }) => {
+    await deleteBlogPost(Number(params.id));
+    set.redirect = "/editor";
+  })
+
+  // Post detail (must be last — catch-all slug route)
+  .get("/:slug", async ({ params, cookie }) => {
+    const [post, user] = await Promise.all([
+      getPostBySlug(params.slug),
+      resolveUser(cookie),
+    ]);
+    if (!post || !post.publish_date) return <NotFoundPage user={user} />;
+    return <PostPage post={post} user={user} />;
+  })
+
+  .listen(PORT);
+
+log.info({ port: PORT }, "Blog service started");

@@ -1,0 +1,17 @@
+{
+  "name": "@og",
+  "version": "1.0.0",
+  "scripts": {
+    "dev": "bun run --watch src/index.ts"
+  },
+  "dependencies": {
+    "@config": "workspace:*",
+    "@logger": "workspace:*",
+    "@storage": "workspace:*",
+    "elysia": "latest",
+    "puppeteer": "^24.0.0"
+  },
+  "devDependencies": {
+    "bun-types": "latest"
+  }
+}
