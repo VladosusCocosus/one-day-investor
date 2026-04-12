@@ -24,7 +24,6 @@ services:
       DEFAULT_REGION: ${S3_REGION:-eu-central-1}
     volumes:
       - localstack_data:/var/lib/localstack
-      - ./docker/init-s3.sh:/etc/localstack/init/ready.d/init-s3.sh
     healthcheck:
       test: ["CMD-SHELL", "awslocal s3 ls"]
       interval: 5s
