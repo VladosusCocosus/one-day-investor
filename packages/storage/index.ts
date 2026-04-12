@@ -1,5 +1,7 @@
 import {
   S3Client,
+  CreateBucketCommand,
+  HeadBucketCommand,
   PutObjectCommand,
   GetObjectCommand,
   DeleteObjectCommand,
@@ -22,6 +24,18 @@ const s3 = new S3Client({
 });
 
 const defaultBucket = config.get("s3.bucket");
+
+/** Ensure default bucket exists on startup */
+try {
+  await s3.send(new HeadBucketCommand({ Bucket: defaultBucket }));
+} catch {
+  try {
+    await s3.send(new CreateBucketCommand({ Bucket: defaultBucket }));
+    log.info({ bucket: defaultBucket }, "S3 bucket created");
+  } catch (err) {
+    log.error({ err, bucket: defaultBucket }, "Failed to create S3 bucket");
+  }
+}
 
 log.info(
   { endpoint: config.get("s3.endpoint"), bucket: defaultBucket },
