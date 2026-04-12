@@ -1,4 +1,4 @@
-import { pool } from "../pool";
+import { pool } from "../../pool";
 import type { PocketAsset, AssetType } from "@types";
 
 export type { PocketAsset } from "@types";

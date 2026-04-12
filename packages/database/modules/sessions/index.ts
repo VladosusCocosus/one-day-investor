@@ -1,4 +1,4 @@
-import { pool } from "../pool";
+import { pool } from "../../pool";
 import type { Session } from "@types";
 
 export type { Session } from "@types";

@@ -1,4 +1,4 @@
-import { pool } from "../pool";
+import { pool } from "../../pool";
 import type { User } from "@types";
 
 export type { User } from "@types";

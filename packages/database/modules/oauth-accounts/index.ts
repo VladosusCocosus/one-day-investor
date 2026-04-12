@@ -1,4 +1,4 @@
-import { pool } from "../pool";
+import { pool } from "../../pool";
 import type { OAuthAccount } from "@types";
 
 export type { OAuthAccount } from "@types";

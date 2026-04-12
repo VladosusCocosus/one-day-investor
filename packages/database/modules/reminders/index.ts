@@ -1,4 +1,4 @@
-import { pool } from "../pool";
+import { pool } from "../../pool";
 import config from "@config";
 
 const CURRENCY_SYMBOLS: Record<string, string> = {

@@ -1,4 +1,4 @@
-import { pool } from "../pool";
+import { pool } from "../../pool";
 import type { AssetType } from "@types";
 
 export interface UpsertAssetInput {
