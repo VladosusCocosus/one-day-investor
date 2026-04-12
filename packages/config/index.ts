@@ -69,6 +69,39 @@ const config = convict({
       env: "SESSION_MAX_AGE",
     },
   },
+  s3: {
+    endpoint: {
+      doc: "S3 endpoint URL (LocalStack or AWS)",
+      format: String,
+      default: "http://localhost:4566",
+      env: "S3_ENDPOINT",
+    },
+    region: {
+      doc: "S3 region",
+      format: String,
+      default: "eu-central-1",
+      env: "S3_REGION",
+    },
+    accessKeyId: {
+      doc: "S3 access key ID",
+      format: String,
+      default: "test",
+      env: "S3_ACCESS_KEY_ID",
+    },
+    secretAccessKey: {
+      doc: "S3 secret access key",
+      format: String,
+      default: "test",
+      env: "S3_SECRET_ACCESS_KEY",
+      sensitive: true,
+    },
+    bucket: {
+      doc: "Default S3 bucket name",
+      format: String,
+      default: "blog-images",
+      env: "S3_BUCKET",
+    },
+  },
   mailgun: {
     apiKey: {
       doc: "Mailgun API key (EU or US)",
