@@ -15,6 +15,12 @@ export function Layout({
   user?: User | null;
   children: string;
 }) {
+  const ogImageUrl = ogImage
+    ? `${process.env.S3_PUBLIC_URL || process.env.S3_ENDPOINT || "http://localhost:4566"}/${process.env.S3_BUCKET || "blog-images"}/${ogImage}`
+    : null;
+  const ogAlt = description || title;
+  const twitterTitle = `One Day Investor — ${title}`;
+
   return (
     <html lang="en">
       <head>
@@ -25,12 +31,17 @@ export function Layout({
         <meta property="og:title" content={`One Day Investor — ${title}`} />
         {description && <meta property="og:description" content={description} />}
         <meta property="og:type" content="article" />
-        {ogImage && (
-          <meta
-            property="og:image"
-            content={`${process.env.S3_PUBLIC_URL || process.env.S3_ENDPOINT || "http://localhost:4566"}/${process.env.S3_BUCKET || "blog-images"}/${ogImage}`}
-          />
-        )}
+        {ogImageUrl && <meta property="og:image" content={ogImageUrl} />}
+        {ogImageUrl && <meta property="og:image:secure_url" content={ogImageUrl} />}
+        {ogImageUrl && <meta property="og:image:type" content="image/png" />}
+        {ogImageUrl && <meta property="og:image:width" content="1200" />}
+        {ogImageUrl && <meta property="og:image:height" content="630" />}
+        {ogImageUrl && <meta property="og:image:alt" content={ogAlt} />}
+        {ogImageUrl && <meta name="twitter:card" content="summary_large_image" />}
+        {ogImageUrl && <meta name="twitter:title" content={twitterTitle} />}
+        {ogImageUrl && <meta name="twitter:description" content={ogAlt} />}
+        {ogImageUrl && <meta name="twitter:image" content={ogImageUrl} />}
+        {ogImageUrl && <meta name="twitter:image:alt" content={ogAlt} />}
         <script src="https://cdn.tailwindcss.com"></script>
         <script>
           {(`
