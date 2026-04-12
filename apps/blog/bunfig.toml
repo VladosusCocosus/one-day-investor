@@ -1,0 +1,5 @@
+[jsx]
+runtime = "classic"
+factory = "Html.createElement"
+fragment = "Html.Fragment"
+importSource = "@kitajs/html"
