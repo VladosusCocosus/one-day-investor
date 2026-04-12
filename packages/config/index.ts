@@ -71,9 +71,9 @@ const config = convict({
   },
   s3: {
     endpoint: {
-      doc: "S3 endpoint URL (LocalStack or AWS)",
+      doc: "S3 endpoint URL (MinIO or AWS)",
       format: String,
-      default: "http://localhost:4566",
+      default: "http://localhost:9000",
       env: "S3_ENDPOINT",
     },
     region: {
