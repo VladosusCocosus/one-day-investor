@@ -2,6 +2,7 @@ export {
   type Block,
   type BlogPost,
   initBlogSchema,
+  listLatestPosts,
   listPublishedPosts,
   listAllPosts,
   getPostBySlug,

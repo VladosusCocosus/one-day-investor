@@ -72,6 +72,18 @@ export async function setOgImage(id: number, key: string): Promise<void> {
   );
 }
 
+export async function listLatestPosts(limit: number = 3): Promise<BlogPost[]> {
+  const result = await blogPool.query<BlogPostRow>(
+    `SELECT id, slug, title, excerpt, tags::text, content::text, og_image, publish_date, created_at, updated_at
+     FROM posts
+     WHERE publish_date IS NOT NULL
+     ORDER BY publish_date DESC
+     LIMIT $1`,
+    [limit]
+  );
+  return result.rows.map(rowToPost);
+}
+
 export async function listPublishedPosts(tag?: string): Promise<BlogPost[]> {
   let result;
   if (tag) {
