@@ -1,4 +1,5 @@
 import Html from "@kitajs/html";
+import { marked } from "marked";
 import type { Block } from "./db";
 import type { User } from "@types";
 
@@ -301,6 +302,40 @@ export function ImageBlock({
   );
 }
 
+export function MarkdownBlock({
+  label,
+  heading,
+  body,
+}: {
+  label?: string;
+  heading?: string;
+  body: string;
+}) {
+  const html = marked.parse(body, { async: false }) as string;
+
+  return (
+    <section class="border-t border-emerald-900/40 px-6 py-24 md:px-8 md:py-32">
+      <div class="mx-auto max-w-[760px]">
+        {label && (
+          <p class="text-xs font-semibold uppercase tracking-[0.22em] text-emerald-300">
+            {label}
+          </p>
+        )}
+        {heading && (
+          <h2 class="mt-4 text-3xl font-bold tracking-tight text-emerald-50 sm:text-4xl md:text-5xl">
+            {heading}
+          </h2>
+        )}
+        <div
+          class="mt-10 prose prose-invert prose-emerald max-w-none text-lg leading-relaxed text-emerald-100/90 [&_h1]:text-3xl [&_h1]:font-bold [&_h1]:tracking-tight [&_h1]:text-emerald-50 [&_h2]:text-2xl [&_h2]:font-bold [&_h2]:tracking-tight [&_h2]:text-emerald-50 [&_h3]:text-xl [&_h3]:font-semibold [&_h3]:text-emerald-50 [&_p]:mb-6 [&_a]:font-medium [&_a]:text-emerald-300 [&_a]:underline [&_a]:decoration-emerald-500/40 [&_a]:underline-offset-2 hover:[&_a]:text-emerald-200 [&_ul]:list-disc [&_ul]:pl-6 [&_ul]:space-y-2 [&_ol]:list-decimal [&_ol]:pl-6 [&_ol]:space-y-2 [&_li]:text-emerald-200/90 [&_blockquote]:border-l-2 [&_blockquote]:border-emerald-500/40 [&_blockquote]:pl-6 [&_blockquote]:italic [&_blockquote]:text-emerald-200 [&_code]:rounded [&_code]:bg-emerald-900/50 [&_code]:px-1.5 [&_code]:py-0.5 [&_code]:text-sm [&_code]:text-emerald-200 [&_pre]:rounded-xl [&_pre]:bg-emerald-950/60 [&_pre]:border [&_pre]:border-emerald-900/50 [&_pre]:p-6 [&_pre]:overflow-x-auto [&_pre_code]:bg-transparent [&_pre_code]:p-0 [&_hr]:border-emerald-900/40 [&_strong]:text-emerald-50 [&_strong]:font-semibold"
+        >
+          {html}
+        </div>
+      </div>
+    </section>
+  );
+}
+
 export function renderBlock(block: Block) {
   switch (block.type) {
     case "hero":
@@ -337,6 +372,14 @@ export function renderBlock(block: Block) {
     case "image":
       return (
         <ImageBlock src={block.src} alt={block.alt} caption={block.caption} />
+      );
+    case "markdown":
+      return (
+        <MarkdownBlock
+          label={block.label}
+          heading={block.heading}
+          body={block.body}
+        />
       );
     default:
       return "";
