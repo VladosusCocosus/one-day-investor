@@ -1,0 +1,11 @@
+User-agent: *
+Allow: /
+Allow: /philosophy
+Allow: /login
+Disallow: /dashboard
+Disallow: /profile
+Disallow: /assets
+Disallow: /snapshots
+Disallow: /analytics
+
+Sitemap: https://odinvestor.net/sitemap.xml
