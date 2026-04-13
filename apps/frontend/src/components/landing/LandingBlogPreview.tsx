@@ -33,7 +33,7 @@ export function LandingBlogPreview() {
             Latest from the blog
           </h2>
         </div>
-        <div className="mt-16 grid grid-cols-1 gap-5 md:grid-cols-3">
+        <div className="mt-16 grid grid-cols-1 items-center gap-5 md:grid-cols-3">
           {posts.map((post) => (
             <a
               key={post.slug}

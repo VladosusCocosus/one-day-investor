@@ -44,8 +44,8 @@ export function LandingPage() {
         <LandingDashboardPreview />
         <LandingFeatures />
         <LandingPhilosophyCard />
-        <LandingBlogPreview />
         <LandingGuide />
+        <LandingBlogPreview />
         <LandingFinalCta />
       </main>
       <LandingFooter />
