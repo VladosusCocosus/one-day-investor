@@ -2,16 +2,28 @@ import Html from "@kitajs/html";
 import { BlogNav, BlogFooter } from "./components";
 import type { User } from "@types";
 
+const SITE_URL = process.env.BLOG_URL || "https://blog.odinvestor.net";
+
 export function Layout({
   title,
   description,
   ogImage,
+  canonicalPath,
+  publishDate,
+  modifiedDate,
+  ogType,
+  jsonLd,
   user,
   children,
 }: {
   title: string;
   description?: string;
   ogImage?: string | null;
+  canonicalPath?: string;
+  publishDate?: string | null;
+  modifiedDate?: string | null;
+  ogType?: string;
+  jsonLd?: object;
   user?: User | null;
   children: string;
 }) {
@@ -19,29 +31,40 @@ export function Layout({
     ? `${process.env.S3_PUBLIC_URL || process.env.S3_ENDPOINT || "http://localhost:4566"}/${process.env.S3_BUCKET || "blog-images"}/${ogImage}`
     : null;
   const ogAlt = description || title;
-  const twitterTitle = `One Day Investor — ${title}`;
+  const fullTitle = `One Day Investor — ${title}`;
+  const canonicalUrl = canonicalPath ? `${SITE_URL}${canonicalPath}` : null;
 
   return (
     <html lang="en">
       <head>
         <meta charset="utf-8" />
         <meta name="viewport" content="width=device-width, initial-scale=1" />
-        <title>One Day Investor — {title}</title>
+        <title>{fullTitle}</title>
         {description && <meta name="description" content={description} />}
-        <meta property="og:title" content={`One Day Investor — ${title}`} />
+        {canonicalUrl && <link rel="canonical" href={canonicalUrl} />}
+        <meta property="og:site_name" content="One Day Investor" />
+        <meta property="og:title" content={fullTitle} />
         {description && <meta property="og:description" content={description} />}
-        <meta property="og:type" content="article" />
+        <meta property="og:type" content={ogType || "website"} />
+        {canonicalUrl && <meta property="og:url" content={canonicalUrl} />}
+        {publishDate && <meta property="article:published_time" content={publishDate} />}
+        {modifiedDate && <meta property="article:modified_time" content={modifiedDate} />}
         {ogImageUrl && <meta property="og:image" content={ogImageUrl} />}
         {ogImageUrl && <meta property="og:image:secure_url" content={ogImageUrl} />}
         {ogImageUrl && <meta property="og:image:type" content="image/png" />}
         {ogImageUrl && <meta property="og:image:width" content="1200" />}
         {ogImageUrl && <meta property="og:image:height" content="630" />}
         {ogImageUrl && <meta property="og:image:alt" content={ogAlt} />}
-        {ogImageUrl && <meta name="twitter:card" content="summary_large_image" />}
-        {ogImageUrl && <meta name="twitter:title" content={twitterTitle} />}
-        {ogImageUrl && <meta name="twitter:description" content={ogAlt} />}
+        <meta name="twitter:card" content={ogImageUrl ? "summary_large_image" : "summary"} />
+        <meta name="twitter:title" content={fullTitle} />
+        {description && <meta name="twitter:description" content={description} />}
         {ogImageUrl && <meta name="twitter:image" content={ogImageUrl} />}
         {ogImageUrl && <meta name="twitter:image:alt" content={ogAlt} />}
+        {jsonLd && (
+          <script type="application/ld+json">
+            {JSON.stringify(jsonLd)}
+          </script>
+        )}
         <script src="https://cdn.tailwindcss.com"></script>
         <script>
           {(`

@@ -39,8 +39,32 @@ async function resolveUser(cookie: Record<string, any>): Promise<User | null> {
   }
 }
 
+const SITE_URL = process.env.BLOG_URL || "https://blog.odinvestor.net";
+
 const app = new Elysia()
   .use(html())
+
+  .get("/robots.txt", () => {
+    return new Response(
+      `User-agent: *\nAllow: /\nDisallow: /editor\n\nSitemap: ${SITE_URL}/sitemap.xml`,
+      { headers: { "Content-Type": "text/plain" } }
+    );
+  })
+
+  .get("/sitemap.xml", async () => {
+    const posts = await listPublishedPosts();
+    const urls = [
+      `  <url>\n    <loc>${SITE_URL}/</loc>\n    <changefreq>weekly</changefreq>\n    <priority>1.0</priority>\n  </url>`,
+      ...posts.map(
+        (p) =>
+          `  <url>\n    <loc>${SITE_URL}/${p.slug}</loc>\n    <lastmod>${p.updated_at?.split("T")[0] || p.publish_date}</lastmod>\n    <changefreq>monthly</changefreq>\n    <priority>0.8</priority>\n  </url>`
+      ),
+    ];
+    const xml = `<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n${urls.join("\n")}\n</urlset>`;
+    return new Response(xml, {
+      headers: { "Content-Type": "application/xml" },
+    });
+  })
 
   // Blog public routes
   .get("/", async ({ query, cookie }) => {
