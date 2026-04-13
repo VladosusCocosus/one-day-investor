@@ -24,8 +24,8 @@ export function LandingBlogPreview() {
 
   return (
     <section className="px-6 py-24 md:px-8 md:py-32">
-      <div className="mx-auto max-w-[1200px]">
-        <div className="mx-auto max-w-[720px] text-center">
+      <div className="mx-auto max-w-300">
+        <div className="mx-auto max-w-180 text-center">
           <p className="text-xs font-semibold uppercase tracking-[0.22em] text-emerald-300">
             Blog
           </p>
@@ -33,12 +33,12 @@ export function LandingBlogPreview() {
             Latest from the blog
           </h2>
         </div>
-        <div className="mt-16 grid grid-cols-1 items-center gap-5 md:grid-cols-3">
+        <div className="mt-16 flex flex-col items-center gap-5 md:flex-row md:justify-center">
           {posts.map((post) => (
             <a
               key={post.slug}
               href={`${BLOG_URL}/${post.slug}`}
-              className="group rounded-2xl border border-emerald-900/50 bg-emerald-950/40 p-7 backdrop-blur-sm transition-colors hover:border-emerald-700/60 hover:bg-emerald-950/60"
+              className="group w-full max-w-sm rounded-2xl border border-emerald-900/50 bg-emerald-950/40 p-7 backdrop-blur-sm transition-colors hover:border-emerald-700/60 hover:bg-emerald-950/60 md:w-1/3"
             >
               {post.publish_date && (
                 <p className="text-xs font-medium text-emerald-400/80">
