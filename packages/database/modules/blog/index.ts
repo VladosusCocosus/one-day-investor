@@ -14,7 +14,8 @@ export type Block =
       outro?: string;
     }
   | { type: "closing"; text: string; author: string }
-  | { type: "image"; src: string; alt?: string; caption?: string };
+  | { type: "image"; src: string; alt?: string; caption?: string }
+  | { type: "markdown"; label?: string; heading?: string; body: string };
 
 export type BlogPost = {
   id: number;

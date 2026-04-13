@@ -12,7 +12,8 @@
     "@elysiajs/html": "latest",
     "@kitajs/html": "latest",
     "@logger": "workspace:*",
-    "elysia": "latest"
+    "elysia": "latest",
+    "marked": "^18.0.0"
   },
   "devDependencies": {
     "bun-types": "latest",
