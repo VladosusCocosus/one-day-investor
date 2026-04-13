@@ -36,7 +36,7 @@ export function BlogNav({ user }: { user?: User | null }) {
     : "https://odinvestor.net/login";
 
   return (
-    <header class="sticky top-0 z-50 w-full bg-[#02281c]/95 backdrop-blur-md border-b border-emerald-900/40">
+    <header id="blog-nav" class="sticky top-0 z-50 w-full transition-colors duration-200" style="background: transparent;">
       <div class="mx-auto flex max-w-[1200px] items-center justify-between px-6 py-4 md:px-8">
         <a
           href="https://odinvestor.net"

@@ -88,11 +88,34 @@ export function Layout({
       </head>
       <body
         class="min-h-screen text-emerald-50"
-        style="background: radial-gradient(ellipse 900px 700px at 85% 115%, rgba(16, 185, 129, 0.28) 0%, transparent 55%), radial-gradient(ellipse 1400px 900px at 10% -10%, #0f6d4f 0%, #064e36 38%, #02281c 100%); background-attachment: fixed;"
+        style="background: radial-gradient(ellipse 900px 700px at 85% 115%, rgba(16, 185, 129, 0.28) 0%, transparent 55%), radial-gradient(ellipse 1400px 900px at 10% -10%, #0f6d4f 0%, #064e36 38%, #02281c 100%);"
       >
         <BlogNav user={user} />
         <main>{(children)}</main>
         <BlogFooter />
+        <script>
+          {(`
+            (function() {
+              var nav = document.getElementById('blog-nav');
+              if (!nav) return;
+              function onScroll() {
+                if (window.scrollY > 24) {
+                  nav.style.background = 'rgba(2, 40, 28, 0.95)';
+                  nav.style.backdropFilter = 'blur(12px)';
+                  nav.style.webkitBackdropFilter = 'blur(12px)';
+                  nav.style.borderBottom = '1px solid rgba(6, 78, 54, 0.4)';
+                } else {
+                  nav.style.background = 'transparent';
+                  nav.style.backdropFilter = 'none';
+                  nav.style.webkitBackdropFilter = 'none';
+                  nav.style.borderBottom = '1px solid transparent';
+                }
+              }
+              onScroll();
+              window.addEventListener('scroll', onScroll, { passive: true });
+            })();
+          `)}
+        </script>
       </body>
     </html>
   );
