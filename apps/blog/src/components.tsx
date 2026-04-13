@@ -138,7 +138,7 @@ export function ProseBlock({
   paragraphs: string[];
 }) {
   return (
-    <section class="border-t border-emerald-900/40 px-6 py-24 md:px-8 md:py-32">
+    <section class="border-t border-emerald-900/40 px-6 py-8 md:px-8 md:py-32">
       <div class="mx-auto max-w-[760px]">
         {label && (
           <p class="text-xs font-semibold uppercase tracking-[0.22em] text-emerald-300">
@@ -188,7 +188,7 @@ export function ComparisonBlock({
   outro?: string;
 }) {
   return (
-    <section class="border-t border-emerald-900/40 px-6 py-24 md:px-8 md:py-32">
+    <section class="border-t border-emerald-900/40 px-6 py-8 md:px-8 md:py-32">
       <div class="mx-auto max-w-[1100px]">
         {(label || heading || intro) && (
           <div class="mx-auto max-w-[760px]">
@@ -257,9 +257,9 @@ export function ClosingBlock({
   author: string;
 }) {
   return (
-    <section class="px-6 py-24 md:px-8 md:py-32">
+    <section class="px-6 py-8 md:px-8 md:py-32">
       <div
-        class="mx-auto max-w-[1100px] overflow-hidden rounded-3xl border border-emerald-700/40 px-8 py-16 text-center shadow-2xl shadow-emerald-950/50 md:px-16 md:py-24"
+        class="mx-auto max-w-[1100px] overflow-hidden rounded-3xl border border-emerald-700/40 px-8 py-16 text-center shadow-2xl shadow-emerald-950/50 md:px-16 md:py-8"
         style="background: radial-gradient(ellipse at top left, #0f6d4f 0%, #064e36 45%, #02281c 100%)"
       >
         {text && (
@@ -285,7 +285,7 @@ export function ImageBlock({
   caption?: string;
 }) {
   return (
-    <figure class="border-t border-emerald-900/40 px-6 py-16 md:px-8 md:py-24">
+    <figure class="border-t border-emerald-900/40 px-6 py-16 md:px-8 md:py-8">
       <div class="mx-auto max-w-[960px]">
         <img
           src={src}
@@ -314,7 +314,7 @@ export function MarkdownBlock({
   const html = marked.parse(body, { async: false }) as string;
 
   return (
-    <section class="border-t border-emerald-900/40 px-6 py-24 md:px-8 md:py-32">
+    <section class="border-t border-emerald-900/40 px-6 py-8 md:px-8 md:py-32">
       <div class="mx-auto max-w-[760px]">
         {label && (
           <p class="text-xs font-semibold uppercase tracking-[0.22em] text-emerald-300">
