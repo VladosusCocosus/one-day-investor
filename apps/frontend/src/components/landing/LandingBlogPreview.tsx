@@ -23,7 +23,7 @@ export function LandingBlogPreview() {
   if (posts.length === 0) return null;
 
   return (
-    <section className="px-6 py-24 md:px-8 md:py-32">
+    <section className="px-6 py-24 md:px-8 md:py-32 border-t border-emerald-900/40">
       <div className="mx-auto max-w-300">
         <div className="mx-auto max-w-180 text-center">
           <p className="text-xs font-semibold uppercase tracking-[0.22em] text-emerald-300">
