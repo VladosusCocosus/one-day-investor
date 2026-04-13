@@ -2,6 +2,32 @@ import Html from "@kitajs/html";
 import type { Block } from "./db";
 import type { User } from "@types";
 
+function escapeHtml(str: string): string {
+  return str
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;")
+    .replace(/"/g, "&quot;");
+}
+
+function renderInlineMarkdown(text: string): string {
+  const linkRegex = /\[([^\]]+)\]\(([^)]+)\)/g;
+  let result = "";
+  let lastIndex = 0;
+  let match;
+
+  while ((match = linkRegex.exec(text)) !== null) {
+    result += escapeHtml(text.slice(lastIndex, match.index));
+    const linkText = escapeHtml(match[1]);
+    const href = escapeHtml(match[2]);
+    result += `<a href="${href}" class="font-medium text-emerald-300 underline decoration-emerald-500/40 underline-offset-2 hover:text-emerald-200 hover:decoration-emerald-400/60 transition-colors">${linkText}</a>`;
+    lastIndex = match.index + match[0].length;
+  }
+
+  result += escapeHtml(text.slice(lastIndex));
+  return result;
+}
+
 export function BlogNav({ user }: { user?: User | null }) {
   const ctaLabel = user ? "Go to dashboard" : "Sign in";
   const ctaHref = user
@@ -93,7 +119,7 @@ export function HeroBlock({
         </h1>
         {subtitle && (
           <p class="mx-auto mt-6 max-w-[560px] text-base text-emerald-200 md:text-lg">
-            {subtitle}
+            {renderInlineMarkdown(subtitle)}
           </p>
         )}
       </div>
@@ -125,7 +151,7 @@ export function ProseBlock({
         )}
         <div class="mt-10 space-y-6 text-lg leading-relaxed text-emerald-100/90">
           {paragraphs.map((p) => (
-            <p>{(p)}</p>
+            <p>{renderInlineMarkdown(p)}</p>
           ))}
         </div>
       </div>
@@ -138,7 +164,7 @@ export function PullQuoteBlock({ text }: { text: string }) {
     <figure class="my-14 md:my-20">
       <blockquote class="mx-auto max-w-[760px] text-center">
         <p class="text-2xl font-semibold italic leading-snug tracking-tight text-emerald-100 sm:text-3xl md:text-4xl">
-          {text}
+          {renderInlineMarkdown(text)}
         </p>
       </blockquote>
     </figure>
@@ -177,7 +203,7 @@ export function ComparisonBlock({
             )}
             {intro && (
               <p class="mt-10 text-lg leading-relaxed text-emerald-100/90">
-                {(intro)}
+                {renderInlineMarkdown(intro)}
               </p>
             )}
           </div>
@@ -192,7 +218,7 @@ export function ComparisonBlock({
                 {left.items.map((item) => (
                   <li class="flex gap-3">
                     <span class="mt-2 h-1.5 w-1.5 shrink-0 rounded-full bg-emerald-500/60"></span>
-                    <span>{item}</span>
+                    <span>{renderInlineMarkdown(item)}</span>
                   </li>
                 ))}
               </ul>
@@ -205,7 +231,7 @@ export function ComparisonBlock({
                 {right.items.map((item) => (
                   <li class="flex gap-3">
                     <span class="mt-2 h-1.5 w-1.5 shrink-0 rounded-full bg-emerald-400"></span>
-                    <span>{item}</span>
+                    <span>{renderInlineMarkdown(item)}</span>
                   </li>
                 ))}
               </ul>
@@ -214,7 +240,7 @@ export function ComparisonBlock({
         </div>
         {outro && (
           <p class="mx-auto mt-10 max-w-[760px] text-lg leading-relaxed text-emerald-100/90">
-            {(outro)}
+            {renderInlineMarkdown(outro)}
           </p>
         )}
       </div>
@@ -237,7 +263,7 @@ export function ClosingBlock({
       >
         {text && (
           <p class="text-lg text-emerald-100/90 md:text-xl mb-6">
-            {(text)}
+            {renderInlineMarkdown(text)}
           </p>
         )}
         <p class="text-xl italic text-emerald-100 md:text-2xl">
