@@ -55,6 +55,12 @@ export function LandingNav() {
           >
             Philosophy
           </Link>
+          <a
+            href={import.meta.env.VITE_BLOG_URL || "https://blog.odinvestor.net"}
+            className="hidden text-sm font-medium text-emerald-200 hover:text-white transition-colors md:inline"
+          >
+            Blog
+          </a>
           {loading ? (
             <span
               aria-hidden="true"
