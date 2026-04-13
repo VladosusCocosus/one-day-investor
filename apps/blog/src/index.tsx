@@ -1,11 +1,13 @@
 import Html from "@kitajs/html";
 import { Elysia } from "elysia";
+import { cors } from "@elysiajs/cors";
 import { html } from "@elysiajs/html";
 import { createLogger } from "@logger";
 import { findSessionByToken, findUserById } from "@database";
 import type { User } from "@types";
 import {
   initBlogSchema,
+  listLatestPosts,
   listPublishedPosts,
   listAllPosts,
   getPostBySlug,
@@ -41,8 +43,23 @@ async function resolveUser(cookie: Record<string, any>): Promise<User | null> {
 
 const SITE_URL = process.env.BLOG_URL || "https://blog.odinvestor.net";
 
+const FRONTEND_URL = process.env.FRONTEND_URL || "https://odinvestor.net";
+
 const app = new Elysia()
   .use(html())
+  .use(cors({ origin: FRONTEND_URL, methods: ["GET"] }))
+
+  .get("/api/latest", async () => {
+    const posts = await listLatestPosts(3);
+    return posts.map((p) => ({
+      slug: p.slug,
+      title: p.title,
+      excerpt: p.excerpt,
+      tags: p.tags,
+      publish_date: p.publish_date,
+      og_image: p.og_image,
+    }));
+  })
 
   .get("/robots.txt", () => {
     return new Response(

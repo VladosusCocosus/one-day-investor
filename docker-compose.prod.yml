@@ -145,6 +145,7 @@ services:
       S3_BUCKET: ${S3_BUCKET:-blog-images}
       S3_PUBLIC_URL: ${S3_PUBLIC_URL}
       OG_SERVICE_URL: http://og:3004
+      FRONTEND_URL: ${FRONTEND_URL:-https://odinvestor.net}
     depends_on:
       db:
         condition: service_healthy
@@ -178,6 +179,7 @@ services:
         VITE_API_URL: ${VITE_API_URL}
         VITE_ANALYTICS_URL: ${VITE_ANALYTICS_URL}
         VITE_MARKET_URL: ${VITE_MARKET_URL}
+        VITE_BLOG_URL: ${VITE_BLOG_URL:-https://blog.odinvestor.net}
     restart: unless-stopped
     ports:
       - "127.0.0.1:8080:8080"
