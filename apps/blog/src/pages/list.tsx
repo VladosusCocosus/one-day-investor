@@ -55,6 +55,7 @@ export function ListPage({
     <Layout
       title={activeTag ? `#${activeTag}` : "Blog"}
       description="Thoughts on investing, wealth-building, and the One Day Investor philosophy."
+      canonicalPath={activeTag ? `/?tag=${encodeURIComponent(activeTag)}` : "/"}
       user={user}
     >
       {/* Hero */}

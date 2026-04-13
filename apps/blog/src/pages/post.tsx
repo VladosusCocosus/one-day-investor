@@ -13,8 +13,41 @@ export function PostPage({ post, user }: { post: BlogPost; user?: User | null })
       })
     : "Draft";
 
+  const jsonLd = {
+    "@context": "https://schema.org",
+    "@type": "BlogPosting",
+    headline: post.title,
+    description: post.excerpt || undefined,
+    datePublished: post.publish_date || undefined,
+    dateModified: post.updated_at || undefined,
+    author: {
+      "@type": "Organization",
+      name: "One Day Investor",
+      url: "https://odinvestor.net",
+    },
+    publisher: {
+      "@type": "Organization",
+      name: "One Day Investor",
+    },
+    mainEntityOfPage: {
+      "@type": "WebPage",
+      "@id": `${process.env.BLOG_URL || "https://blog.odinvestor.net"}/${post.slug}`,
+    },
+    keywords: post.tags.length > 0 ? post.tags.join(", ") : undefined,
+  };
+
   return (
-    <Layout title={post.title} description={post.excerpt} ogImage={post.og_image} user={user}>
+    <Layout
+      title={post.title}
+      description={post.excerpt}
+      ogImage={post.og_image}
+      canonicalPath={`/${post.slug}`}
+      publishDate={post.publish_date}
+      modifiedDate={post.updated_at}
+      ogType="article"
+      jsonLd={jsonLd}
+      user={user}
+    >
       {/* Post metadata */}
       <div class="px-6 pt-8 md:px-8">
         <div class="mx-auto max-w-[760px]">
