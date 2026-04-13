@@ -313,6 +313,8 @@ export function MarkdownBlock({
 }) {
   const html = marked.parse(body, { async: false }) as string;
 
+  console.log(html)
+
   return (
     <section class="border-t border-emerald-900/40 px-6 py-8 md:px-8 md:py-12">
       <div class="mx-auto max-w-[760px]">
@@ -327,7 +329,7 @@ export function MarkdownBlock({
           </h2>
         )}
         <div
-          class="mt-10 prose prose-invert prose-emerald max-w-none text-lg leading-relaxed text-emerald-100/90 [&_h1]:text-3xl [&_h1]:font-bold [&_h1]:tracking-tight [&_h1]:text-emerald-50 [&_h2]:text-2xl [&_h2]:font-bold [&_h2]:tracking-tight [&_h2]:text-emerald-50 [&_h3]:text-xl [&_h3]:font-semibold [&_h3]:text-emerald-50 [&_p]:mb-6 [&_a]:font-medium [&_a]:text-emerald-300 [&_a]:underline [&_a]:decoration-emerald-500/40 [&_a]:underline-offset-2 hover:[&_a]:text-emerald-200 [&_ul]:list-disc [&_ul]:pl-6 [&_ul]:space-y-2 [&_ol]:list-decimal [&_ol]:pl-6 [&_ol]:space-y-2 [&_li]:text-emerald-200/90 [&_blockquote]:border-l-2 [&_blockquote]:border-emerald-500/40 [&_blockquote]:pl-6 [&_blockquote]:italic [&_blockquote]:text-emerald-200 [&_code]:rounded [&_code]:bg-emerald-900/50 [&_code]:px-1.5 [&_code]:py-0.5 [&_code]:text-sm [&_code]:text-emerald-200 [&_pre]:rounded-xl [&_pre]:bg-emerald-950/60 [&_pre]:border [&_pre]:border-emerald-900/50 [&_pre]:p-6 [&_pre]:overflow-x-auto [&_pre_code]:bg-transparent [&_pre_code]:p-0 [&_hr]:border-emerald-900/40 [&_strong]:text-emerald-50 [&_strong]:font-semibold"
+          class="mt-10 prose prose-invert prose-emerald max-w-none text-lg leading-relaxed text-emerald-100/90 [&_h1]:text-3xl [&_h1]:font-bold [&_p]:my-4 [&_h1]:tracking-tight [&_h1]:text-emerald-50 [&_h2]:text-2xl [&_h2]:font-bold [&_h2]:tracking-tight [&_h2]:text-emerald-50 [&_h3]:text-xl [&_h3]:font-semibold [&_h3]:mt-8 [&h3]:mb-4 [&_h3]:text-emerald-50 [&_p]:mb-6 [&_a]:font-medium [&_a]:text-emerald-300 [&_a]:underline [&_a]:decoration-emerald-500/40 [&_a]:underline-offset-2 hover:[&_a]:text-emerald-200 [&_ul]:list-disc [&_ul]:pl-6 [&_ul]:space-y-2 [&_ol]:list-decimal [&_ol]:pl-6 [&_ol]:space-y-2 [&_li]:text-emerald-200/90 [&_blockquote]:border-l-2 [&_blockquote]:border-emerald-500/40 [&_blockquote]:pl-6 [&_blockquote]:italic [&_blockquote]:text-emerald-200 [&_code]:rounded [&_code]:bg-emerald-900/50 [&_code]:px-1.5 [&_code]:py-0.5 [&_code]:text-sm [&_code]:text-emerald-200 [&_pre]:rounded-xl [&_pre]:bg-emerald-950/60 [&_pre]:border [&_pre]:border-emerald-900/50 [&_pre]:p-6 [&_pre]:overflow-x-auto [&_pre_code]:bg-transparent [&_pre_code]:p-0 [&_hr]:border-emerald-900/40 [&_strong]:text-emerald-50 [&_strong]:font-semibold"
         >
           {html}
         </div>
