@@ -39,6 +39,8 @@ export function Layout({
       <head>
         <meta charset="utf-8" />
         <meta name="viewport" content="width=device-width, initial-scale=1" />
+        <link rel="icon" type="image/svg+xml" href="https://odinvestor.net/favicon.svg" />
+        <link rel="apple-touch-icon" href="https://odinvestor.net/apple-touch-icon.png" />
         <title>{fullTitle}</title>
         {description && <meta name="description" content={description} />}
         {canonicalUrl && <link rel="canonical" href={canonicalUrl} />}
