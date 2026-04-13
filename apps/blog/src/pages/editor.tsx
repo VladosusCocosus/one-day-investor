@@ -203,6 +203,7 @@ export function EditorFormPage({
                 <option value="comparison">Comparison</option>
                 <option value="closing">Closing</option>
                 <option value="image">Image</option>
+                <option value="markdown">Markdown</option>
               </select>
               <button
                 type="button"
@@ -327,6 +328,15 @@ export function EditorFormPage({
                   { path: 'caption', label: 'Caption', type: 'text' },
                 ],
                 defaults: function() { return { type: 'image', src: '', alt: '', caption: '' }; },
+              },
+              markdown: {
+                label: 'Markdown',
+                fields: [
+                  { path: 'label', label: 'Label', type: 'text' },
+                  { path: 'heading', label: 'Heading', type: 'text' },
+                  { path: 'body', label: 'Markdown body', type: 'textarea' },
+                ],
+                defaults: function() { return { type: 'markdown', label: '', heading: '', body: '' }; },
               },
             };
 
