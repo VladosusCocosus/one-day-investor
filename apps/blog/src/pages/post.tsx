@@ -1,7 +1,7 @@
 import Html from "@kitajs/html";
 import type { BlogPost } from "../db";
 import type { User } from "@types";
-import { renderBlock, TagPill } from "../components";
+import { renderBlock, TagPill, LikeButton, SignInModal } from "../components";
 import { Layout } from "../layout";
 
 export function PostPage({ post, user }: { post: BlogPost; user?: User | null }) {
@@ -73,6 +73,96 @@ export function PostPage({ post, user }: { post: BlogPost; user?: User | null })
 
       {/* Render content blocks */}
       {post.content.map((block) => renderBlock(block))}
+
+      {/* Like button below content */}
+      <LikeButton slug={post.slug} />
+
+      {/* Sign-in modal (hidden by default) */}
+      <SignInModal />
+
+      {/* Client-side like interactivity */}
+      <script>
+        {`
+          (function() {
+            var slug = "${post.slug}";
+            var isLoggedIn = ${user ? "true" : "false"};
+            var btn = document.getElementById("like-btn");
+            var heart = document.getElementById("like-heart");
+            var countEl = document.getElementById("like-count");
+            var modal = document.getElementById("signin-modal");
+            var dismiss = document.getElementById("signin-dismiss");
+            var liked = false;
+            var count = 0;
+
+            function updateUI() {
+              countEl.textContent = count;
+              if (liked) {
+                heart.setAttribute("fill", "currentColor");
+                heart.classList.remove("text-emerald-300");
+                heart.classList.add("text-emerald-400");
+              } else {
+                heart.setAttribute("fill", "none");
+                heart.classList.remove("text-emerald-400");
+                heart.classList.add("text-emerald-300");
+              }
+            }
+
+            function showModal() {
+              modal.style.display = "flex";
+            }
+
+            function hideModal() {
+              modal.style.display = "none";
+            }
+
+            // Fetch initial state
+            fetch("/api/posts/" + slug + "/likes", { credentials: "include" })
+              .then(function(r) { return r.json(); })
+              .then(function(data) {
+                count = data.count;
+                liked = data.liked;
+                updateUI();
+              });
+
+            btn.addEventListener("click", function() {
+              if (!isLoggedIn) {
+                showModal();
+                return;
+              }
+              // Optimistic update
+              liked = !liked;
+              count += liked ? 1 : -1;
+              updateUI();
+
+              fetch("/api/posts/" + slug + "/like", {
+                method: liked ? "POST" : "DELETE",
+                credentials: "include",
+              })
+                .then(function(r) { return r.json(); })
+                .then(function(data) {
+                  count = data.count;
+                  liked = data.liked;
+                  updateUI();
+                })
+                .catch(function() {
+                  // Revert on error
+                  liked = !liked;
+                  count += liked ? 1 : -1;
+                  updateUI();
+                });
+            });
+
+            // Modal dismissal
+            dismiss.addEventListener("click", hideModal);
+            modal.addEventListener("click", function(e) {
+              if (e.target === modal) hideModal();
+            });
+            document.addEventListener("keydown", function(e) {
+              if (e.key === "Escape") hideModal();
+            });
+          })();
+        `}
+      </script>
     </Layout>
   );
 }
