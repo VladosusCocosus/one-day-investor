@@ -63,6 +63,14 @@ export async function initBlogSchema(): Promise<void> {
   await blogPool.query(`
     ALTER TABLE posts ADD COLUMN IF NOT EXISTS og_image TEXT
   `);
+  await blogPool.query(`
+    CREATE TABLE IF NOT EXISTS post_likes (
+      post_id INTEGER NOT NULL REFERENCES posts(id) ON DELETE CASCADE,
+      user_id UUID NOT NULL,
+      created_at TIMESTAMPTZ DEFAULT now(),
+      PRIMARY KEY (post_id, user_id)
+    )
+  `);
 }
 
 export async function setOgImage(id: number, key: string): Promise<void> {
@@ -202,4 +210,37 @@ export async function updateBlogPost(
 export async function deleteBlogPost(id: number): Promise<boolean> {
   const result = await blogPool.query("DELETE FROM posts WHERE id = $1", [id]);
   return (result.rowCount ?? 0) > 0;
+}
+
+export async function getLikeInfo(
+  postId: number,
+  userId?: string | null
+): Promise<{ count: number; liked: boolean }> {
+  const countResult = await blogPool.query<{ count: string }>(
+    "SELECT COUNT(*)::text AS count FROM post_likes WHERE post_id = $1",
+    [postId]
+  );
+  const count = parseInt(countResult.rows[0].count, 10);
+
+  if (!userId) return { count, liked: false };
+
+  const likeResult = await blogPool.query(
+    "SELECT 1 FROM post_likes WHERE post_id = $1 AND user_id = $2",
+    [postId, userId]
+  );
+  return { count, liked: likeResult.rowCount! > 0 };
+}
+
+export async function addLike(postId: number, userId: string): Promise<void> {
+  await blogPool.query(
+    "INSERT INTO post_likes (post_id, user_id) VALUES ($1, $2) ON CONFLICT DO NOTHING",
+    [postId, userId]
+  );
+}
+
+export async function removeLike(postId: number, userId: string): Promise<void> {
+  await blogPool.query(
+    "DELETE FROM post_likes WHERE post_id = $1 AND user_id = $2",
+    [postId, userId]
+  );
 }
