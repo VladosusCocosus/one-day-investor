@@ -410,3 +410,69 @@ export function TagPill({
     </a>
   );
 }
+
+export function LikeButton({ slug }: { slug: string }) {
+  return (
+    <div class="px-6 pt-6 pb-2 md:px-8">
+      <div class="mx-auto max-w-[760px] flex items-center gap-3">
+        <button
+          id="like-btn"
+          data-slug={slug}
+          class="group flex items-center gap-2 rounded-full border border-emerald-900/50 bg-emerald-950/40 px-4 py-2 text-sm transition-colors hover:border-emerald-700/50 hover:bg-emerald-900/30"
+        >
+          <svg
+            id="like-heart"
+            xmlns="http://www.w3.org/2000/svg"
+            width="18"
+            height="18"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="2"
+            stroke-linecap="round"
+            stroke-linejoin="round"
+            class="text-emerald-300 transition-colors group-hover:text-emerald-200"
+          >
+            <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"></path>
+          </svg>
+          <span id="like-count" class="text-emerald-200 tabular-nums">...</span>
+        </button>
+      </div>
+    </div>
+  );
+}
+
+export function SignInModal() {
+  return (
+    <div
+      id="signin-modal"
+      class="fixed inset-0 z-[100] hidden items-center justify-center"
+      style="background: rgba(0, 0, 0, 0.5); backdrop-filter: blur(4px);"
+    >
+      <div
+        class="mx-4 max-w-[360px] rounded-2xl border border-emerald-500/30 p-8 text-center shadow-2xl"
+        style="background: rgba(6, 78, 54, 0.95); backdrop-filter: blur(12px);"
+      >
+        <div class="text-3xl">&#x2764;&#xFE0F;</div>
+        <p class="mt-4 text-lg font-semibold text-emerald-50">
+          Sign in to like this post
+        </p>
+        <p class="mt-2 text-sm leading-relaxed text-emerald-200/80">
+          Join One Day Investor to save your favorites and get personalized insights.
+        </p>
+        <a
+          href="https://odinvestor.net/login"
+          class="mt-6 inline-flex h-10 items-center rounded-md bg-emerald-50 px-6 text-sm font-semibold text-emerald-950 shadow-sm transition-colors hover:bg-white"
+        >
+          Sign in
+        </a>
+        <p
+          id="signin-dismiss"
+          class="mt-3 cursor-pointer text-sm text-emerald-300 transition-colors hover:text-emerald-200"
+        >
+          Maybe later
+        </p>
+      </div>
+    </div>
+  );
+}
