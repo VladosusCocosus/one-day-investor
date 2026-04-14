@@ -17,6 +17,9 @@ import {
   updateBlogPost,
   deleteBlogPost,
   setOgImage,
+  getLikeInfo,
+  addLike,
+  removeLike,
 } from "./db";
 import type { Block } from "./db";
 import { ListPage } from "./pages/list";
@@ -59,6 +62,34 @@ const app = new Elysia()
       publish_date: p.publish_date,
       og_image: p.og_image,
     }));
+  })
+
+  .get("/api/posts/:slug/likes", async ({ params, cookie }) => {
+    const post = await getPostBySlug(params.slug);
+    if (!post) return new Response(JSON.stringify({ error: "Not found" }), { status: 404, headers: { "Content-Type": "application/json" } });
+    const user = await resolveUser(cookie);
+    const info = await getLikeInfo(post.id, user?.id);
+    return info;
+  })
+
+  .post("/api/posts/:slug/like", async ({ params, cookie }) => {
+    const user = await resolveUser(cookie);
+    if (!user) return new Response(JSON.stringify({ error: "Unauthorized" }), { status: 401, headers: { "Content-Type": "application/json" } });
+    const post = await getPostBySlug(params.slug);
+    if (!post) return new Response(JSON.stringify({ error: "Not found" }), { status: 404, headers: { "Content-Type": "application/json" } });
+    await addLike(post.id, user.id);
+    const info = await getLikeInfo(post.id, user.id);
+    return info;
+  })
+
+  .delete("/api/posts/:slug/like", async ({ params, cookie }) => {
+    const user = await resolveUser(cookie);
+    if (!user) return new Response(JSON.stringify({ error: "Unauthorized" }), { status: 401, headers: { "Content-Type": "application/json" } });
+    const post = await getPostBySlug(params.slug);
+    if (!post) return new Response(JSON.stringify({ error: "Not found" }), { status: 404, headers: { "Content-Type": "application/json" } });
+    await removeLike(post.id, user.id);
+    const info = await getLikeInfo(post.id, user.id);
+    return info;
   })
 
   .get("/robots.txt", () => {
