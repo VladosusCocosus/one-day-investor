@@ -12,4 +12,7 @@ export {
   updateBlogPost,
   deleteBlogPost,
   setOgImage,
+  getLikeInfo,
+  addLike,
+  removeLike,
 } from "@database";
