@@ -51,3 +51,22 @@ export async function findCurrentTotal(
   if (rows.length === 0) return null;
   return { month: rows[0].month, total: Number(rows[0].total) };
 }
+
+export async function findAssetTimeline(userId: string) {
+  const { rows } = await pool.query(
+    `SELECT
+       s.month,
+       COALESCE(pa.symbol, trim(concat(s3.name, ' ', s2.name))) AS asset,
+       SUM(e.amount) AS amount
+     FROM snapshot_entries e
+     JOIN snapshots s ON s.id = e.snapshot_id
+     JOIN services s2 ON s2.id = e.service_id
+     LEFT JOIN services s3 ON s2.parent_id = s3.id
+     LEFT JOIN pocket_assets pa ON pa.id = e.pocket_asset_id
+     WHERE s.user_id = $1
+     GROUP BY s.month, asset
+     ORDER BY s.month ASC, amount DESC`,
+    [userId]
+  );
+  return rows as { month: string; asset: string; amount: number }[];
+}

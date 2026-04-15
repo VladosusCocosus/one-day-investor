@@ -1,9 +1,10 @@
 import { useMemo, useState } from "react";
-import { useDistribution, useTimeline } from "@/hooks/useAnalytics";
+import { useDistribution, useTimeline, useAssetTimeline } from "@/hooks/useAnalytics";
 import { MonthPicker } from "@/components/MonthPicker";
 import { AnalyticsKpiStrip } from "@/components/AnalyticsKpiStrip";
 import { DistributionDonut } from "@/components/DistributionDonut";
 import { PortfolioTimelineChart } from "@/components/PortfolioTimelineChart";
+import { AssetAllocationChart } from "@/components/AssetAllocationChart";
 import { usePageMeta } from "@/lib/use-page-meta";
 import { pageMeta } from "@/lib/metadata";
 
@@ -19,6 +20,7 @@ export function AnalyticsPage() {
   );
 
   const activeMonth = selectedMonth ?? monthsDesc[0];
+  const { data: assetTimeline = [], isLoading: assetTimelineLoading } = useAssetTimeline();
   const { data: distribution = [], isLoading: distLoading } = useDistribution(
     activeMonth ? activeMonth.slice(0, 7) : undefined
   );
@@ -59,6 +61,14 @@ export function AnalyticsPage() {
         <PortfolioTimelineChart
           timeline={timeline}
           loading={timelineLoading}
+        />
+      </div>
+
+      {/* Asset allocation over time */}
+      <div className="mt-6">
+        <AssetAllocationChart
+          data={assetTimeline}
+          loading={assetTimelineLoading}
         />
       </div>
     </div>

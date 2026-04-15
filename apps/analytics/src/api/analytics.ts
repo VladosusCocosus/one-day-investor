@@ -1,5 +1,5 @@
 import { Elysia } from "elysia";
-import { findCurrentTotal, findDistribution, findTimeline } from "@database";
+import { findCurrentTotal, findDistribution, findTimeline, findAssetTimeline } from "@database";
 import { resolveUser } from "../auth/session";
 
 export const analyticsApi = new Elysia({ prefix: "/api/analytics" })
@@ -32,4 +32,21 @@ export const analyticsApi = new Elysia({ prefix: "/api/analytics" })
       return { error: "Unauthorized" };
     }
     return findCurrentTotal(user.id);
+  })
+  .get("/asset-timeline", async ({ user, set }) => {
+    if (!user) {
+      set.status = 401;
+      return { error: "Unauthorized" };
+    }
+    const rows = await findAssetTimeline(user.id);
+
+    const grouped: Record<string, Record<string, number>> = {};
+    for (const row of rows) {
+      if (!grouped[row.month]) grouped[row.month] = {};
+      grouped[row.month][row.asset] = Number(row.amount);
+    }
+
+    return Object.entries(grouped)
+      .sort(([a], [b]) => a.localeCompare(b))
+      .map(([month, assets]) => ({ month, assets }));
   });
