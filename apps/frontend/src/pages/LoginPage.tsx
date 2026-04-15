@@ -1,4 +1,4 @@
-import { Navigate } from "react-router";
+import { Navigate, useSearchParams } from "react-router";
 import { useAuth } from "@/hooks/useAuth";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
@@ -31,6 +31,8 @@ function GoogleIcon() {
 export function LoginPage() {
   usePageMeta(pageMeta.login);
   const { user, loading, login } = useAuth();
+  const [searchParams] = useSearchParams();
+  const redirectTo = searchParams.get("redirect_to");
 
   if (loading) {
     return (
@@ -41,6 +43,10 @@ export function LoginPage() {
   }
 
   if (user) {
+    if (redirectTo) {
+      window.location.href = redirectTo;
+      return null;
+    }
     return <Navigate to="/dashboard" replace />;
   }
 

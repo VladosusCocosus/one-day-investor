@@ -78,7 +78,7 @@ export function PostPage({ post, user }: { post: BlogPost; user?: User | null })
       <LikeButton slug={post.slug} />
 
       {/* Sign-in modal (hidden by default) */}
-      <SignInModal />
+      <SignInModal currentPath={`/${post.slug}`} />
 
       {/* Client-side like interactivity */}
       <script>
