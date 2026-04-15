@@ -31,7 +31,12 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   });
 
   const login = () => {
-    window.location.href = `${import.meta.env.VITE_API_URL}/auth/google`;
+    const params = new URLSearchParams(window.location.search);
+    const redirectTo = params.get("redirect_to");
+    const authUrl = redirectTo
+      ? `${import.meta.env.VITE_API_URL}/auth/google?redirect_to=${encodeURIComponent(redirectTo)}`
+      : `${import.meta.env.VITE_API_URL}/auth/google`;
+    window.location.href = authUrl;
   };
 
   const logout = async () => {

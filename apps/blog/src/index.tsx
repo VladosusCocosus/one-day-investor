@@ -47,6 +47,7 @@ async function resolveUser(cookie: Record<string, any>): Promise<User | null> {
 const SITE_URL = process.env.BLOG_URL || "https://blog.odinvestor.net";
 
 const FRONTEND_URL = process.env.FRONTEND_URL || "https://odinvestor.net";
+const ADMIN_EMAIL = process.env.BLOG_ADMIN_EMAIL || "razin36986@gmail.com";
 
 const app = new Elysia()
   .use(html())
@@ -125,15 +126,21 @@ const app = new Elysia()
     return <ListPage posts={posts} allTags={allTags} activeTag={tag} user={user} />;
   })
 
-  // Editor routes
-  .get("/editor", async () => {
+  // Editor routes (admin only)
+  .get("/editor", async ({ cookie, set }) => {
+    const user = await resolveUser(cookie);
+    if (!user || user.email !== ADMIN_EMAIL) { set.status = 403; return "Forbidden"; }
     const posts = await listAllPosts();
     return <EditorListPage posts={posts} />;
   })
-  .get("/editor/new", () => {
+  .get("/editor/new", async ({ cookie, set }) => {
+    const user = await resolveUser(cookie);
+    if (!user || user.email !== ADMIN_EMAIL) { set.status = 403; return "Forbidden"; }
     return <EditorFormPage />;
   })
-  .post("/editor/new", async ({ body, set }) => {
+  .post("/editor/new", async ({ body, set, cookie }) => {
+    const user = await resolveUser(cookie);
+    if (!user || user.email !== ADMIN_EMAIL) { set.status = 403; return "Forbidden"; }
     const { title, slug, excerpt, tags, content, publish_date } = body as Record<string, string>;
     try {
       const parsedContent: Block[] = JSON.parse(content || "[]");
@@ -153,12 +160,16 @@ const app = new Elysia()
       return <EditorFormPage error={e.message} />;
     }
   })
-  .get("/editor/:id", async ({ params }) => {
+  .get("/editor/:id", async ({ params, cookie, set }) => {
+    const user = await resolveUser(cookie);
+    if (!user || user.email !== ADMIN_EMAIL) { set.status = 403; return "Forbidden"; }
     const post = await getPostById(Number(params.id));
     if (!post) return <EditorFormPage error="Post not found" />;
     return <EditorFormPage post={post} />;
   })
-  .post("/editor/:id", async ({ params, body, set }) => {
+  .post("/editor/:id", async ({ params, body, set, cookie }) => {
+    const user = await resolveUser(cookie);
+    if (!user || user.email !== ADMIN_EMAIL) { set.status = 403; return "Forbidden"; }
     const id = Number(params.id);
     const { title, slug, excerpt, tags, content, publish_date } = body as Record<string, string>;
     try {
@@ -180,7 +191,9 @@ const app = new Elysia()
       return <EditorFormPage post={post ?? undefined} error={e.message} />;
     }
   })
-  .post("/editor/:id/og", async ({ params, set }) => {
+  .post("/editor/:id/og", async ({ params, set, cookie }) => {
+    const user = await resolveUser(cookie);
+    if (!user || user.email !== ADMIN_EMAIL) { set.status = 403; return "Forbidden"; }
     const post = await getPostById(Number(params.id));
     if (!post) { set.redirect = "/editor"; return; }
 
@@ -200,7 +213,9 @@ const app = new Elysia()
 
     set.redirect = `/editor/${post.id}`;
   })
-  .post("/editor/:id/delete", async ({ params, set }) => {
+  .post("/editor/:id/delete", async ({ params, set, cookie }) => {
+    const user = await resolveUser(cookie);
+    if (!user || user.email !== ADMIN_EMAIL) { set.status = 403; return "Forbidden"; }
     await deleteBlogPost(Number(params.id));
     set.redirect = "/editor";
   })
