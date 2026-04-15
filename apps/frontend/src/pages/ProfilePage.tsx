@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { useNavigate } from "react-router";
-import { Sparkles } from "lucide-react";
+import { Sparkles, LogOut } from "lucide-react";
 import { Switch } from "radix-ui";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { Button } from "@/components/ui/button";
@@ -233,7 +233,7 @@ function EmailSettingsSection({
 
 export function ProfilePage() {
   usePageMeta(pageMeta.profile);
-  const { user } = useAuth();
+  const { user, logout } = useAuth();
   const { settings, updateSettings } = useSettings();
   const navigate = useNavigate();
 
@@ -330,6 +330,22 @@ export function ProfilePage() {
         >
           <Sparkles className="mr-1.5 h-3.5 w-3.5" aria-hidden="true" />
           Show welcome tour
+        </Button>
+      </section>
+
+      {/* Sign out */}
+      <section className="mt-10 border-t border-border pt-6">
+        <Button
+          variant="outline"
+          size="sm"
+          className="text-destructive hover:text-destructive"
+          onClick={async () => {
+            await logout();
+            navigate("/");
+          }}
+        >
+          <LogOut className="mr-1.5 h-3.5 w-3.5" aria-hidden="true" />
+          Sign out
         </Button>
       </section>
     </div>
