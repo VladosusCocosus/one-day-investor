@@ -53,3 +53,20 @@ export function useCurrentTotal() {
     },
   });
 }
+
+export interface AssetTimelineEntry {
+  month: string;
+  assets: Record<string, number>;
+}
+
+export function useAssetTimeline() {
+  return useQuery({
+    queryKey: ["analytics", "asset-timeline"],
+    queryFn: async () => {
+      const res = await analyticsApi.get<AssetTimelineEntry[]>(
+        "/api/analytics/asset-timeline"
+      );
+      return res.data;
+    },
+  });
+}
