@@ -39,6 +39,15 @@ export function Layout({
       <head>
         <meta charset="utf-8" />
         <meta name="viewport" content="width=device-width, initial-scale=1" />
+        <script async src="https://www.googletagmanager.com/gtag/js?id=G-YSRMF124RE"></script>
+        <script>
+          {(`
+            window.dataLayer = window.dataLayer || [];
+            function gtag(){dataLayer.push(arguments);}
+            gtag('js', new Date());
+            gtag('config', 'G-PCLRLNZ405');
+          `)}
+        </script>
         <link rel="icon" type="image/svg+xml" href="https://odinvestor.net/favicon.svg" />
         <link rel="apple-touch-icon" href="https://odinvestor.net/apple-touch-icon.png" />
         <title>{fullTitle}</title>
