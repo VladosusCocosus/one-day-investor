@@ -120,9 +120,9 @@ export function AssetAllocationChart({ data, loading }: AssetAllocationChartProp
                   tickFormatter={(v) => `${Math.round(v * 100)}%`}
                 />
                 <Tooltip
-                  formatter={(value: number, name: string) => [
+                  formatter={(value, name) => [
                     `${(Number(value) * 100).toFixed(1)}%`,
-                    name,
+                    String(name),
                   ]}
                   contentStyle={{
                     borderRadius: 8,
