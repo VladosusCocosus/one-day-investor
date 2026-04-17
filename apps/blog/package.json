@@ -3,8 +3,7 @@
   "version": "1.0.0",
   "scripts": {
     "build:css": "bunx @tailwindcss/cli -i src/styles/input.css -o src/styles/output.css --minify",
-    "dev": "bun run build:css && bun run --watch src/index.tsx",
-    "seed": "bun run src/seed.ts"
+    "dev": "bun run build:css && bun run --watch src/index.tsx"
   },
   "dependencies": {
     "@config": "workspace:*",
