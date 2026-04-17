@@ -36,6 +36,8 @@ export function PostPage({ post, user }: { post: BlogPost; user?: User | null })
     keywords: post.tags.length > 0 ? post.tags.join(", ") : undefined,
   };
 
+  const hasCharts = post.content.some((block) => block.type === "chart");
+
   return (
     <Layout
       title={post.title}
@@ -163,6 +165,178 @@ export function PostPage({ post, user }: { post: BlogPost; user?: User | null })
           })();
         `}
       </script>
+      {hasCharts && (
+        <script>
+          {`
+          (function() {
+            var COLORS = [
+              "hsl(160,84%,25%)","hsl(160,70%,40%)","hsl(150,60%,55%)",
+              "hsl(170,55%,55%)","hsl(145,45%,65%)","hsl(175,40%,45%)"
+            ];
+
+            var baseTheme = {
+              chart: {
+                background: "transparent",
+                fontFamily: "Inter, system-ui, sans-serif",
+                toolbar: { show: false },
+                animations: { enabled: true, easing: "easeinout", speed: 600 },
+              },
+              grid: {
+                borderColor: "rgba(16,185,129,0.15)",
+                strokeDashArray: 4,
+              },
+              tooltip: {
+                theme: "dark",
+                style: { fontSize: "12px" },
+                y: {},
+              },
+              xaxis: {
+                labels: { style: { colors: "rgba(167,198,185,0.7)", fontSize: "11px" } },
+                axisBorder: { show: false },
+                axisTicks: { show: false },
+              },
+              yaxis: {
+                labels: { style: { colors: "rgba(167,198,185,0.7)", fontSize: "11px" } },
+              },
+              legend: {
+                labels: { colors: "rgba(167,198,185,0.9)" },
+                fontSize: "12px",
+              },
+              dataLabels: { enabled: false },
+            };
+
+            function buildOptions(cfg) {
+              var labels = cfg.data.labels || [];
+              var rawSeries = cfg.data.series || [];
+              var opts = cfg.options || {};
+              var colors = opts.colors && opts.colors.length > 0 ? opts.colors : COLORS;
+              var suffix = opts.suffix || "";
+              var prefix = opts.prefix || "";
+
+              var apexOpts = JSON.parse(JSON.stringify(baseTheme));
+              apexOpts.colors = colors;
+              apexOpts.tooltip.y.formatter = function(val) {
+                return prefix + val + suffix;
+              };
+
+              if (cfg.chartType === "donut") {
+                apexOpts.chart.type = "donut";
+                apexOpts.labels = labels;
+                apexOpts.series = rawSeries;
+                apexOpts.plotOptions = {
+                  pie: {
+                    donut: {
+                      size: "65%",
+                      labels: {
+                        show: true,
+                        total: {
+                          show: true,
+                          label: "Total",
+                          color: "rgba(167,198,185,0.7)",
+                          fontSize: "11px",
+                          formatter: function(w) {
+                            return w.globals.seriesTotals.reduce(function(a,b){return a+b},0);
+                          },
+                        },
+                        value: {
+                          color: "#ecfdf5",
+                          fontSize: "20px",
+                          fontWeight: 600,
+                        },
+                      },
+                    },
+                  },
+                };
+                apexOpts.stroke = { width: 2, colors: ["rgba(2,40,28,1)"] };
+                apexOpts.legend.position = "bottom";
+                return apexOpts;
+              }
+
+              // Bar or horizontal-bar
+              if (cfg.chartType === "bar" || cfg.chartType === "horizontal-bar") {
+                apexOpts.chart.type = "bar";
+                apexOpts.xaxis.categories = labels;
+                apexOpts.plotOptions = {
+                  bar: {
+                    horizontal: cfg.chartType === "horizontal-bar",
+                    borderRadius: 4,
+                    columnWidth: "55%",
+                    barHeight: "60%",
+                    distributed: Array.isArray(rawSeries) && typeof rawSeries[0] === "number",
+                  },
+                };
+
+                if (Array.isArray(rawSeries) && typeof rawSeries[0] === "number") {
+                  apexOpts.series = [{ name: "Value", data: rawSeries }];
+                } else {
+                  apexOpts.series = rawSeries.map(function(s) {
+                    return { name: s.name, data: s.values };
+                  });
+                  if (opts.stacked) apexOpts.chart.stacked = true;
+                }
+
+                if (apexOpts.plotOptions.bar.distributed) {
+                  apexOpts.legend.show = false;
+                }
+
+                if (cfg.chartType === "horizontal-bar") {
+                  apexOpts.yaxis.labels.style = { colors: "rgba(167,198,185,0.7)", fontSize: "11px" };
+                }
+
+                return apexOpts;
+              }
+
+              // Line (rendered as area)
+              if (cfg.chartType === "line") {
+                apexOpts.chart.type = "area";
+                apexOpts.xaxis.categories = labels;
+                apexOpts.stroke = { curve: "smooth", width: 2 };
+                apexOpts.fill = {
+                  type: "gradient",
+                  gradient: { shadeIntensity: 1, opacityFrom: 0.3, opacityTo: 0, stops: [0, 100] },
+                };
+
+                if (Array.isArray(rawSeries) && typeof rawSeries[0] === "number") {
+                  apexOpts.series = [{ name: "Value", data: rawSeries }];
+                } else {
+                  apexOpts.series = rawSeries.map(function(s) {
+                    return { name: s.name, data: s.values };
+                  });
+                }
+                return apexOpts;
+              }
+
+              return apexOpts;
+            }
+
+            function initChart(el) {
+              try {
+                var cfg = JSON.parse(el.getAttribute("data-chart"));
+                var opts = buildOptions(cfg);
+                var chart = new ApexCharts(el, opts);
+                chart.render();
+              } catch(e) {
+                console.error("Chart init failed:", e);
+                el.innerHTML = '<p style="text-align:center;color:rgba(167,198,185,0.5);padding:2rem;">Chart failed to load</p>';
+              }
+            }
+
+            var els = document.querySelectorAll("[data-chart]");
+            if (els.length > 0) {
+              var s = document.createElement("script");
+              s.src = "https://cdn.jsdelivr.net/npm/apexcharts@3/dist/apexcharts.min.js";
+              s.onload = function() { els.forEach(initChart); };
+              s.onerror = function() {
+                els.forEach(function(el) {
+                  el.innerHTML = '<p style="text-align:center;color:rgba(167,198,185,0.5);padding:2rem;">Chart failed to load</p>';
+                });
+              };
+              document.head.appendChild(s);
+            }
+          })();
+          `}
+        </script>
+      )}
     </Layout>
   );
 }
