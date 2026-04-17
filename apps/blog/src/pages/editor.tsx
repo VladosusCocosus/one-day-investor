@@ -204,6 +204,7 @@ export function EditorFormPage({
                 <option value="closing">Closing</option>
                 <option value="image">Image</option>
                 <option value="markdown">Markdown</option>
+                <option value="chart">Chart</option>
               </select>
               <button
                 type="button"
@@ -338,6 +339,28 @@ export function EditorFormPage({
                 ],
                 defaults: function() { return { type: 'markdown', label: '', heading: '', body: '' }; },
               },
+              chart: {
+                label: 'Chart',
+                fields: [
+                  { path: 'chartType', label: 'Chart type', type: 'select', options: ['bar', 'horizontal-bar', 'line', 'donut'] },
+                  { path: 'heading', label: 'Heading', type: 'text' },
+                  { path: 'caption', label: 'Caption (source)', type: 'text' },
+                  { path: 'height', label: 'Height (px)', type: 'text' },
+                  { path: 'data.labels', label: 'Labels (one per line)', type: 'lines' },
+                  { path: 'data.series', label: 'Series (JSON array)', type: 'json' },
+                  { path: 'options.colors', label: 'Colors (JSON array of hex)', type: 'json' },
+                  { path: 'options.suffix', label: 'Value suffix (e.g. %)', type: 'text' },
+                  { path: 'options.prefix', label: 'Value prefix (e.g. €)', type: 'text' },
+                ],
+                defaults: function() {
+                  return {
+                    type: 'chart', chartType: 'bar', heading: '', caption: '',
+                    height: 300,
+                    data: { labels: [], series: [] },
+                    options: { colors: [], suffix: '', prefix: '' },
+                  };
+                },
+              },
             };
 
             let blocks = ${initialBlocksJson};
@@ -383,6 +406,18 @@ export function EditorFormPage({
               if (field.type === 'lines') {
                 const text = Array.isArray(value) ? value.join('\\n') : (value || '');
                 return labelHtml + '<textarea id="' + id + '" rows="4" class="' + baseCls + ' resize-y" oninput="' + setLinesCall + '">' + escText(text) + '</textarea>';
+              }
+              if (field.type === 'select') {
+                var optHtml = '';
+                var fieldOpts = field.options || [];
+                for (var oi = 0; oi < fieldOpts.length; oi++) {
+                  optHtml += '<option value="' + escAttr(fieldOpts[oi]) + '"' + (fieldOpts[oi] === value ? ' selected' : '') + '>' + escText(fieldOpts[oi]) + '</option>';
+                }
+                return labelHtml + '<select id="' + id + '" class="' + baseCls + '" onchange="' + setCall + '">' + optHtml + '</select>';
+              }
+              if (field.type === 'json') {
+                var jsonText = typeof value === 'string' ? value : JSON.stringify(value, null, 2);
+                return labelHtml + '<textarea id="' + id + '" rows="4" class="' + baseCls + ' resize-y font-mono text-xs" oninput="blockEditor.setJson(' + idx + ', \\'' + field.path + '\\', this.value)">' + escText(jsonText) + '</textarea>';
               }
               return '';
             }
@@ -470,6 +505,14 @@ export function EditorFormPage({
                 if (!blocks[idx]) return;
                 const arr = value.split('\\n').map(function(l) { return l.trim(); }).filter(function(l) { return l.length > 0; });
                 setPath(blocks[idx], path, arr);
+              },
+              setJson: function(idx, path, value) {
+                if (!blocks[idx]) return;
+                try {
+                  setPath(blocks[idx], path, JSON.parse(value));
+                } catch(e) {
+                  // Keep raw string until valid JSON is entered
+                }
               },
             };
 
