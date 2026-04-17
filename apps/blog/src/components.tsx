@@ -406,7 +406,7 @@ export function ChartBlock({
           </h2>
         )}
         <div
-          class="rounded-2xl border border-emerald-900/50 bg-emerald-950/40 p-4 m-12"
+          class="rounded-2xl border border-emerald-900/50 bg-emerald-950/40 p-4 my-12 md:m-12"
           data-chart={chartConfig}
         ></div>
         {caption && (
