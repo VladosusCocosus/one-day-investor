@@ -1,5 +1,7 @@
 import { blogPool } from "./pool";
 
+export { migrateBlogPostsFromJson } from "./migrate";
+
 export type Block =
   | { type: "hero"; label?: string; title: string; subtitle?: string }
   | { type: "prose"; label?: string; heading?: string; paragraphs: string[] }
@@ -79,6 +81,9 @@ export async function initBlogSchema(): Promise<void> {
   // Add og_image column if table already existed without it
   await blogPool.query(`
     ALTER TABLE posts ADD COLUMN IF NOT EXISTS og_image TEXT
+  `);
+  await blogPool.query(`
+    ALTER TABLE posts ADD COLUMN IF NOT EXISTS content_hash TEXT
   `);
   await blogPool.query(`
     CREATE TABLE IF NOT EXISTS post_likes (
