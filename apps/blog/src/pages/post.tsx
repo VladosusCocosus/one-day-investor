@@ -50,7 +50,7 @@ export function PostPage({ post, user }: { post: BlogPost; user?: User | null })
     >
       {/* Post metadata */}
       <div class="px-6 pt-8 md:px-8">
-        <div class="mx-auto max-w-[760px]">
+        <div class="mx-auto max-w-[1200px]">
           <a
             href="/"
             class="inline-flex items-center gap-1.5 text-sm text-emerald-300 hover:text-emerald-200 transition-colors"

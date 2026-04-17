@@ -10,7 +10,7 @@ The app currently sends monthly snapshot reminder emails to every user found by 
 ## Goals
 
 - Email notifications are **off by default for every user**, existing and new.
-- The profile page has a dedicated **"Email settings" section** that contains the opt-in toggle and the snapshot day. The section is structured so future email-related preferences (weekly digest, monthly summary, etc.) can be added without reshaping the layout.
+- The profile page has a dedicated **"Email settings" section** that contains the opt-in toggle and the snapshot day. The section is structured so future email-related preferences (monthly digest, monthly summary, etc.) can be added without reshaping the layout.
 - Three surfaces prompt the user to opt in:
   1. **Profile page** — canonical, always-available control.
   2. **Welcome overlay** — inline action on the existing "Come back once a month" step, so new users see it during onboarding.
