@@ -1,0 +1,178 @@
+[
+    {
+        "type": "hero",
+        "label": "Guide",
+        "title": "When One Day a Month Isn't Enough \u2014 The Exceptions Worth Knowing",
+        "subtitle": "Your monthly routine handles 90% of your financial life. Here are the moments that deserve extra attention \u2014 and how to handle them without falling into the daily-checking trap."
+    },
+    {
+        "type": "prose",
+        "label": "introduction",
+        "heading": "",
+        "paragraphs": [
+            "We just told you to check your finances once a month. Fifteen minutes, seven steps, then close the app. And that advice still stands \u2014 for 90% of your financial life.",
+            "But life doesn't always cooperate with routines. You get a new job. Markets drop 15% in a week. Open enrollment opens. A child arrives. These moments don't fit neatly into a monthly cadence, and pretending they do can cost you real money.",
+            "The key distinction: these are events, not habits. Each one has a clear trigger and a clear end point. You handle it, then you go back to your routine. The moment an \"exception\" becomes a daily habit, you've lost the plot."
+        ]
+    },
+    {
+        "body": "Before we talk about exceptions, let's be clear: **your [monthly routine](/monthly-portfolio-check-15-min-routine) is still the foundation.**\n\n[DALBAR's 2024 study](https://www.dalbar.com/press-release/investors-missed-the-best-of-2024s-market-gains-latest-dalbar-investor-behavior-report-finds/) found that average investors earned just **16.54%** in 2024 while the S&P 500 returned **25.02%** \u2014 an **8.48 percentage point gap** caused largely by reactive trading and poorly timed moves. That gap didn't come from people who checked too rarely. It came from people who checked too often and acted on what they saw. We break down the research behind this in [How Frequent Portfolio Checking Reduces Long-Term Returns](/frequent-reduces-returns).\n\nThe exceptions below don't replace your monthly routine. They supplement it. Think of them as fire alarms \u2014 you don't check for fires every hour, but when the alarm goes off, you pay attention.",
+        "type": "markdown",
+        "label": "",
+        "heading": "The Rule Still Stands"
+    },
+    {
+        "data": {
+            "labels": [
+                "Average Investor",
+                "S&P 500"
+            ],
+            "series": [
+                16.54,
+                25.02
+            ]
+        },
+        "type": "chart",
+        "height": 300,
+        "caption": "Source: DALBAR Quantitative Analysis of Investor Behavior",
+        "heading": "The Behavior Gap (2024)",
+        "options": {
+            "colors": [
+                "#ef4444",
+                "#10b981"
+            ],
+            "suffix": "%"
+        },
+        "chartType": "bar"
+    },
+    {
+        "body": "**Trigger:** New job, promotion, significant raise, or equity compensation starting.\n\nYour salary is your biggest financial asset. When it changes, everything downstream shifts \u2014 how much you can save, how much you should contribute to retirement, and how your tax situation looks.\n\nThe numbers are striking: research shows that [workers who negotiate can receive up to 38% more](https://blog.theinterviewguys.com/we-reviewed-every-salary-negotiation-study/) than the initial offer, yet [55% of workers don't even ask](https://resources.careerbuilder.com/news-research/73-of-employers-would-negotiate-salary-55-of-workers-don-t-ask). If you've landed a new role or a raise, that's a financial event worth one extra session.\n\nEquity compensation adds another layer. RSU vesting schedules create income spikes that can push you into a higher tax bracket for specific quarters. If you don't adjust withholding ahead of time, you'll owe a lump sum in April.\n\n### What to do\n\n- **Update your savings rate.** If your income jumped 20%, your savings should jump too \u2014 not your lifestyle. Increase automated contributions before you get used to the higher paycheck.\n- **Adjust tax withholding.** Especially with equity comp, run the numbers or use the [IRS withholding estimator](https://www.irs.gov/individuals/tax-withholding-estimator) to avoid surprises.\n- **Review retirement contributions.** Max out 401(k) if you weren't before. Reassess Roth vs. traditional based on your new bracket.\n- **Update your monthly snapshot.** Your baseline has changed \u2014 record the new numbers so next month's comparison is meaningful.\n\n> A raise is only wealth-building if your savings rate rises with it. Otherwise, it's just lifestyle inflation.",
+        "type": "markdown",
+        "label": "",
+        "heading": "Exception 1: Job Change or Salary Jump"
+    },
+    {
+        "body": "**Trigger:** Your portfolio allocation has drifted more than 10% from target.\n\nMarket corrections are normal. [Since 1974, the S&P 500 has experienced 27 corrections](https://www.schwab.com/learn/story/market-correction-what-does-it-mean) (declines of 10% or more). Only **6 of those 27 became bear markets**. The average correction lasts about 4 months, with recovery taking roughly 8 months.\n\nThis is not a reason to panic. It's a reason to check one specific thing: **has your allocation drifted beyond your threshold?**\n\n[Vanguard's threshold-based rebalancing research](https://corporate.vanguard.com/content/corporatesite/us/en/corp/articles/tuning-frequency-for-rebalancing.html) found that their 200/175 method \u2014 rebalancing when allocation drifts 200 basis points from target, back to within 175 basis points \u2014 outperforms calendar-based approaches by **11-18 basis points per year** while reducing transaction costs and maintaining tighter risk control.\n\n### What to do\n\n- **Check allocation drift only.** Don't look at dollar losses. Look at percentages: is your 70/30 portfolio now 60/40?\n- **Drift under 5%** \u2192 Do nothing. Normal market movement.\n- **Drift 5-10%** \u2192 Note it, rebalance on your next contribution.\n- **Drift over 10%** \u2192 Rebalance now. Direct new contributions to the underweight asset class, or sell overweight positions.\n- **Don't panic-sell.** If you're tempted, write down why and revisit in 30 days.\n\n> Most corrections recover within 8 months. The investors who lose money are the ones who sell during the dip and buy back after the recovery.",
+        "type": "markdown",
+        "label": "",
+        "heading": "Exception 2: Market Drops Beyond Your Threshold"
+    },
+    {
+        "data": {
+            "labels": [
+                "Recovered Without Bear Market",
+                "Became Bear Markets"
+            ],
+            "series": [
+                21,
+                6
+            ]
+        },
+        "type": "chart",
+        "height": 320,
+        "caption": "Source: Charles Schwab. Only 6 of 27 corrections became bear markets.",
+        "heading": "S&P 500 Corrections Since 1974",
+        "options": {
+            "colors": [
+                "#10b981",
+                "#ef4444"
+            ]
+        },
+        "chartType": "donut"
+    },
+    {
+        "body": "**Trigger:** Significant market dip during the year, or year-end tax planning season.\n\nTax-loss harvesting \u2014 selling losing positions to offset gains \u2014 is one of the few free lunches in investing. But timing matters.\n\n[J.P. Morgan's research](https://am.jpmorgan.com/us/en/asset-management/adv/investment-strategies/separately-managed-accounts/tax-managed-solutions/continuous-tax-loss-harvesting-yields-more-potential-for-tax-savings/) found that continuous (daily) monitoring for harvesting opportunities yields approximately **30 basis points more annually** than a monthly approach. You don't need to check daily \u2014 that contradicts the whole philosophy \u2014 but you should be aware during major market drops that harvesting opportunities exist.\n\nThe academic evidence is even more compelling. [Chaudhuri, Burnham, and Lo (MIT, 2020)](https://papers.ssrn.com/sol3/papers.cfm?abstract_id=3351382) found a geometric average **tax alpha of 1.10% per year** from 1926 to 2018. That's real money left on the table if you never harvest losses.\n\n### The wash-sale rule\n\nThe [IRS wash-sale rule](https://www.fidelity.com/learning-center/personal-finance/wash-sales-rules-tax) prohibits claiming a loss if you buy a \"substantially identical\" security within **30 days before or after** the sale. That's a 61-day window total. Violating it doesn't lose the deduction forever \u2014 it adds to your cost basis \u2014 but it delays the benefit.\n\n### What to do\n\n- **During market dips of 10%+**, check if any individual positions are sitting at meaningful losses.\n- **Sell the losing position** and immediately buy a similar (but not substantially identical) fund. For example, swap one S&P 500 index fund for a total market fund.\n- **Wait 31 days** before buying back the original security if you prefer it.\n- **Year-end (November-December)** is prime harvesting time \u2014 review before December 31.\n- **Track your harvested losses** for use against future gains.\n\n> Tax-loss harvesting works best when you notice opportunities, not when you obsessively search for them. Let the market come to you.",
+        "type": "markdown",
+        "label": "",
+        "heading": "Exception 3: Tax-Loss Harvesting Windows"
+    },
+    {
+        "data": {
+            "labels": [
+                "1926\u20131949",
+                "1949\u20131972",
+                "1972\u20131995",
+                "1995\u20132018"
+            ],
+            "series": [
+                2.29,
+                0.57,
+                1.04,
+                0.83
+            ]
+        },
+        "type": "chart",
+        "height": 280,
+        "caption": "Source: Chaudhuri, Burnham & Lo, Financial Analysts Journal (2020)",
+        "heading": "Tax Alpha by Period (MIT Study)",
+        "options": {
+            "colors": [
+                "hsl(160,84%,25%)",
+                "hsl(160,70%,40%)",
+                "hsl(150,60%,55%)",
+                "hsl(170,55%,55%)"
+            ],
+            "suffix": "% annual"
+        },
+        "chartType": "horizontal-bar"
+    },
+    {
+        "body": "**Trigger:** Annual open enrollment period (typically October-December for employer plans, November-January for ACA marketplace).\n\nThis isn't investing \u2014 it's personal finance. And it might be the most expensive mistake you can make by autopiloting.\n\n[Health insurance premiums are rising 6-7% for 2026](https://www.mercer.com/en-us/insights/us-health-news/employers-prepare-for-the-highest-health-benefit-cost-increase-in-15-years/), the highest increase in 15 years according to Mercer. [Employers project a 9% total healthcare cost increase](https://www.businessgrouphealth.org/newsroom/news-and-press-releases/press-releases/2026-employer-health-care-strategy-survey), offset to ~7.6% after plan design changes \u2014 which often means higher deductibles and copays passed to you.\n\nThe wrong plan choice can easily cost **$2,000-5,000 more per year** in unexpected out-of-pocket costs \u2014 more than most people lose to poor investment decisions.\n\n### What to do\n\n- **One focused session during your enrollment window.** Compare plans side by side.\n- **Don't just auto-renew.** Plans change year to year. Your \"same\" plan may now have a higher deductible or narrower network.\n- **Run the math on HSA-eligible plans.** If you're healthy, a high-deductible plan with HSA contributions can save thousands in taxes.\n- **Check if your doctors are still in-network.** Network changes happen silently.\n- **Factor in FSA/HSA contribution limits** for the new year.\n\n> Your health insurance decision is a financial decision. Give it the same attention you'd give a $5,000 investment.",
+        "type": "markdown",
+        "label": "",
+        "heading": "Exception 4: Open Enrollment and Insurance Deadlines"
+    },
+    {
+        "data": {
+            "labels": [
+                "Employee Premium Increase",
+                "Total Employer Cost Increase"
+            ],
+            "series": [
+                7,
+                9
+            ]
+        },
+        "type": "chart",
+        "height": 300,
+        "caption": "Source: Mercer, Business Group on Health",
+        "heading": "Health Insurance Cost Increase (2026)",
+        "options": {
+            "colors": [
+                "#3b82f6",
+                "#1e40af"
+            ],
+            "suffix": "%"
+        },
+        "chartType": "bar"
+    },
+    {
+        "body": "**Trigger:** Marriage, divorce, birth of a child, home purchase, inheritance, death of a family member.\n\nThese events don't just change your finances \u2014 they change your financial *identity*. Your risk tolerance shifts. Your time horizons expand or contract. Your goals multiply.\n\n### What changes\n\n- **Marriage/divorce** \u2014 Combined or separated finances, new tax filing status, updated beneficiaries on every account.\n- **New child** \u2014 529 plan decisions, life insurance needs, updated emergency fund target (from 3 months to 6+).\n- **Home purchase** \u2014 Largest asset shift most people ever make. Cash reserves drop, monthly obligations increase, asset allocation changes dramatically.\n- **Inheritance** \u2014 Sudden wealth creates sudden decisions. Step-up in basis for inherited assets means different tax treatment.\n\n### What to do\n\n- **One extra review session** within 2 weeks of the event.\n- **Update beneficiaries** on all retirement accounts, insurance policies, and investment accounts. This is the most commonly forgotten step.\n- **Reassess your target allocation.** A 25-year-old single person and a 25-year-old parent have different risk tolerances.\n- **Update insurance coverage.** Life insurance, disability, umbrella \u2014 these matter more when people depend on you.\n- **Adjust your emergency fund target.** More dependents = more months of expenses saved.\n\n> Life events don't require you to change your investing strategy. They require you to update the parameters your strategy is built on.",
+        "type": "markdown",
+        "label": "",
+        "heading": "Exception 5: Major Life Events"
+    },
+    {
+        "body": "Here's the danger: every exception feels justified in the moment.\n\nYou check because markets dropped. Then you check the next day \"just to see.\" Then you check during lunch because a coworker mentioned a stock. Before you know it, you're back to daily checking \u2014 and the [DALBAR gap](https://www.dalbar.com/press-release/investors-missed-the-best-of-2024s-market-gains-latest-dalbar-investor-behavior-report-finds/) opens up.\n\nEach exception in this article has **two defining features:**\n\n1. **A clear trigger** \u2014 something specific happened.\n2. **A clear end point** \u2014 you handle it in one focused session, then return to your routine.\n\nIf you're checking more than twice in any given month, ask yourself: *is this an event, or is this anxiety?*\n\nEvents have end points. Anxiety doesn't. If you can't name the specific trigger and the specific action you need to take, close the app. And remember \u2014 [most investing apps are designed to make you trade more](/why-investing-apps-make-you-trade-more), not to help you make better decisions.\n\n> The average equity investor has underperformed the S&P 500 for 15 consecutive years. Not because they didn't check enough \u2014 because they checked too much and acted on what they saw.",
+        "type": "markdown",
+        "label": "",
+        "heading": "The Anti-Pattern: How Exceptions Become Habits"
+    },
+    {
+        "body": "Before you open your portfolio outside your monthly check, run it through this filter:\n\n| Situation | Check? | Why |\n|-----------|--------|-----|\n| Got a raise or new job | **Yes** \u2014 one session | Update savings rate, contributions, withholding |\n| Portfolio drifted >10% | **Yes** \u2014 one session | Rebalance to target allocation |\n| Market dropped significantly | **Maybe** \u2014 check allocation only | Tax-loss harvesting opportunity, but don't panic-sell |\n| Open enrollment period | **Yes** \u2014 one session | Compare plans, don't auto-renew |\n| Major life event | **Yes** \u2014 one session | Update beneficiaries, allocation, insurance |\n| Feeling anxious about markets | **No** | Anxiety is not a trigger. Wait for your monthly day. |\n| Saw a scary headline | **No** | Headlines are designed to create urgency. Ignore. |\n| Friend told you about a stock | **No** | Tips are noise. Stick to your plan. |\n| Checking \"just to see\" | **No** | This is the habit forming. Close the app. |\n| Checked twice this month already | **Stop** | You've exceeded the exception budget. Return to routine. |\n\nThe pattern is simple: **events deserve attention. Emotions don't.**",
+        "type": "markdown",
+        "label": "",
+        "heading": "The Decision Framework"
+    },
+    {
+        "body": "- [DALBAR 2024 Quantitative Analysis of Investor Behavior](https://www.dalbar.com/press-release/investors-missed-the-best-of-2024s-market-gains-latest-dalbar-investor-behavior-report-finds/) \u2014 8.48pp investor behavior gap, 15-year underperformance streak\n- [The Rebalancing Edge: Threshold-Based Strategies](https://corporate.vanguard.com/content/corporatesite/us/en/corp/articles/tuning-frequency-for-rebalancing.html) \u2014 Vanguard Research, 200/175 method, 11-18bps annual benefit\n- [Continuous Tax-Loss Harvesting Yields More Potential for Tax Savings](https://am.jpmorgan.com/us/en/asset-management/adv/investment-strategies/separately-managed-accounts/tax-managed-solutions/continuous-tax-loss-harvesting-yields-more-potential-for-tax-savings/) \u2014 J.P. Morgan Asset Management\n- [An Empirical Evaluation of Tax-Loss-Harvesting Alpha](https://papers.ssrn.com/sol3/papers.cfm?abstract_id=3351382) \u2014 Chaudhuri, Burnham & Lo, Financial Analysts Journal (2020), 1.10% annual tax alpha\n- [Market Correction: What Does It Mean?](https://www.schwab.com/learn/story/market-correction-what-does-it-mean) \u2014 Charles Schwab, S&P 500 correction history since 1974\n- [Wash-Sale Rules](https://www.fidelity.com/learning-center/personal-finance/wash-sales-rules-tax) \u2014 Fidelity, IRS wash-sale rule explanation\n- [2024-2025 Salary Negotiation Research Review](https://blog.theinterviewguys.com/we-reviewed-every-salary-negotiation-study/) \u2014 The Interview Guys\n- [Employers Prepare for Highest Health Benefit Cost Increase in 15 Years](https://www.mercer.com/en-us/insights/us-health-news/employers-prepare-for-the-highest-health-benefit-cost-increase-in-15-years/) \u2014 Mercer\n- [2026 Employer Health Care Strategy Survey](https://www.businessgrouphealth.org/newsroom/news-and-press-releases/press-releases/2026-employer-health-care-strategy-survey) \u2014 Business Group on Health",
+        "type": "markdown",
+        "label": "",
+        "heading": "Sources"
+    },
+    {
+        "text": "The best investors know when to look and when to look away. Your monthly routine is the foundation. These exceptions are the guardrails. Together, they keep you on track without keeping you up at night. That's the [One Day Investor philosophy](https://odinvestor.net/philosophy) \u2014 calm, structured, research-backed.",
+        "type": "closing",
+        "author": "One Day Investor"
+    }
+]
