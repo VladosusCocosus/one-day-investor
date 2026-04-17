@@ -76,24 +76,10 @@ export function Layout({
             {JSON.stringify(jsonLd)}
           </script>
         )}
-        <script src="https://cdn.tailwindcss.com"></script>
-        <script>
-          {(`
-            tailwind.config = {
-              theme: {
-                extend: {
-                  colors: { emerald: tailwind.colors.emerald }
-                }
-              }
-            }
-          `)}
-        </script>
-        <style>
-          {(`
-            @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
-            body { font-family: 'Inter', system-ui, sans-serif; }
-          `)}
-        </style>
+        <link rel="stylesheet" href="/styles.css" />
+        <link rel="preconnect" href="https://fonts.googleapis.com" />
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin="" />
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" />
       </head>
       <body
         class="min-h-screen text-emerald-50"
@@ -143,13 +129,10 @@ export function EditorLayout({
         <meta charset="utf-8" />
         <meta name="viewport" content="width=device-width, initial-scale=1" />
         <title>{title} — ODI Blog Editor</title>
-        <script src="https://cdn.tailwindcss.com"></script>
-        <style>
-          {(`
-            @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
-            body { font-family: 'Inter', system-ui, sans-serif; }
-          `)}
-        </style>
+        <link rel="stylesheet" href="/styles.css" />
+        <link rel="preconnect" href="https://fonts.googleapis.com" />
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin="" />
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" />
       </head>
       <body class="min-h-screen bg-gray-950 text-gray-100">
         <header class="border-b border-gray-800 px-6 py-4">
