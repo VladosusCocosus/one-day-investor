@@ -49,9 +49,21 @@ const SITE_URL = process.env.BLOG_URL || "https://blog.odinvestor.net";
 const FRONTEND_URL = process.env.FRONTEND_URL || "https://odinvestor.net";
 const ADMIN_EMAIL = process.env.BLOG_ADMIN_EMAIL || "razin36986@gmail.com";
 
+const cssPath = new URL("./styles/output.css", import.meta.url).pathname;
+const cssFile = Bun.file(cssPath);
+
 const app = new Elysia()
   .use(html())
   .use(cors({ origin: FRONTEND_URL, methods: ["GET"] }))
+
+  .get("/styles.css", async () => {
+    return new Response(cssFile, {
+      headers: {
+        "Content-Type": "text/css",
+        "Cache-Control": "public, max-age=31536000, immutable",
+      },
+    });
+  })
 
   .get("/api/latest", async () => {
     const posts = await listLatestPosts(3);

@@ -2,7 +2,8 @@
   "name": "@blog",
   "version": "1.0.0",
   "scripts": {
-    "dev": "bun run --watch src/index.tsx",
+    "build:css": "bunx @tailwindcss/cli -i src/styles/input.css -o src/styles/output.css --minify",
+    "dev": "bun run build:css && bun run --watch src/index.tsx",
     "seed": "bun run src/seed.ts"
   },
   "dependencies": {
@@ -17,6 +18,8 @@
   },
   "devDependencies": {
     "bun-types": "latest",
-    "@types": "workspace:*"
+    "@types": "workspace:*",
+    "tailwindcss": "^4.2.2",
+    "@tailwindcss/cli": "^4.2.2"
   }
 }
