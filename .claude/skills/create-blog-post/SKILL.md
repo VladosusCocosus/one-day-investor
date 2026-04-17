@@ -87,6 +87,7 @@ VALUES (
 ```
 
 **Critical:** Escape all single quotes in the JSON content as `''` for PostgreSQL.
+**Critical:** Check https://blog.odinvestor.net for cross links
 
 ## Social Media Companion
 
@@ -97,3 +98,10 @@ Also create files with content for:
 ## Common Tags
 
 `behavioral finance`, `investing`, `research`, `fintech`, `portfolio management`, `psychology`, `long-term investing`, `personal finance`, `savings`, `salary`, `net worth`, `budgeting`
+
+# Posters, Generate 
+
+
+## Learn
+
+Please update skill user ask you to change something, learn on your faults 
