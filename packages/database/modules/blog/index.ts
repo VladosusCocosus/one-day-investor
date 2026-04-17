@@ -15,7 +15,24 @@ export type Block =
     }
   | { type: "closing"; text: string; author: string }
   | { type: "image"; src: string; alt?: string; caption?: string }
-  | { type: "markdown"; label?: string; heading?: string; body: string };
+  | { type: "markdown"; label?: string; heading?: string; body: string }
+  | {
+      type: "chart";
+      chartType: "bar" | "horizontal-bar" | "line" | "donut";
+      heading?: string;
+      caption?: string;
+      height?: number;
+      data: {
+        labels: string[];
+        series: number[] | { name: string; values: number[] }[];
+      };
+      options?: {
+        colors?: string[];
+        suffix?: string;
+        prefix?: string;
+        stacked?: boolean;
+      };
+    };
 
 export type BlogPost = {
   id: number;
