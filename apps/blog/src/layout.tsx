@@ -45,7 +45,7 @@ export function Layout({
             window.dataLayer = window.dataLayer || [];
             function gtag(){dataLayer.push(arguments);}
             gtag('js', new Date());
-            gtag('config', 'G-PCLRLNZ405');
+            gtag('config', 'G-YSRMF124RE');
           `)}
         </script>
         <link rel="icon" type="image/svg+xml" href="https://odinvestor.net/favicon.svg" />
