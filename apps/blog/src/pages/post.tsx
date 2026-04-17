@@ -240,15 +240,15 @@ export function PostPage({ post, user }: { post: BlogPost; user?: User | null })
                         },
                         value: {
                           color: "#ecfdf5",
-                          fontSize: "20px",
+                          fontSize: "14px",
                           fontWeight: 600,
                         },
                       },
                     },
                   },
                 };
-                apexOpts.stroke = { width: 2, colors: ["rgba(2,40,28,1)"] };
-                apexOpts.legend.position = "bottom";
+                apexOpts.stroke = { width: 5, colors: ["rgba(2,40,28,1)"] };
+                apexOpts.legend.show = false;
                 return apexOpts;
               }
 

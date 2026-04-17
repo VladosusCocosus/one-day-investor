@@ -396,20 +396,18 @@ export function ChartBlock({
   options?: { colors?: string[]; suffix?: string; prefix?: string; stacked?: boolean };
 }) {
   const chartConfig = JSON.stringify({ chartType, data, options }).replace(/</g, "\\u003c");
-  const h = height || 300;
 
   return (
-    <section class="border-t border-emerald-900/40 px-6 py-8 md:px-8 md:py-12">
-      <div class="mx-auto max-w-[760px]">
+    <section class="box-border border-t border-emerald-900/40 px-6 py-8 md:px-8 md:py-12">
+      <div class="mx-auto max-w-[720px]">
         {heading && (
           <h2 class="text-xl font-semibold tracking-tight text-emerald-50">
             {heading}
           </h2>
         )}
         <div
-          class="mt-6 rounded-2xl border border-emerald-900/50 bg-emerald-950/40 p-4 md:p-6"
+          class="rounded-2xl border border-emerald-900/50 bg-emerald-950/40 p-4 m-12"
           data-chart={chartConfig}
-          style={`height:${h}px`}
         ></div>
         {caption && (
           <p class="mt-3 text-center text-sm text-emerald-300/80">{caption}</p>
