@@ -380,6 +380,45 @@ export function MarkdownBlock({
   );
 }
 
+export function ChartBlock({
+  chartType,
+  heading,
+  caption,
+  height,
+  data,
+  options,
+}: {
+  chartType: string;
+  heading?: string;
+  caption?: string;
+  height?: number;
+  data: { labels: string[]; series: unknown };
+  options?: { colors?: string[]; suffix?: string; prefix?: string; stacked?: boolean };
+}) {
+  const chartConfig = JSON.stringify({ chartType, data, options }).replace(/</g, "\\u003c");
+  const h = height || 300;
+
+  return (
+    <section class="border-t border-emerald-900/40 px-6 py-8 md:px-8 md:py-12">
+      <div class="mx-auto max-w-[760px]">
+        {heading && (
+          <h2 class="text-xl font-semibold tracking-tight text-emerald-50">
+            {heading}
+          </h2>
+        )}
+        <div
+          class="mt-6 rounded-2xl border border-emerald-900/50 bg-emerald-950/40 p-4 md:p-6"
+          data-chart={chartConfig}
+          style={`height:${h}px`}
+        ></div>
+        {caption && (
+          <p class="mt-3 text-center text-sm text-emerald-300/80">{caption}</p>
+        )}
+      </div>
+    </section>
+  );
+}
+
 export function renderBlock(block: Block) {
   switch (block.type) {
     case "hero":
@@ -423,6 +462,17 @@ export function renderBlock(block: Block) {
           label={block.label}
           heading={block.heading}
           body={block.body}
+        />
+      );
+    case "chart":
+      return (
+        <ChartBlock
+          chartType={block.chartType}
+          heading={block.heading}
+          caption={block.caption}
+          height={block.height}
+          data={block.data}
+          options={block.options}
         />
       );
     default:
