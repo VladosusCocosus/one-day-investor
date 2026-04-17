@@ -7,6 +7,7 @@ import { findSessionByToken, findUserById } from "@database";
 import type { User } from "@types";
 import {
   initBlogSchema,
+  migrateBlogPostsFromJson,
   listLatestPosts,
   listPublishedPosts,
   listAllPosts,
@@ -31,6 +32,9 @@ const PORT = 3003;
 const OG_SERVICE_URL = process.env.OG_SERVICE_URL || "http://localhost:3004";
 
 await initBlogSchema();
+await migrateBlogPostsFromJson(
+  new URL("../content/posts", import.meta.url).pathname
+);
 
 async function resolveUser(cookie: Record<string, any>): Promise<User | null> {
   const token = cookie.session?.value;
