@@ -1,0 +1,60 @@
+[
+  {
+    "type": "hero",
+    "label": "Guide",
+    "title": "What Your Monthly Portfolio Check Should Actually Look Like",
+    "subtitle": "Most investors either check too often or not at all. Here's a structured 15-minute routine backed by research — everything you need to do, nothing you don't."
+  },
+  {
+    "type": "prose",
+    "label": "introduction",
+    "heading": "",
+    "paragraphs": [
+      "You probably fall into one of two camps: you check your portfolio every day and feel anxious about every dip, or you haven't looked at it in months and have no idea where you stand.",
+      "Both are bad. Daily checking leads to emotional trading that costs you returns. Never checking means your allocation drifts, fees pile up, and you miss problems until they're expensive.",
+      "But here's what most people get wrong: a portfolio check isn't just about investments. Your salary, your savings rate, and your overall net worth tell a much bigger story than whether your stocks are up 2% this month.",
+      "The sweet spot, according to decades of behavioral finance research, is a structured monthly review. Here's what a single 15-minute check should actually look like."
+    ]
+  },
+  {
+    "type": "markdown",
+    "label": "",
+    "heading": "Why Monthly?",
+    "body": "Not daily. Not weekly. Not even quarterly — monthly hits the balance between staying informed and avoiding emotional noise.\n\n[Benartzi and Thaler (1995)](https://academic.oup.com/qje/article-abstract/110/1/73/1894013) found that investors who evaluate portfolios annually make better risk decisions than those who check daily. Their concept of **myopic loss aversion** shows that frequent checking exposes you to more visible short-term losses, which triggers anxiety and conservative overreaction.\n\nAn investor who checks quarterly instead of daily [reduces their chance of seeing a moderate loss](https://oneportfolio.io/en/blog/how-often-check-portfolio-optimal-monitoring-frequency/) (of -2% or more) from **25% to 12%**.\n\nMeanwhile, [DALBAR's 2024 study](https://www.dalbar.com/press-release/investors-missed-the-best-of-2024s-market-gains-latest-dalbar-investor-behavior-report-finds/) found that average investors earned just **16.54%** while the S&P 500 returned **25.05%** — an 8.48 percentage point gap caused largely by poorly timed withdrawals and reactive trading.\n\n> Monthly gives you enough signal to act on real changes, without the noise that triggers bad decisions.\n\nWe wrote about this in depth: [How Frequent Portfolio Checking Reduces Long-Term Returns](/frequent-reduces-returns)."
+  },
+  {
+    "type": "markdown",
+    "label": "",
+    "heading": "The 15-Minute Routine",
+    "body": "Pick one day each month. Same day. Set a reminder. Here's exactly what to do:\n\n### Step 1: Record Your Snapshot (3 minutes)\n\nOpen each account and write down the current value. That's it — just the numbers.\n\n- **Your salary this month** — did it change? Any bonuses, side income?\n- **How much you saved** — income minus expenses. This is your most important number.\n- **Total portfolio value** — across all accounts\n- **Value per account or service** (broker, crypto exchange, savings)\n\nYour savings rate matters more than your investment returns. A person saving 30% of their salary with average returns will build more wealth than someone saving 5% with exceptional returns. Track what you save first, what it earns second.\n\nOver time, these monthly snapshots become your most valuable financial asset — a clear record of your wealth trajectory, free from daily noise.\n\n---\n\n### Step 2: Check Your Allocation (5 minutes)\n\nCompare your current allocation to your target. For example, if your target is 70% stocks / 20% bonds / 10% crypto, how far have you drifted?\n\n[Vanguard's research](https://corporate.vanguard.com/content/corporatesite/us/en/corp/articles/tuning-frequency-for-rebalancing.html) found that **threshold-based rebalancing** — only acting when allocation drifts beyond a set band (e.g., 5 percentage points) — outperforms calendar-based rebalancing by **11-18 basis points per year** with lower transaction costs.\n\nThe rule:\n\n- **Drift under 5%** → Do nothing. This is normal.\n- **Drift over 5%** → Consider rebalancing on your next contribution or withdrawal.\n- **Drift over 10%** → Rebalance now.\n\nMost months, the answer is: do nothing. That's the point.\n\n---\n\n### Step 3: Review Contributions (3 minutes)\n\nAre your automated contributions still running? Did you contribute this month?\n\n- Check that recurring investments executed\n- Verify amounts haven't changed unexpectedly\n- If you have extra cash to invest, direct it to the underweight asset class (this is rebalancing for free)\n\n---\n\n### Step 4: Scan for Red Flags (2 minutes)\n\nYou're not analyzing the market. You're looking for things that are **broken**, not things that are **down**.\n\n- Any account access issues?\n- Unexpected fees or charges?\n- Dividend or interest payments missing?\n- Any holdings suspended or delisted?\n\nIf everything looks normal, you're done.\n\n---\n\n### Step 5: Note and Close (2 minutes)\n\nWrite one sentence about how things look. \"On track, no changes needed.\" or \"BTC drifted to 15%, will rebalance next contribution.\"\n\nThen **close the app**. Don't scroll. Don't check the news. Don't look at what's trending. You're done for the month."
+  },
+  {
+    "type": "markdown",
+    "label": "",
+    "heading": "What NOT to Do During Your Check",
+    "body": "This is just as important as the routine itself:\n\n- **Don't react to short-term performance.** A bad month is not a signal. A bad quarter might not be either.\n- **Don't compare to benchmarks obsessively.** You're not a fund manager. Your goal is long-term wealth, not beating the S&P this month.\n- **Don't read financial news \"while you're at it.\"** News creates urgency. Urgency creates trades. [Most investing apps are designed to make you trade more](/why-investing-apps-make-you-trade-more) — don't let them. [Barber and Odean (2000)](https://faculty.haas.berkeley.edu/odean/papers%20current%20versions/individual_investor_performance_final.pdf) found that the most active traders earned **11.4% annually** while the market returned **17.9%**.\n- **Don't make changes based on feelings.** If you feel like selling, write it down and revisit next month. If you still feel the same way in 30 days, then consider it.\n\n> The goal of the monthly check is to confirm that your plan is working — not to create a new one."
+  },
+  {
+    "type": "markdown",
+    "label": "",
+    "heading": "Why This Works",
+    "body": "[Vanguard's research on rebalancing](https://investor.vanguard.com/investor-resources-education/portfolio-management/rebalancing-your-portfolio) found **no material difference in outcomes** between monthly, quarterly, and annual rebalancing — but more frequent rebalancing drove up transaction costs and turnover.\n\nBut the real power of the monthly check goes beyond investments. When you track your salary and savings rate every month, you start to see patterns that matter far more than market fluctuations:\n\n- Your savings rate creeping down? That's a signal to adjust spending — worth more than any stock pick.\n- Salary stagnant for 12 months? That's a signal to negotiate or explore options.\n- Savings rate steady at 25%+? Your wealth is growing regardless of what the market does.\n\n**Your salary is your biggest asset. Your savings rate is your biggest lever.** Investment returns are the multiplier — but they multiply what you actually save.\n\nThis is also why tools matter. An app that shows you today's price change is optimized for engagement. A tool that shows you monthly snapshots of your full financial picture — salary, savings, and investments together — is optimized for [your actual financial outcome](https://odinvestor.net/philosophy).\n\n> The best financial review is boring. That's how you know it's working."
+  },
+  {
+    "type": "markdown",
+    "label": "",
+    "heading": "The Checklist",
+    "body": "Print this. Stick it on your wall. Open it on the 1st of each month.\n\n1. Record salary and savings for this month\n2. Record values for all investment accounts\n3. Compare allocation to target — drift over 5%?\n4. Confirm automated contributions ran\n5. Scan for red flags (fees, access, missing payments)\n6. Write one-sentence note\n7. Close the app\n\nTotal time: **15 minutes**. Frequency: **once a month**. Impact: **a lifetime of better decisions**."
+  },
+  {
+    "type": "markdown",
+    "label": "",
+    "heading": "Sources",
+    "body": "- [Myopic Loss Aversion and the Equity Premium Puzzle](https://academic.oup.com/qje/article-abstract/110/1/73/1894013) — Benartzi & Thaler, The Quarterly Journal of Economics (1995)\n- [DALBAR 2024 Investor Behavior Report](https://www.dalbar.com/press-release/investors-missed-the-best-of-2024s-market-gains-latest-dalbar-investor-behavior-report-finds/)\n- [How Often Should You Really Check Your Portfolio?](https://oneportfolio.io/en/blog/how-often-check-portfolio-optimal-monitoring-frequency/) — OnePortfolio\n- [Finding the Optimal Rebalancing Frequency](https://corporate.vanguard.com/content/corporatesite/us/en/corp/articles/tuning-frequency-for-rebalancing.html) — Vanguard\n- [Rebalancing Your Portfolio](https://investor.vanguard.com/investor-resources-education/portfolio-management/rebalancing-your-portfolio) — Vanguard\n- [Trading Is Hazardous to Your Wealth](https://faculty.haas.berkeley.edu/odean/papers%20current%20versions/individual_investor_performance_final.pdf) — Barber & Odean, The Journal of Finance (2000)\n- [Portfolio Checkup Checklist](https://www.americancentury.com/insights/portfolio-checkup-checklist/) — American Century Investments"
+  },
+  {
+    "type": "closing",
+    "text": "Track what you earn. Track what you save. Track what it grows into. One day a month, fifteen minutes — that's all it takes.",
+    "author": "One Day Investor"
+  }
+]
