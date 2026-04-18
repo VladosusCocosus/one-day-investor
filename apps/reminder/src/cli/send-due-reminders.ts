@@ -2,6 +2,8 @@ import { createLogger } from "@logger";
 import { pool, findDueUsers, markReminderSent } from "@database";
 import { sendEmail } from "@mailgun";
 import { renderReminderEmail } from "../template/reminder";
+import { generateUnsubscribeToken } from "@notifications";
+import config from "@config";
 
 const log = createLogger("reminder-cli");
 
@@ -23,12 +25,17 @@ async function main(): Promise<number> {
 
   for (const user of due) {
     try {
-      const html = renderReminderEmail(user);
+      const token = generateUnsubscribeToken(user.user_id);
+      const unsubscribeUrl = `${config.get("frontendUrl")}/unsubscribe?token=${token}`;
+      const html = renderReminderEmail(user, unsubscribeUrl);
       const subject = `Your ${user.currentMonthLabel} snapshot is due, ${user.firstName}`;
       await sendEmail({
         to: `${user.name} <${user.email}>`,
         subject,
         html,
+        headers: {
+          "List-Unsubscribe": `<${unsubscribeUrl}>`,
+        },
       });
       await markReminderSent(user.user_id);
       sent++;
