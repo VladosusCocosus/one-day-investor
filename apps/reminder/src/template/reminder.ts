@@ -77,7 +77,7 @@ export function renderReminderEmail(data: ReminderData, unsubscribeUrl: string):
 
       <tr><td style="padding:16px 32px 22px;border-top:1px solid #f1f5f9;text-align:center;font-size:11px;color:#94a3b8;line-height:1.5;">
         You're getting this because your monthly snapshot day has arrived.<br>
-        <a href="${escapeHtml(unsubscribeUrl)}" style="color:#64748b;text-decoration:underline;">Manage email preferences</a><br>
+        <a href="${escapeHtml(unsubscribeUrl)}" style="color:#64748b;text-decoration:underline;">Unsubscribe</a><br>
         <strong style="color:#475569;">One Day Investor</strong> &middot; odinvestor.net
       </td></tr>
     </table>
