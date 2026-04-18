@@ -16,6 +16,11 @@ import { ProfilePage } from "./pages/ProfilePage";
 import { SnapshotsPage } from "./pages/SnapshotsPage";
 import { AssetsPage } from "./pages/AssetsPage";
 import { AnalyticsPage } from "./pages/AnalyticsPage";
+import { lazy, Suspense } from "react";
+
+const AdminPage = lazy(() =>
+  import("./pages/AdminPage").then((m) => ({ default: m.AdminPage }))
+);
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -54,6 +59,14 @@ const router = createBrowserRouter([
           { path: "/assets-managment", element: <AssetsPage /> },
           { path: "/snapshots", element: <SnapshotsPage /> },
           { path: "/analytics", element: <AnalyticsPage /> },
+          {
+            path: "/admin",
+            element: (
+              <Suspense fallback={<div />}>
+                <AdminPage />
+              </Suspense>
+            ),
+          },
         ],
       },
     ],
