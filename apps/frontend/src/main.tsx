@@ -21,6 +21,15 @@ import { lazy, Suspense } from "react";
 const AdminPage = lazy(() =>
   import("./pages/AdminPage").then((m) => ({ default: m.AdminPage }))
 );
+const AdminLayout = lazy(() =>
+  import("./components/AdminLayout").then((m) => ({ default: m.AdminLayout }))
+);
+const BlogPostList = lazy(() =>
+  import("./pages/admin/BlogPostList").then((m) => ({ default: m.BlogPostList }))
+);
+const BlogPostEditor = lazy(() =>
+  import("./pages/admin/BlogPostEditor").then((m) => ({ default: m.BlogPostEditor }))
+);
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -59,14 +68,15 @@ const router = createBrowserRouter([
           { path: "/assets-managment", element: <AssetsPage /> },
           { path: "/snapshots", element: <SnapshotsPage /> },
           { path: "/analytics", element: <AnalyticsPage /> },
-          {
-            path: "/admin",
-            element: (
-              <Suspense fallback={<div />}>
-                <AdminPage />
-              </Suspense>
-            ),
-          },
+        ],
+      },
+      {
+        element: <Suspense fallback={<div />}><AdminLayout /></Suspense>,
+        children: [
+          { path: "/admin", element: <Suspense fallback={<div />}><AdminPage /></Suspense> },
+          { path: "/admin/blog", element: <Suspense fallback={<div />}><BlogPostList /></Suspense> },
+          { path: "/admin/blog/new", element: <Suspense fallback={<div />}><BlogPostEditor /></Suspense> },
+          { path: "/admin/blog/:id", element: <Suspense fallback={<div />}><BlogPostEditor /></Suspense> },
         ],
       },
     ],
