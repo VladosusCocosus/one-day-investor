@@ -4,3 +4,5 @@ export type {
   ExchangePocket,
   IExchangeAdapter,
 } from "./types";
+
+export { encrypt, decrypt } from "./crypto";
