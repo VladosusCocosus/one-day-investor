@@ -22,6 +22,7 @@ export function AdminPage() {
   const [result, setResult] = useState<{ sent: number; failed: number; total: number } | null>(null);
   const [confirming, setConfirming] = useState(false);
   const [uploading, setUploading] = useState(false);
+  const [dragging, setDragging] = useState(false);
   const textareaRef = useRef<HTMLTextAreaElement>(null);
 
   if (isLoading) {
@@ -142,14 +143,46 @@ export function AdminPage() {
               />
             </label>
           </div>
-          <textarea
-            ref={textareaRef}
-            value={markdown}
-            onChange={(e) => setMarkdown(e.target.value)}
-            rows={16}
-            placeholder={"## What's new\n\nWrite your update in markdown...\n\n- Feature one\n- Feature two\n\n> A quote or callout"}
-            className="mt-1.5 w-full rounded-lg border border-border bg-background px-3 py-2 text-sm font-mono outline-none resize-y focus-visible:border-ring focus-visible:ring-[3px] focus-visible:ring-ring/50"
-          />
+          <div
+            className={cn(
+              "relative mt-1.5 rounded-lg border transition-colors",
+              dragging
+                ? "border-primary bg-primary/5"
+                : "border-border"
+            )}
+            onDragOver={(e) => {
+              e.preventDefault();
+              setDragging(true);
+            }}
+            onDragLeave={() => setDragging(false)}
+            onDrop={(e) => {
+              e.preventDefault();
+              setDragging(false);
+              const file = e.dataTransfer.files[0];
+              if (file?.type.startsWith("image/")) handleUploadImage(file);
+            }}
+          >
+            {dragging && (
+              <div className="absolute inset-0 z-10 flex items-center justify-center rounded-lg bg-primary/10 pointer-events-none">
+                <span className="text-sm font-medium text-primary">Drop image here</span>
+              </div>
+            )}
+            <textarea
+              ref={textareaRef}
+              value={markdown}
+              onChange={(e) => setMarkdown(e.target.value)}
+              onPaste={(e) => {
+                const file = e.clipboardData.files[0];
+                if (file?.type.startsWith("image/")) {
+                  e.preventDefault();
+                  handleUploadImage(file);
+                }
+              }}
+              rows={16}
+              placeholder={"## What's new\n\nWrite your update in markdown...\n\n- Feature one\n- Feature two\n\n> A quote or callout\n\nDrop or paste images here"}
+              className="w-full rounded-lg bg-background px-3 py-2 text-sm font-mono outline-none resize-y border-0 focus-visible:ring-0"
+            />
+          </div>
         </div>
 
         <div className="flex items-center gap-2">
