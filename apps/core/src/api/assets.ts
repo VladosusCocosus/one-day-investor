@@ -8,6 +8,9 @@ import {
 import { getAdapter, decrypt, type ExchangePocket } from "@exchange";
 import { cacheGet, cacheSet, cacheDel } from "@redis";
 import { syncExchangeToDb } from "./exchange-sync";
+import { createLogger } from "@logger";
+
+const log = createLogger("assets");
 
 const EXCHANGE_CACHE_TTL = 180; // 3 minutes
 
@@ -68,10 +71,17 @@ export const assetsApi = new Elysia({ prefix: "/api/assets" })
 
       if (!cached) {
         try {
+          log.info({ exchange: cred.exchange, label: cred.label }, "Fetching exchange data (cache miss)");
           const adapter = getAdapter(cred.exchange as "binance" | "bybit");
           const apiKey = decrypt(cred.api_key);
           const apiSecret = decrypt(cred.api_secret);
+          const start = Date.now();
           const pockets = await adapter.fetchPockets(apiKey, apiSecret);
+          const totalAssets = pockets.reduce((sum, p) => sum + p.assets.length, 0);
+          log.info(
+            { exchange: cred.exchange, label: cred.label, pockets: pockets.length, assets: totalAssets, ms: Date.now() - start },
+            "Exchange data fetched"
+          );
 
           await syncExchangeToDb(user.id, cred.service_id!, pockets);
 
@@ -96,7 +106,8 @@ export const assetsApi = new Elysia({ prefix: "/api/assets" })
             cachedAt: new Date().toISOString(),
           };
           await cacheSet(`user:${user.id}:pockets`, regularData);
-        } catch {
+        } catch (err) {
+          log.error({ err, exchange: cred.exchange, label: cred.label }, "Failed to fetch exchange data");
           exchangeData.push({
             credentialId: cred.id,
             exchange: cred.exchange,
