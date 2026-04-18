@@ -8,6 +8,7 @@ import { AuthProvider } from "./hooks/AuthContext";
 import { LandingPage } from "./pages/LandingPage";
 import { LoginPage } from "./pages/LoginPage";
 import { PhilosophyPage } from "./pages/PhilosophyPage";
+import { UnsubscribePage } from "./pages/UnsubscribePage";
 import { ProtectedRoute } from "./components/ProtectedRoute";
 import { AppLayout } from "./components/AppLayout";
 import { DashboardPage } from "./pages/DashboardPage";
@@ -37,6 +38,10 @@ const router = createBrowserRouter([
   {
     path: "/philosophy",
     element: <PhilosophyPage />,
+  },
+  {
+    path: "/unsubscribe",
+    element: <UnsubscribePage />,
   },
   {
     element: <ProtectedRoute />,
