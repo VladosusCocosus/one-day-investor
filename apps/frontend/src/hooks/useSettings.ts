@@ -6,14 +6,18 @@ export interface UserSettings {
   snapshot_day: number;
   goal: string;
   currency: string;
-  email_notifications_enabled: boolean;
+  notify_snapshot_reminders: boolean;
+  notify_service_updates: boolean;
+  notify_blog_posts: boolean;
 }
 
 type UpdateSettingsParams = {
   snapshot_day?: number;
   goal?: number;
   currency?: string;
-  email_notifications_enabled?: boolean;
+  notify_snapshot_reminders?: boolean;
+  notify_service_updates?: boolean;
+  notify_blog_posts?: boolean;
 };
 
 export function useSettings() {
