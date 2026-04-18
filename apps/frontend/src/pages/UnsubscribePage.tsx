@@ -51,6 +51,7 @@ export function UnsubscribePage() {
   const update = async (patch: Partial<Preferences>) => {
     if (!token || !prefs) return;
     setSaving(true);
+    setError(null);
     try {
       const res = await api.put<Preferences>(
         `/api/notifications/preferences?token=${token}`,
