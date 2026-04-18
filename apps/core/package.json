@@ -12,7 +12,9 @@
     "@types": "workspace:*",
     "arctic": "latest",
     "elysia": "latest",
-    "@logger": "workspace:*"
+    "@logger": "workspace:*",
+    "@exchange": "workspace:*",
+    "@redis": "workspace:*"
   },
   "devDependencies": {
     "bun-types": "latest"
