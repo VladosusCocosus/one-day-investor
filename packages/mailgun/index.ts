@@ -16,11 +16,13 @@ export async function sendEmail(params: {
   to: string;
   subject: string;
   html: string;
+  headers?: Record<string, string>;
 }): Promise<void> {
   await mg.messages.create(DOMAIN, {
     from: FROM,
     to: [params.to],
     subject: params.subject,
     html: params.html,
+    "h:List-Unsubscribe": params.headers?.["List-Unsubscribe"],
   });
 }
