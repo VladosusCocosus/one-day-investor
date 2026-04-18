@@ -7,6 +7,7 @@ COPY packages/config/package.json packages/config/
 COPY packages/database/package.json packages/database/
 COPY packages/types/package.json packages/types/
 COPY packages/logger/package.json packages/logger/
+COPY packages/notifications/package.json packages/notifications/
 COPY apps/core/package.json apps/core/
 COPY packages/ packages/
 COPY apps/core/ apps/core/
