@@ -9,12 +9,13 @@
     "@config": "workspace:*",
     "@database": "workspace:*",
     "@elysiajs/cors": "^1.4.1",
+    "@exchange": "workspace:*",
+    "@logger": "workspace:*",
+    "@redis": "workspace:*",
     "@types": "workspace:*",
     "arctic": "latest",
     "elysia": "latest",
-    "@logger": "workspace:*",
-    "@exchange": "workspace:*",
-    "@redis": "workspace:*"
+    "marked": "^18.0.2"
   },
   "devDependencies": {
     "bun-types": "latest"
