@@ -9,6 +9,7 @@ import {
   createUser,
   createSession,
 } from "@database";
+import { sendWelcomeEmail } from "../emails/welcome";
 
 const log = createLogger("auth");
 
@@ -94,12 +95,14 @@ export const googleAuth = new Elysia({ prefix: "/auth" })
         log.info({ userId }, "Existing user logged in");
       } else {
         let user = await findUserByEmail(googleUser.email);
+        let isNewUser = false;
         if (!user) {
           user = await createUser({
             email: googleUser.email,
             name: googleUser.name,
             avatar_url: googleUser.picture,
           });
+          isNewUser = true;
           log.info({ userId: user.id, email: user.email }, "New user created");
         }
         await createOAuthAccount({
@@ -109,6 +112,11 @@ export const googleAuth = new Elysia({ prefix: "/auth" })
         });
         userId = user.id;
         log.info({ userId }, "OAuth account linked");
+
+        if (isNewUser) {
+          // Fire-and-forget: welcome email must never block or fail sign-in.
+          void sendWelcomeEmail({ email: user.email, name: user.name });
+        }
       }
 
       // Create session
