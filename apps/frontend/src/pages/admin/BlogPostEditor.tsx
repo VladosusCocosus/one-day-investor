@@ -424,6 +424,10 @@ export function BlogPostEditor() {
   const [newBlockType, setNewBlockType] = useState("hero");
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [notifying, setNotifying] = useState(false);
+  const [notifyResult, setNotifyResult] = useState<{ sent: number; failed: number; total: number } | null>(null);
+  const [notifyConfirming, setNotifyConfirming] = useState(false);
+  const [notifyPreviewHtml, setNotifyPreviewHtml] = useState<string | null>(null);
 
   const { data: post } = useQuery({
     queryKey: ["admin", "blog", "post", id],
@@ -471,6 +475,37 @@ export function BlogPostEditor() {
       setError(err?.response?.data?.error || "Failed to save.");
     } finally {
       setSaving(false);
+    }
+  };
+
+  const handleNotifyPreview = async () => {
+    try {
+      const res = await api.post<{ html: string }>("/api/admin/blog-post/preview", {
+        title, excerpt, slug,
+      });
+      setNotifyPreviewHtml(res.data.html);
+    } catch {
+      setNotifyPreviewHtml("<p>Preview failed.</p>");
+    }
+  };
+
+  const handleNotifySend = async () => {
+    if (!notifyConfirming) {
+      setNotifyConfirming(true);
+      return;
+    }
+    setNotifying(true);
+    setNotifyConfirming(false);
+    try {
+      const res = await api.post<{ sent: number; failed: number; total: number }>(
+        "/api/admin/blog-post/send",
+        { title, excerpt, slug }
+      );
+      setNotifyResult(res.data);
+    } catch {
+      setNotifyResult({ sent: 0, failed: 0, total: 0 });
+    } finally {
+      setNotifying(false);
     }
   };
 
@@ -591,6 +626,55 @@ export function BlogPostEditor() {
           {saving ? "Saving..." : isNew ? "Create post" : "Save changes"}
         </Button>
       </div>
+
+      {/* Notify subscribers */}
+      {!isNew && publishDate && (
+        <section className="mt-6 rounded-xl border border-border bg-card p-5">
+          <h2 className="text-[10px] font-semibold uppercase tracking-wider text-muted-foreground mb-3">
+            Notify subscribers
+          </h2>
+          <p className="text-xs text-muted-foreground mb-4">
+            Send an email to users who opted in to blog post notifications.
+          </p>
+          <div className="flex items-center gap-2">
+            <Button variant="outline" size="sm" onClick={handleNotifyPreview} disabled={!title || !slug}>
+              Preview email
+            </Button>
+            <Button
+              size="sm"
+              onClick={handleNotifySend}
+              disabled={!title || !slug || !excerpt || notifying}
+              className={cn(notifyConfirming && "bg-destructive hover:bg-destructive/90")}
+            >
+              {notifying ? "Sending..." : notifyConfirming ? "Click again to confirm" : "Send to subscribers"}
+            </Button>
+            {notifyConfirming && (
+              <Button variant="ghost" size="sm" onClick={() => setNotifyConfirming(false)}>
+                Cancel
+              </Button>
+            )}
+          </div>
+          {notifyResult && (
+            <div className="mt-3 rounded-lg border border-border p-3 text-sm">
+              <span className="font-semibold">Sent: {notifyResult.sent} / {notifyResult.total}</span>
+              {notifyResult.failed > 0 && (
+                <span className="ml-2 text-destructive">Failed: {notifyResult.failed}</span>
+              )}
+            </div>
+          )}
+          {notifyPreviewHtml && (
+            <div className="mt-4">
+              <div className="flex items-center justify-between mb-2">
+                <span className="text-xs font-medium text-muted-foreground">Email preview</span>
+                <Button variant="ghost" size="sm" onClick={() => setNotifyPreviewHtml(null)}>Close</Button>
+              </div>
+              <div className="rounded-lg border border-border overflow-hidden bg-[#f1f5f9]">
+                <iframe srcDoc={notifyPreviewHtml} title="Blog post email preview" className="w-full border-0" style={{ minHeight: 400 }} sandbox="" />
+              </div>
+            </div>
+          )}
+        </section>
+      )}
     </div>
   );
 }

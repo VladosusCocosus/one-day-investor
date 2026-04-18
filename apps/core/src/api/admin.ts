@@ -4,6 +4,7 @@ import { sendEmail } from "@mailgun";
 import { generateUnsubscribeToken } from "@notifications";
 import { resolveUser } from "../auth/session";
 import { renderServiceUpdateEmail } from "../template/service-update";
+import { renderBlogPostEmail } from "../template/blog-post";
 import config from "@config";
 
 function isAdmin(email: string): boolean {
@@ -72,6 +73,57 @@ export const adminApi = new Elysia({ prefix: "/api/admin" })
         await sendEmail({
           to: toHeader,
           subject,
+          html,
+          headers: { "List-Unsubscribe": `<${unsubscribeUrl}>` },
+        });
+        sent++;
+      } catch {
+        failed++;
+      }
+    }
+
+    return { sent, failed, total: rows.length };
+  })
+  .post("/blog-post/preview", async ({ body }) => {
+    const { title, excerpt, slug } = body as { title: string; excerpt: string; slug: string };
+    const blogUrl = process.env.VITE_BLOG_URL || process.env.BLOG_URL || "https://blog.odinvestor.net";
+    const html = renderBlogPostEmail({
+      title,
+      excerpt,
+      postUrl: `${blogUrl}/${slug}`,
+      unsubscribeUrl: "#",
+    });
+    return { html };
+  })
+  .post("/blog-post/send", async ({ body }) => {
+    const { title, excerpt, slug } = body as { title: string; excerpt: string; slug: string };
+    const blogUrl = process.env.VITE_BLOG_URL || process.env.BLOG_URL || "https://blog.odinvestor.net";
+
+    const { rows } = await pool.query<{ user_id: string; email: string; name: string | null }>(
+      `SELECT us.user_id, u.email, u.name
+       FROM user_settings us
+       JOIN users u ON u.id = us.user_id
+       WHERE us.notify_blog_posts = TRUE`
+    );
+
+    let sent = 0;
+    let failed = 0;
+    const frontendUrl = config.get("frontendUrl");
+
+    for (const row of rows) {
+      try {
+        const token = generateUnsubscribeToken(row.user_id);
+        const unsubscribeUrl = `${frontendUrl}/unsubscribe?token=${token}`;
+        const html = renderBlogPostEmail({
+          title,
+          excerpt,
+          postUrl: `${blogUrl}/${slug}`,
+          unsubscribeUrl,
+        });
+        const toHeader = row.name ? `${row.name} <${row.email}>` : row.email;
+        await sendEmail({
+          to: toHeader,
+          subject: `New post: ${title}`,
           html,
           headers: { "List-Unsubscribe": `<${unsubscribeUrl}>` },
         });
