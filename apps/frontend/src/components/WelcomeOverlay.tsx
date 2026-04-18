@@ -90,10 +90,10 @@ export function WelcomeOverlay({ open, onDismiss }: WelcomeOverlayProps) {
   const [prevOpen, setPrevOpen] = useState(open);
   const navigate = useNavigate();
   const { settings, updateSettings } = useSettings();
-  const emailEnabled = settings?.email_notifications_enabled ?? false;
+  const emailEnabled = settings?.notify_snapshot_reminders ?? false;
 
   const enableReminder = () => {
-    updateSettings({ email_notifications_enabled: true }).catch(() => {
+    updateSettings({ notify_snapshot_reminders: true }).catch(() => {
       /* nudge surface — silently ignore */
     });
   };

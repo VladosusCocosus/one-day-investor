@@ -19,7 +19,7 @@ export function FirstSnapshotEmailPrompt({
   const { updateSettings } = useSettings();
 
   const handleEnable = () => {
-    updateSettings({ email_notifications_enabled: true }).catch(() => {
+    updateSettings({ notify_snapshot_reminders: true }).catch(() => {
       /* nudge surface — silently ignore */
     });
     onClose();
