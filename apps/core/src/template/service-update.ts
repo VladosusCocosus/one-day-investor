@@ -1,4 +1,4 @@
-import { marked, Renderer } from "marked";
+import { Renderer, marked } from "marked";
 
 function escapeHtml(s: string): string {
   return s
@@ -12,7 +12,8 @@ function escapeHtml(s: string): string {
 function createEmailRenderer(): Renderer {
   const renderer = new Renderer();
 
-  renderer.heading = ({ text, depth }) => {
+  renderer.heading = function ({ tokens, depth }) {
+    const text = this.parser.parseInline(tokens);
     const sizes: Record<number, string> = {
       1: "font-size:22px;font-weight:800;",
       2: "font-size:18px;font-weight:700;",
@@ -22,37 +23,48 @@ function createEmailRenderer(): Renderer {
     return `<h${depth} style="${style}color:#0f172a;margin:24px 0 12px;line-height:1.3;">${text}</h${depth}>`;
   };
 
-  renderer.paragraph = ({ text }) =>
-    `<p style="margin:0 0 16px;color:#334155;font-size:15px;line-height:1.7;">${text}</p>`;
+  renderer.paragraph = function ({ tokens }) {
+    const text = this.parser.parseInline(tokens);
+    return `<p style="margin:0 0 16px;color:#334155;font-size:15px;line-height:1.7;">${text}</p>`;
+  };
 
-  renderer.link = ({ href, text }) =>
-    `<a href="${href}" style="color:#059669;text-decoration:underline;">${text}</a>`;
+  renderer.link = function ({ href, tokens }) {
+    const text = this.parser.parseInline(tokens);
+    return `<a href="${href}" style="color:#059669;text-decoration:underline;">${text}</a>`;
+  };
 
-  renderer.list = ({ body, ordered }) => {
-    const tag = ordered ? "ol" : "ul";
+  renderer.list = function (token) {
+    const body = this.parser.parse(token.items);
+    const tag = token.ordered ? "ol" : "ul";
     return `<${tag} style="margin:0 0 16px;padding-left:24px;">${body}</${tag}>`;
   };
 
-  renderer.listitem = ({ text }) =>
-    `<li style="margin:0 0 6px;color:#334155;font-size:15px;line-height:1.6;">${text}</li>`;
+  renderer.listitem = function (item) {
+    const text = this.parser.parse(item.tokens);
+    return `<li style="margin:0 0 6px;color:#334155;font-size:15px;line-height:1.6;">${text}</li>`;
+  };
 
-  renderer.blockquote = ({ text }) =>
-    `<blockquote style="border-left:3px solid #10b981;margin:16px 0;padding:8px 16px;color:#475569;font-style:italic;">${text}</blockquote>`;
+  renderer.blockquote = function ({ tokens }) {
+    const text = this.parser.parse(tokens);
+    return `<blockquote style="border-left:3px solid #10b981;margin:16px 0;padding:8px 16px;color:#475569;font-style:italic;">${text}</blockquote>`;
+  };
 
   renderer.code = ({ text }) =>
-    `<pre style="background:#f1f5f9;padding:16px;border-radius:8px;overflow-x:auto;margin:0 0 16px;"><code style="font-size:13px;color:#0f172a;">${text}</code></pre>`;
+    `<pre style="background:#f1f5f9;padding:16px;border-radius:8px;overflow-x:auto;margin:0 0 16px;"><code style="font-size:13px;color:#0f172a;">${escapeHtml(text)}</code></pre>`;
 
   renderer.codespan = ({ text }) =>
-    `<code style="background:#f1f5f9;padding:2px 5px;border-radius:4px;font-size:13px;color:#0f172a;">${text}</code>`;
+    `<code style="background:#f1f5f9;padding:2px 5px;border-radius:4px;font-size:13px;color:#0f172a;">${escapeHtml(text)}</code>`;
 
   renderer.hr = () =>
     `<hr style="border:none;border-top:1px solid #e2e8f0;margin:24px 0;">`;
 
-  renderer.strong = ({ text }) =>
-    `<strong style="color:#0f172a;font-weight:600;">${text}</strong>`;
+  renderer.strong = function ({ tokens }) {
+    const text = this.parser.parseInline(tokens);
+    return `<strong style="color:#0f172a;font-weight:600;">${text}</strong>`;
+  };
 
   renderer.image = ({ href, text }) =>
-    `<img src="${href}" alt="${text || ""}" style="max-width:100%;height:auto;border-radius:8px;margin:16px 0;">`;
+    `<img src="${href}" alt="${escapeHtml(text || "")}" style="max-width:100%;height:auto;border-radius:8px;margin:16px 0;">`;
 
   return renderer;
 }
