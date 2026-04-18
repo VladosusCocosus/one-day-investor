@@ -1,0 +1,126 @@
+import { Elysia } from "elysia";
+import { resolveUser } from "../auth/session";
+import {
+  findServicesByUserId,
+  findPocketAssetsByServiceIds,
+  findExchangeCredentialsByUserId,
+} from "@database";
+import { getAdapter, decrypt, type ExchangePocket } from "@exchange";
+import { cacheGet, cacheSet, cacheDel } from "@redis";
+import { syncExchangeToDb } from "./exchange-sync";
+
+const EXCHANGE_CACHE_TTL = 180; // 3 minutes
+
+interface CachedPockets {
+  pockets: ExchangePocket[];
+  cachedAt: string;
+}
+
+interface CachedRegularPockets {
+  services: unknown[];
+  assets: unknown[];
+  cachedAt: string;
+}
+
+export const assetsApi = new Elysia({ prefix: "/api/assets" })
+  .derive(async ({ cookie }) => {
+    const user = await resolveUser(cookie as Record<string, { value: string }>);
+    return { user };
+  })
+  .get("/", async ({ user, set }) => {
+    if (!user) {
+      set.status = 401;
+      return { error: "Unauthorized" };
+    }
+
+    // 1. Regular pockets from Redis (hydrate from DB if missing)
+    let regularData = await cacheGet<CachedRegularPockets>(
+      `user:${user.id}:pockets`
+    );
+
+    if (!regularData) {
+      const services = await findServicesByUserId(user.id);
+      const leafIds = services
+        .filter((s) => !services.some((other) => other.parent_id === s.id))
+        .map((s) => s.id);
+      const assets = await findPocketAssetsByServiceIds(leafIds);
+      regularData = {
+        services,
+        assets,
+        cachedAt: new Date().toISOString(),
+      };
+      await cacheSet(`user:${user.id}:pockets`, regularData);
+    }
+
+    // 2. Exchange pockets from Redis (fetch from API if expired)
+    const credentials = await findExchangeCredentialsByUserId(user.id);
+    const exchangeData: {
+      credentialId: string;
+      exchange: string;
+      label: string;
+      pockets: ExchangePocket[];
+      cachedAt: string;
+    }[] = [];
+
+    for (const cred of credentials) {
+      const cacheKey = `user:${user.id}:exchange:${cred.id}`;
+      let cached = await cacheGet<CachedPockets>(cacheKey);
+
+      if (!cached) {
+        try {
+          const adapter = getAdapter(cred.exchange as "binance" | "bybit");
+          const apiKey = decrypt(cred.api_key);
+          const apiSecret = decrypt(cred.api_secret);
+          const pockets = await adapter.fetchPockets(apiKey, apiSecret);
+
+          await syncExchangeToDb(user.id, cred.service_id!, pockets);
+
+          cached = {
+            pockets,
+            cachedAt: new Date().toISOString(),
+          };
+          await cacheSet(cacheKey, cached, EXCHANGE_CACHE_TTL);
+
+          // Invalidate regular pockets cache since DB was updated
+          await cacheDel(`user:${user.id}:pockets`);
+
+          // Re-read regular data
+          const services = await findServicesByUserId(user.id);
+          const leafIds = services
+            .filter((s) => !services.some((other) => other.parent_id === s.id))
+            .map((s) => s.id);
+          const assets = await findPocketAssetsByServiceIds(leafIds);
+          regularData = {
+            services,
+            assets,
+            cachedAt: new Date().toISOString(),
+          };
+          await cacheSet(`user:${user.id}:pockets`, regularData);
+        } catch {
+          exchangeData.push({
+            credentialId: cred.id,
+            exchange: cred.exchange,
+            label: cred.label,
+            pockets: [],
+            cachedAt: new Date().toISOString(),
+          });
+          continue;
+        }
+      }
+
+      exchangeData.push({
+        credentialId: cred.id,
+        exchange: cred.exchange,
+        label: cred.label,
+        pockets: cached.pockets,
+        cachedAt: cached.cachedAt,
+      });
+    }
+
+    return {
+      services: regularData.services,
+      assets: regularData.assets,
+      exchange: exchangeData,
+      cachedAt: regularData.cachedAt,
+    };
+  });
