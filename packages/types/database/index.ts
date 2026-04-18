@@ -93,3 +93,14 @@ export interface SnapshotEntry {
   quantity: string | null;
   price: string | null;
 }
+
+export interface ExchangeCredential {
+  id: string;
+  user_id: string;
+  exchange: string;
+  label: string;
+  api_key: string;
+  api_secret: string;
+  service_id: string | null;
+  created_at: Date;
+}
