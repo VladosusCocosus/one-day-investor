@@ -36,6 +36,7 @@ export function usePriceLookup(
     queryFn: async () => {
       const payload = assets.map((a) => ({
         api_id: a.api_id ?? a.symbol,
+        symbol: a.symbol,
         asset_type: a.asset_type,
       }));
       const res = await marketApi.post<Record<string, number | null>>(

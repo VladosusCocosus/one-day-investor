@@ -19,7 +19,7 @@ export const marketApi = new Elysia({ prefix: "/api/market" })
       return { error: "Unauthorized" };
     }
     const { assets, currency } = body as {
-      assets: { api_id: string; asset_type: AssetType }[];
+      assets: { api_id: string; symbol?: string; asset_type: AssetType }[];
       currency: string;
     };
     if (!assets || !currency) {
