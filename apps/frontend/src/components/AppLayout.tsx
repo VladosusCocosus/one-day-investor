@@ -10,7 +10,7 @@ const SIDEBAR_KEY = "sidebar-collapsed";
 
 const mobileNavItems = [
   { label: "Dashboard", icon: LayoutDashboard, path: "/dashboard" },
-  { label: "Assets", icon: Layers, path: "/assets" },
+  { label: "Assets", icon: Layers, path: "/assets-managment" },
   { label: "Snapshots", icon: Camera, path: "/snapshots" },
   { label: "Analytics", icon: BarChart3, path: "/analytics" },
 ] as const;
