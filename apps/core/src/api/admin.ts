@@ -23,6 +23,22 @@ export const adminApi = new Elysia({ prefix: "/api/admin" })
     }
   })
   .get("/check", () => ({ admin: true }))
+  .post("/upload-image", async ({ body, set }) => {
+    const formBody = body as Record<string, unknown>;
+    const file = formBody.file;
+    if (!file || !(file instanceof File)) {
+      set.status = 400;
+      return { error: "No file provided" };
+    }
+
+    const ext = file.name.split(".").pop()?.toLowerCase() || "png";
+    const key = `emails/${Date.now()}-${Math.random().toString(36).slice(2, 8)}.${ext}`;
+    const buffer = Buffer.from(await file.arrayBuffer());
+
+    const { upload, getPublicUrl } = await import("@storage");
+    await upload(key, buffer, file.type);
+    return { url: getPublicUrl(key) };
+  })
   .post("/service-update/preview", async ({ body }) => {
     const { subject, markdown } = body as { subject: string; markdown: string };
     const html = renderServiceUpdateEmail({ subject, markdown, unsubscribeUrl: "#" });

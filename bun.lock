@@ -52,6 +52,7 @@
         "@mailgun": "workspace:*",
         "@notifications": "workspace:*",
         "@redis": "workspace:*",
+        "@storage": "workspace:*",
         "@types": "workspace:*",
         "arctic": "latest",
         "elysia": "latest",
