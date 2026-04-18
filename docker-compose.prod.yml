@@ -73,6 +73,10 @@ services:
       DATABASE_URL: postgres://${POSTGRES_USER}:${POSTGRES_PASSWORD}@db:5432/${POSTGRES_DB}
       REDIS_URL: redis://redis:6379
       EXCHANGE_ENCRYPTION_KEY: ${EXCHANGE_ENCRYPTION_KEY}
+      ADMIN_EMAIL: ${ADMIN_EMAIL}
+      MAILGUN_API_KEY: ${MAILGUN_API_KEY}
+      MAILGUN_DOMAIN: ${MAILGUN_DOMAIN}
+      MAILGUN_FROM: ${MAILGUN_FROM}
     depends_on:
       db:
         condition: service_healthy
