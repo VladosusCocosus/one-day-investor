@@ -10,6 +10,7 @@
     "@database": "workspace:*",
     "@elysiajs/cors": "^1.4.1",
     "@market": "workspace:*",
+    "@redis": "workspace:*",
     "@types": "workspace:*",
     "elysia": "latest",
     "@logger": "workspace:*"
