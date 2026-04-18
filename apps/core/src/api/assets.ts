@@ -16,7 +16,22 @@ const EXCHANGE_CACHE_TTL = 180; // 3 minutes
 
 interface CachedPockets {
   pockets: ExchangePocket[];
+  prices: Record<string, number>; // symbol → USD price from exchange
   cachedAt: string;
+}
+
+function buildExchangePrices(pockets: ExchangePocket[]): Record<string, number> {
+  const prices: Record<string, number> = {};
+  for (const pocket of pockets) {
+    for (const asset of pocket.assets) {
+      const qty = parseFloat(asset.quantity);
+      const value = parseFloat(asset.valueUsd);
+      if (qty > 0 && value > 0) {
+        prices[asset.symbol] = value / qty;
+      }
+    }
+  }
+  return prices;
 }
 
 interface CachedRegularPockets {
@@ -87,6 +102,7 @@ export const assetsApi = new Elysia({ prefix: "/api/assets" })
 
           cached = {
             pockets,
+            prices: buildExchangePrices(pockets),
             cachedAt: new Date().toISOString(),
           };
           await cacheSet(cacheKey, cached, EXCHANGE_CACHE_TTL);
@@ -128,10 +144,25 @@ export const assetsApi = new Elysia({ prefix: "/api/assets" })
       });
     }
 
+    // Merge all exchange prices into a single map
+    const exchangePrices: Record<string, number> = {};
+    for (const entry of exchangeData) {
+      for (const pocket of entry.pockets) {
+        for (const asset of pocket.assets) {
+          const qty = parseFloat(asset.quantity);
+          const value = parseFloat(asset.valueUsd);
+          if (qty > 0 && value > 0) {
+            exchangePrices[asset.symbol] = value / qty;
+          }
+        }
+      }
+    }
+
     return {
       services: regularData.services,
       assets: regularData.assets,
       exchange: exchangeData,
+      exchangePrices,
       cachedAt: regularData.cachedAt,
     };
   });
