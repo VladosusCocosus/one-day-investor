@@ -21,7 +21,9 @@ export async function updateSettings(
     snapshot_day?: number;
     goal?: number;
     currency?: string;
-    email_notifications_enabled?: boolean;
+    notify_snapshot_reminders?: boolean;
+    notify_service_updates?: boolean;
+    notify_blog_posts?: boolean;
   }
 ): Promise<UserSettings> {
   const fields: string[] = [];
@@ -40,9 +42,17 @@ export async function updateSettings(
     fields.push(`currency = $${idx++}`);
     values.push(params.currency);
   }
-  if (params.email_notifications_enabled !== undefined) {
-    fields.push(`email_notifications_enabled = $${idx++}`);
-    values.push(params.email_notifications_enabled);
+  if (params.notify_snapshot_reminders !== undefined) {
+    fields.push(`notify_snapshot_reminders = $${idx++}`);
+    values.push(params.notify_snapshot_reminders);
+  }
+  if (params.notify_service_updates !== undefined) {
+    fields.push(`notify_service_updates = $${idx++}`);
+    values.push(params.notify_service_updates);
+  }
+  if (params.notify_blog_posts !== undefined) {
+    fields.push(`notify_blog_posts = $${idx++}`);
+    values.push(params.notify_blog_posts);
   }
 
   if (fields.length === 0) return getSettings(userId);
