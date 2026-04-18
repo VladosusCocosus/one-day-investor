@@ -9,7 +9,7 @@ interface QuickAction {
 }
 
 const ACTIONS: QuickAction[] = [
-  { label: "Add asset", to: "/assets", icon: Coins },
+  { label: "Add asset", to: "/assets-managment", icon: Coins },
   { label: "Add pocket", to: "/profile", icon: Wallet },
   { label: "Snapshot", to: "/snapshots", icon: Camera },
   { label: "Analytics", to: "/analytics", icon: BarChart3 },

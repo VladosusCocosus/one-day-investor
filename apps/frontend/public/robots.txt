@@ -4,7 +4,7 @@ Allow: /philosophy
 Allow: /login
 Disallow: /dashboard
 Disallow: /profile
-Disallow: /assets
+Disallow: /assets-managment
 Disallow: /snapshots
 Disallow: /analytics
 
