@@ -25,7 +25,6 @@ import {
 import type { Block } from "./db";
 import { ListPage } from "./pages/list";
 import { PostPage, NotFoundPage } from "./pages/post";
-import { EditorListPage, EditorFormPage } from "./pages/editor";
 
 const log = createLogger("blog");
 const PORT = 3003;
@@ -58,7 +57,7 @@ const cssFile = Bun.file(cssPath);
 
 const app = new Elysia()
   .use(html())
-  .use(cors({ origin: FRONTEND_URL, methods: ["GET"] }))
+  .use(cors({ origin: FRONTEND_URL, methods: ["GET", "POST", "PUT", "DELETE"], credentials: true }))
 
   .get("/styles.css", async () => {
     return new Response(cssFile, {
@@ -111,7 +110,7 @@ const app = new Elysia()
 
   .get("/robots.txt", () => {
     return new Response(
-      `User-agent: *\nAllow: /\nDisallow: /editor\n\nSitemap: ${SITE_URL}/sitemap.xml`,
+      `User-agent: *\nAllow: /\n\nSitemap: ${SITE_URL}/sitemap.xml`,
       { headers: { "Content-Type": "text/plain" } }
     );
   })
@@ -142,98 +141,46 @@ const app = new Elysia()
     return <ListPage posts={posts} allTags={allTags} activeTag={tag} user={user} />;
   })
 
-  // Editor routes (admin only)
-  .get("/editor", async ({ cookie, set }) => {
+  // Admin JSON API
+  .get("/api/admin/posts", async ({ cookie, set }) => {
     const user = await resolveUser(cookie);
-    if (!user || user.email !== ADMIN_EMAIL) { set.status = 403; return "Forbidden"; }
-    const posts = await listAllPosts();
-    return <EditorListPage posts={posts} />;
+    if (!user || user.email !== ADMIN_EMAIL) { set.status = 403; return { error: "Forbidden" }; }
+    return listAllPosts();
   })
-  .get("/editor/new", async ({ cookie, set }) => {
+  .get("/api/admin/posts/:id", async ({ params, cookie, set }) => {
     const user = await resolveUser(cookie);
-    if (!user || user.email !== ADMIN_EMAIL) { set.status = 403; return "Forbidden"; }
-    return <EditorFormPage />;
-  })
-  .post("/editor/new", async ({ body, set, cookie }) => {
-    const user = await resolveUser(cookie);
-    if (!user || user.email !== ADMIN_EMAIL) { set.status = 403; return "Forbidden"; }
-    const { title, slug, excerpt, tags, content, publish_date } = body as Record<string, string>;
-    try {
-      const parsedContent: Block[] = JSON.parse(content || "[]");
-      const parsedTags = tags
-        ? tags.split(",").map((t: string) => t.trim()).filter(Boolean)
-        : [];
-      await createBlogPost({
-        title,
-        slug,
-        excerpt,
-        tags: parsedTags,
-        content: parsedContent,
-        publish_date: publish_date || null,
-      });
-      set.redirect = `/editor`;
-    } catch (e: any) {
-      return <EditorFormPage error={e.message} />;
-    }
-  })
-  .get("/editor/:id", async ({ params, cookie, set }) => {
-    const user = await resolveUser(cookie);
-    if (!user || user.email !== ADMIN_EMAIL) { set.status = 403; return "Forbidden"; }
+    if (!user || user.email !== ADMIN_EMAIL) { set.status = 403; return { error: "Forbidden" }; }
     const post = await getPostById(Number(params.id));
-    if (!post) return <EditorFormPage error="Post not found" />;
-    return <EditorFormPage post={post} />;
+    if (!post) { set.status = 404; return { error: "Not found" }; }
+    return post;
   })
-  .post("/editor/:id", async ({ params, body, set, cookie }) => {
+  .post("/api/admin/posts", async ({ body, cookie, set }) => {
     const user = await resolveUser(cookie);
-    if (!user || user.email !== ADMIN_EMAIL) { set.status = 403; return "Forbidden"; }
-    const id = Number(params.id);
-    const { title, slug, excerpt, tags, content, publish_date } = body as Record<string, string>;
-    try {
-      const parsedContent: Block[] = JSON.parse(content || "[]");
-      const parsedTags = tags
-        ? tags.split(",").map((t: string) => t.trim()).filter(Boolean)
-        : [];
-      await updateBlogPost(id, {
-        title,
-        slug,
-        excerpt,
-        tags: parsedTags,
-        content: parsedContent,
-        publish_date: publish_date || null,
-      });
-      set.redirect = `/editor`;
-    } catch (e: any) {
-      const post = await getPostById(id);
-      return <EditorFormPage post={post ?? undefined} error={e.message} />;
-    }
+    if (!user || user.email !== ADMIN_EMAIL) { set.status = 403; return { error: "Forbidden" }; }
+    const { title, slug, excerpt, tags, content, publish_date } = body as {
+      title: string; slug: string; excerpt?: string; tags?: string[];
+      content: Block[]; publish_date?: string | null;
+    };
+    return createBlogPost({ title, slug, excerpt, tags, content, publish_date });
   })
-  .post("/editor/:id/og", async ({ params, set, cookie }) => {
+  .put("/api/admin/posts/:id", async ({ params, body, cookie, set }) => {
     const user = await resolveUser(cookie);
-    if (!user || user.email !== ADMIN_EMAIL) { set.status = 403; return "Forbidden"; }
-    const post = await getPostById(Number(params.id));
-    if (!post) { set.redirect = "/editor"; return; }
-
-    const res = await fetch(`${OG_SERVICE_URL}/generate`, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ slug: post.slug, title: post.title, tags: post.tags }),
+    if (!user || user.email !== ADMIN_EMAIL) { set.status = 403; return { error: "Forbidden" }; }
+    const { title, slug, excerpt, tags, content, publish_date } = body as {
+      title?: string; slug?: string; excerpt?: string; tags?: string[];
+      content?: Block[]; publish_date?: string | null;
+    };
+    const updated = await updateBlogPost(Number(params.id), {
+      title, slug, excerpt, tags, content, publish_date,
     });
-    const { key, error } = (await res.json()) as { key?: string; error?: string };
-
-    if (key) {
-      await setOgImage(post.id, key);
-      log.info({ key, postId: post.id }, "OG image set");
-    } else {
-      log.error({ error, postId: post.id }, "OG generation failed");
-    }
-
-    set.redirect = `/editor/${post.id}`;
+    if (!updated) { set.status = 404; return { error: "Not found" }; }
+    return updated;
   })
-  .post("/editor/:id/delete", async ({ params, set, cookie }) => {
+  .delete("/api/admin/posts/:id", async ({ params, cookie, set }) => {
     const user = await resolveUser(cookie);
-    if (!user || user.email !== ADMIN_EMAIL) { set.status = 403; return "Forbidden"; }
+    if (!user || user.email !== ADMIN_EMAIL) { set.status = 403; return { error: "Forbidden" }; }
     await deleteBlogPost(Number(params.id));
-    set.redirect = "/editor";
+    return { ok: true };
   })
 
   // Post detail (must be last — catch-all slug route)
