@@ -1,8 +1,9 @@
-import { useState } from "react";
+import { useState, useRef } from "react";
 import { api } from "@/lib/api";
 import { useQuery } from "@tanstack/react-query";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
+import { ImagePlus } from "lucide-react";
 
 export function AdminPage() {
   const { data: adminCheck, isLoading, isError } = useQuery({
@@ -20,6 +21,8 @@ export function AdminPage() {
   const [sending, setSending] = useState(false);
   const [result, setResult] = useState<{ sent: number; failed: number; total: number } | null>(null);
   const [confirming, setConfirming] = useState(false);
+  const [uploading, setUploading] = useState(false);
+  const textareaRef = useRef<HTMLTextAreaElement>(null);
 
   if (isLoading) {
     return (
@@ -36,6 +39,29 @@ export function AdminPage() {
       </div>
     );
   }
+
+  const handleUploadImage = async (file: File) => {
+    setUploading(true);
+    try {
+      const form = new FormData();
+      form.append("file", file);
+      const res = await api.post<{ url: string }>("/api/admin/upload-image", form);
+      const imageMarkdown = `![${file.name}](${res.data.url})`;
+      const ta = textareaRef.current;
+      if (ta) {
+        const start = ta.selectionStart;
+        const before = markdown.slice(0, start);
+        const after = markdown.slice(ta.selectionEnd);
+        setMarkdown(`${before}${imageMarkdown}${after}`);
+      } else {
+        setMarkdown((prev) => `${prev}\n${imageMarkdown}`);
+      }
+    } catch {
+      // silently ignore upload errors
+    } finally {
+      setUploading(false);
+    }
+  };
 
   const handlePreview = async () => {
     if (!subject.trim() || !markdown.trim()) return;
@@ -92,10 +118,32 @@ export function AdminPage() {
         </div>
 
         <div>
-          <label className="text-[10px] font-semibold uppercase tracking-wider text-muted-foreground">
-            Content (Markdown)
-          </label>
+          <div className="flex items-center justify-between">
+            <label className="text-[10px] font-semibold uppercase tracking-wider text-muted-foreground">
+              Content (Markdown)
+            </label>
+            <label
+              className={cn(
+                "inline-flex items-center gap-1.5 rounded-md border border-border px-2.5 py-1 text-xs font-medium text-muted-foreground cursor-pointer hover:bg-muted transition-colors",
+                uploading && "opacity-50 pointer-events-none"
+              )}
+            >
+              <ImagePlus className="h-3.5 w-3.5" aria-hidden="true" />
+              {uploading ? "Uploading..." : "Add image"}
+              <input
+                type="file"
+                accept="image/*"
+                className="hidden"
+                onChange={(e) => {
+                  const file = e.target.files?.[0];
+                  if (file) handleUploadImage(file);
+                  e.target.value = "";
+                }}
+              />
+            </label>
+          </div>
           <textarea
+            ref={textareaRef}
             value={markdown}
             onChange={(e) => setMarkdown(e.target.value)}
             rows={16}
