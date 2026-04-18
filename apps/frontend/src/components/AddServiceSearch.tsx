@@ -23,7 +23,7 @@ export function AddServiceSearch({
   const [showDropdown, setShowDropdown] = useState(false);
   const [searched, setSearched] = useState(false);
   const [selected, setSelected] = useState<CatalogService | null>(null);
-  const [exchangeConnect, setExchangeConnect] = useState<"binance" | "bybit" | null>(null);
+  const [exchangeConnect, setExchangeConnect] = useState<string | null>(null);
   const [selectedChildren, setSelectedChildren] = useState<Set<string>>(new Set());
   const [customType, setCustomType] = useState<ServiceType>("common");
   const [loading, setLoading] = useState(false);
@@ -62,9 +62,10 @@ export function AddServiceSearch({
   };
 
   const handleSelectCatalog = (service: CatalogService) => {
-    const exchangeNames = ["binance", "bybit"];
-    if (exchangeNames.includes(service.name.toLowerCase())) {
-      setExchangeConnect(service.name.toLowerCase() as "binance" | "bybit");
+    const exchangeNames = ["binance", "bybit", "kraken", "coinbase", "okx", "kucoin", "bitfinex", "crypto.com"];
+    const serviceName = service.name.toLowerCase();
+    if (exchangeNames.includes(serviceName)) {
+      setExchangeConnect(serviceName);
       setShowDropdown(false);
       return;
     }

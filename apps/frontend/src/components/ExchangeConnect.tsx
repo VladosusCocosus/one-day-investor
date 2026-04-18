@@ -1,8 +1,10 @@
 import { useState } from "react";
 import { useExchange } from "@/hooks/useExchange";
 
+type ExchangeId = "binance" | "bybit" | "kraken" | "coinbase" | "okx" | "kucoin" | "bitfinex" | "crypto.com";
+
 interface ExchangeConnectProps {
-  exchange: "binance" | "bybit";
+  exchange: ExchangeId;
   onSuccess: () => void;
   onCancel: () => void;
 }
@@ -16,9 +18,16 @@ export function ExchangeConnect({
   const [label, setLabel] = useState("");
   const [apiKey, setApiKey] = useState("");
   const [apiSecret, setApiSecret] = useState("");
+  const [passphrase, setPassphrase] = useState("");
   const [error, setError] = useState("");
 
-  const exchangeName = exchange.charAt(0).toUpperCase() + exchange.slice(1);
+  const needsPassphrase = exchange === "okx" || exchange === "kucoin";
+  const exchangeNames: Record<string, string> = {
+    "crypto.com": "Crypto.com",
+    okx: "OKX",
+    kucoin: "KuCoin",
+  };
+  const exchangeName = exchangeNames[exchange] ?? exchange.charAt(0).toUpperCase() + exchange.slice(1);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -28,9 +37,18 @@ export function ExchangeConnect({
       setError("All fields are required");
       return;
     }
+    if (needsPassphrase && !passphrase.trim()) {
+      setError("Passphrase is required for " + exchangeName);
+      return;
+    }
+
+    // OKX/KuCoin: encode passphrase into secret as "secret:passphrase"
+    const finalSecret = needsPassphrase
+      ? `${apiSecret.trim()}:${passphrase.trim()}`
+      : apiSecret.trim();
 
     try {
-      await connect({ exchange, label: label.trim(), apiKey: apiKey.trim(), apiSecret: apiSecret.trim() });
+      await connect({ exchange, label: label.trim(), apiKey: apiKey.trim(), apiSecret: finalSecret });
       onSuccess();
     } catch (err: unknown) {
       const message =
@@ -87,6 +105,19 @@ export function ExchangeConnect({
           className="border rounded px-3 py-2 text-sm font-mono"
         />
       </label>
+
+      {needsPassphrase && (
+        <label className="flex flex-col gap-1">
+          <span className="text-sm font-medium">Passphrase</span>
+          <input
+            type="password"
+            value={passphrase}
+            onChange={(e) => setPassphrase(e.target.value)}
+            placeholder="Enter your API passphrase"
+            className="border rounded px-3 py-2 text-sm font-mono"
+          />
+        </label>
+      )}
 
       <div className="flex gap-2 mt-2">
         <button

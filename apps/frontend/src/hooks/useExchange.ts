@@ -22,7 +22,7 @@ export function useExchange() {
 
   const connectMutation = useMutation({
     mutationFn: async (params: {
-      exchange: "binance" | "bybit";
+      exchange: string;
       label: string;
       apiKey: string;
       apiSecret: string;
