@@ -49,6 +49,8 @@
         "@elysiajs/cors": "^1.4.1",
         "@exchange": "workspace:*",
         "@logger": "workspace:*",
+        "@mailgun": "workspace:*",
+        "@notifications": "workspace:*",
         "@redis": "workspace:*",
         "@types": "workspace:*",
         "arctic": "latest",
