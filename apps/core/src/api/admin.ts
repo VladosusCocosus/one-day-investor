@@ -1,10 +1,21 @@
 import { Elysia } from "elysia";
 import { pool } from "@database";
+import {
+  listAllPosts,
+  getPostById,
+  createBlogPost,
+  updateBlogPost,
+  deleteBlogPost,
+  initBlogSchema,
+} from "@database";
+import type { Block } from "@database";
 import { sendEmail } from "@mailgun";
 import { generateUnsubscribeToken } from "@notifications";
 import { resolveUser } from "../auth/session";
 import { renderServiceUpdateEmail } from "../template/service-update";
 import config from "@config";
+
+initBlogSchema().catch(() => {});
 
 function isAdmin(email: string): boolean {
   const adminEmail = config.get("admin.email");
@@ -77,4 +88,50 @@ export const adminApi = new Elysia({ prefix: "/api/admin" })
     }
 
     return { sent, failed, total: rows.length };
+  })
+  // Blog CRUD
+  .get("/blog/posts", async () => {
+    const posts = await listAllPosts();
+    return posts;
+  })
+  .get("/blog/posts/:id", async ({ params, set }) => {
+    const post = await getPostById(Number(params.id));
+    if (!post) {
+      set.status = 404;
+      return { error: "Not found" };
+    }
+    return post;
+  })
+  .post("/blog/posts", async ({ body }) => {
+    const { title, slug, excerpt, tags, content, publish_date } = body as {
+      title: string;
+      slug: string;
+      excerpt?: string;
+      tags?: string[];
+      content: Block[];
+      publish_date?: string | null;
+    };
+    return createBlogPost({ title, slug, excerpt, tags, content, publish_date });
+  })
+  .put("/blog/posts/:id", async ({ params, body, set }) => {
+    const { title, slug, excerpt, tags, content, publish_date } = body as {
+      title?: string;
+      slug?: string;
+      excerpt?: string;
+      tags?: string[];
+      content?: Block[];
+      publish_date?: string | null;
+    };
+    const updated = await updateBlogPost(Number(params.id), {
+      title, slug, excerpt, tags, content, publish_date,
+    });
+    if (!updated) {
+      set.status = 404;
+      return { error: "Not found" };
+    }
+    return updated;
+  })
+  .delete("/blog/posts/:id", async ({ params }) => {
+    await deleteBlogPost(Number(params.id));
+    return { ok: true };
   });
