@@ -3,6 +3,7 @@ import { Search, Plus } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { TypeBadge } from "@/components/TypeBadge";
 import type { CatalogService, ServiceType } from "@/hooks/useCatalog";
+import { ExchangeConnect } from "./ExchangeConnect";
 
 interface AddServiceSearchProps {
   onSelectCatalog: (service: CatalogService, childIds: string[]) => Promise<void>;
@@ -22,6 +23,7 @@ export function AddServiceSearch({
   const [showDropdown, setShowDropdown] = useState(false);
   const [searched, setSearched] = useState(false);
   const [selected, setSelected] = useState<CatalogService | null>(null);
+  const [exchangeConnect, setExchangeConnect] = useState<"binance" | "bybit" | null>(null);
   const [selectedChildren, setSelectedChildren] = useState<Set<string>>(new Set());
   const [customType, setCustomType] = useState<ServiceType>("common");
   const [loading, setLoading] = useState(false);
@@ -60,6 +62,12 @@ export function AddServiceSearch({
   };
 
   const handleSelectCatalog = (service: CatalogService) => {
+    const exchangeNames = ["binance", "bybit"];
+    if (exchangeNames.includes(service.name.toLowerCase())) {
+      setExchangeConnect(service.name.toLowerCase() as "binance" | "bybit");
+      setShowDropdown(false);
+      return;
+    }
     const children = getChildren(service.id);
     setSelected(service);
     setSelectedChildren(new Set(children.map((c) => c.id)));
@@ -95,6 +103,18 @@ export function AddServiceSearch({
 
   const children = selected ? getChildren(selected.id) : [];
   const noResults = searched && results.length === 0 && query.trim().length > 0;
+
+  if (exchangeConnect) {
+    return (
+      <ExchangeConnect
+        exchange={exchangeConnect}
+        onSuccess={() => {
+          setExchangeConnect(null);
+        }}
+        onCancel={() => setExchangeConnect(null)}
+      />
+    );
+  }
 
   return (
     <div>
