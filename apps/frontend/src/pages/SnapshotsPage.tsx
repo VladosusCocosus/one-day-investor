@@ -31,7 +31,7 @@ export function SnapshotsPage() {
   const { settings } = useSettings();
   const currency = settings?.currency ?? "EUR";
   const currencySymbol = CURRENCY_SYMBOLS[currency] ?? currency;
-  const emailEnabled = settings?.email_notifications_enabled ?? false;
+  const emailEnabled = settings?.notify_snapshot_reminders ?? false;
   const hadSnapshotsBeforeCreate = useRef(false);
   const [emailPromptOpen, setEmailPromptOpen] = useState(false);
 
