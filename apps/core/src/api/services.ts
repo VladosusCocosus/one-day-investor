@@ -9,6 +9,7 @@ import {
 } from "@database";
 import { resolveUser } from "../auth/session";
 import type { ServiceType } from "@types";
+import { cacheDel } from "@redis";
 
 export const servicesApi = new Elysia({ prefix: "/api/services" })
   .derive(async ({ cookie }) => {
@@ -36,12 +37,14 @@ export const servicesApi = new Elysia({ prefix: "/api/services" })
       set.status = 400;
       return { error: "name is required" };
     }
-    return createService({
+    const result = await createService({
       user_id: user.id,
       name,
       parent_id: parent_id ?? null,
       service_type,
     });
+    await cacheDel(`user:${user.id}:pockets`);
+    return result;
   })
   .post("/subscribe", async ({ user, set, body }) => {
     if (!user) {
@@ -56,7 +59,9 @@ export const servicesApi = new Elysia({ prefix: "/api/services" })
       set.status = 400;
       return { error: "catalog_service_id is required" };
     }
-    return subscribeToService(user.id, catalog_service_id, child_ids ?? []);
+    const result = await subscribeToService(user.id, catalog_service_id, child_ids ?? []);
+    await cacheDel(`user:${user.id}:pockets`);
+    return result;
   })
   .post("/unsubscribe", async ({ user, set, body }) => {
     if (!user) {
@@ -73,6 +78,7 @@ export const servicesApi = new Elysia({ prefix: "/api/services" })
       set.status = 409;
       return { error: result.error };
     }
+    await cacheDel(`user:${user.id}:pockets`);
     return { success: true };
   })
   .put("/:id", async ({ user, set, params, body }) => {
@@ -91,6 +97,7 @@ export const servicesApi = new Elysia({ prefix: "/api/services" })
       set.status = 404;
       return { error: "Service not found" };
     }
+    await cacheDel(`user:${user.id}:pockets`);
     return result;
   })
   .delete("/:id", async ({ user, set, params }) => {
@@ -103,5 +110,6 @@ export const servicesApi = new Elysia({ prefix: "/api/services" })
       set.status = 404;
       return { error: "Service not found" };
     }
+    await cacheDel(`user:${user.id}:pockets`);
     return { success: true };
   });
