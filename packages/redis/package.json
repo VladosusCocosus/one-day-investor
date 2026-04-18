@@ -1,0 +1,17 @@
+{
+  "name": "@redis",
+  "module": "src/index.ts",
+  "type": "module",
+  "private": true,
+  "devDependencies": {
+    "@types/bun": "latest"
+  },
+  "peerDependencies": {
+    "typescript": "^5"
+  },
+  "dependencies": {
+    "@config": "workspace:*",
+    "@logger": "workspace:*",
+    "ioredis": "^5.6.1"
+  }
+}
