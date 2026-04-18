@@ -147,16 +147,41 @@ function CurrencyEditor({
 
 function EmailSettingsSection({
   snapshotDay,
-  emailEnabled,
-  onToggleEmail,
+  notifySnapshots,
+  notifyUpdates,
+  notifyBlog,
+  onToggle,
   onSaveDay,
 }: {
   snapshotDay: number;
-  emailEnabled: boolean;
-  onToggleEmail: (next: boolean) => void;
+  notifySnapshots: boolean;
+  notifyUpdates: boolean;
+  notifyBlog: boolean;
+  onToggle: (key: string, value: boolean) => void;
   onSaveDay: (value: number) => void;
 }) {
   const [dayOpen, setDayOpen] = useState(false);
+
+  const categories = [
+    {
+      key: "notify_snapshot_reminders",
+      label: "Snapshot reminders",
+      description: "A gentle nudge when it's time to take your monthly snapshot.",
+      checked: notifySnapshots,
+    },
+    {
+      key: "notify_service_updates",
+      label: "Service updates",
+      description: "New features, integrations, and maintenance notices.",
+      checked: notifyUpdates,
+    },
+    {
+      key: "notify_blog_posts",
+      label: "Blog posts",
+      description: "New blog posts published on One Day Investor.",
+      checked: notifyBlog,
+    },
+  ];
 
   return (
     <section className="mt-8 rounded-xl border border-border bg-card p-5">
@@ -164,38 +189,42 @@ function EmailSettingsSection({
         Email settings
       </h2>
 
-      <div className="mt-4 flex items-start justify-between gap-4">
-        <div className="min-w-0">
-          <div className="text-sm font-semibold text-foreground">
-            Monthly snapshot reminder
+      <div className="mt-4 space-y-4">
+        {categories.map((cat) => (
+          <div key={cat.key} className="flex items-start justify-between gap-4">
+            <div className="min-w-0">
+              <div className="text-sm font-semibold text-foreground">
+                {cat.label}
+              </div>
+              <p className="mt-1 text-xs text-muted-foreground">
+                {cat.description}
+              </p>
+            </div>
+            <Switch.Root
+              checked={cat.checked}
+              onCheckedChange={(next) => onToggle(cat.key, next)}
+              aria-label={cat.label}
+              className={cn(
+                "relative h-6 w-11 shrink-0 cursor-pointer rounded-full border border-border transition-colors outline-none",
+                "focus-visible:ring-[3px] focus-visible:ring-ring/50",
+                cat.checked ? "bg-primary" : "bg-muted"
+              )}
+            >
+              <Switch.Thumb
+                className={cn(
+                  "block h-5 w-5 rounded-full bg-white shadow-sm transition-transform",
+                  "translate-x-0.5 data-[state=checked]:translate-x-[22px]"
+                )}
+              />
+            </Switch.Root>
           </div>
-          <p className="mt-1 text-xs text-muted-foreground">
-            A gentle nudge when it's time to take your monthly snapshot.
-          </p>
-        </div>
-        <Switch.Root
-          checked={emailEnabled}
-          onCheckedChange={onToggleEmail}
-          aria-label="Monthly snapshot reminder"
-          className={cn(
-            "relative h-6 w-11 shrink-0 cursor-pointer rounded-full border border-border transition-colors outline-none",
-            "focus-visible:ring-[3px] focus-visible:ring-ring/50",
-            emailEnabled ? "bg-primary" : "bg-muted"
-          )}
-        >
-          <Switch.Thumb
-            className={cn(
-              "block h-5 w-5 rounded-full bg-white shadow-sm transition-transform",
-              "translate-x-0.5 data-[state=checked]:translate-x-[22px]"
-            )}
-          />
-        </Switch.Root>
+        ))}
       </div>
 
       <div
         className={cn(
           "mt-4 flex items-center justify-between gap-4 border-t border-border pt-4 transition-opacity",
-          !emailEnabled && "opacity-60"
+          !notifySnapshots && "opacity-60"
         )}
       >
         <div className="text-xs text-muted-foreground">
@@ -255,7 +284,9 @@ export function ProfilePage() {
 
   const snapshotDay = settings?.snapshot_day ?? 1;
   const currency = settings?.currency ?? "EUR";
-  const emailEnabled = settings?.email_notifications_enabled ?? false;
+  const notifySnapshots = settings?.notify_snapshot_reminders ?? false;
+  const notifyUpdates = settings?.notify_service_updates ?? false;
+  const notifyBlog = settings?.notify_blog_posts ?? false;
 
   return (
     <div>
@@ -307,10 +338,10 @@ export function ProfilePage() {
       {/* Email settings */}
       <EmailSettingsSection
         snapshotDay={snapshotDay}
-        emailEnabled={emailEnabled}
-        onToggleEmail={(next) =>
-          updateSettings({ email_notifications_enabled: next })
-        }
+        notifySnapshots={notifySnapshots}
+        notifyUpdates={notifyUpdates}
+        notifyBlog={notifyBlog}
+        onToggle={(key, value) => updateSettings({ [key]: value })}
         onSaveDay={(snapshot_day) => updateSettings({ snapshot_day })}
       />
 
