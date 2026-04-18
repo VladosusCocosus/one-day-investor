@@ -101,6 +101,12 @@ const config = convict({
       default: "blog-images",
       env: "S3_BUCKET",
     },
+    publicUrl: {
+      doc: "Public base URL for S3 assets (e.g. https://s3.odinvestor.net)",
+      format: String,
+      default: "",
+      env: "S3_PUBLIC_URL",
+    },
   },
   mailgun: {
     apiKey: {
