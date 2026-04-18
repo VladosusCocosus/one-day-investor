@@ -34,14 +34,13 @@ function createEmailRenderer(): Renderer {
   };
 
   renderer.list = function (token) {
-    const body = this.parser.parse(token.items);
+    let body = "";
+    for (const item of token.items) {
+      const inner = this.parser.parse(item.tokens);
+      body += `<li style="margin:0 0 6px;color:#334155;font-size:15px;line-height:1.6;">${inner}</li>`;
+    }
     const tag = token.ordered ? "ol" : "ul";
     return `<${tag} style="margin:0 0 16px;padding-left:24px;">${body}</${tag}>`;
-  };
-
-  renderer.listitem = function (item) {
-    const text = this.parser.parse(item.tokens);
-    return `<li style="margin:0 0 6px;color:#334155;font-size:15px;line-height:1.6;">${text}</li>`;
   };
 
   renderer.blockquote = function ({ tokens }) {
