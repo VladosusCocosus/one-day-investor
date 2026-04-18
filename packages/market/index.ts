@@ -162,33 +162,48 @@ async function fetchExchangeTickers(): Promise<Map<string, number>> {
 // --- Crypto Prices (Exchange tickers first, CoinGecko fallback) ---
 
 export async function fetchCryptoPrices(
-  ids: string[],
+  assets: { api_id: string; symbol?: string }[],
   currency: string
 ): Promise<Record<string, number | null>> {
-  if (ids.length === 0) return {};
+  if (assets.length === 0) return {};
 
   const result: Record<string, number | null> = {};
 
   // 1. Try exchange tickers (Binance/Bybit — returns USD prices)
   const tickers = await fetchExchangeTickers();
-  const unresolvedIds: string[] = [];
+  const unresolvedAssets: { api_id: string; symbol?: string }[] = [];
 
-  for (const id of ids) {
-    const symbol = COINGECKO_TO_SYMBOL[id];
-    if (symbol && tickers.has(symbol)) {
-      result[id] = tickers.get(symbol)!;
-    } else {
-      unresolvedIds.push(id);
+  for (const asset of assets) {
+    const id = asset.api_id;
+    // Try the actual ticker symbol first (most reliable — "SFP", "BTC", etc.)
+    if (asset.symbol && tickers.has(asset.symbol)) {
+      result[id] = tickers.get(asset.symbol)!;
+      continue;
     }
+    // Then try known CoinGecko→symbol mapping
+    const mapped = COINGECKO_TO_SYMBOL[id];
+    if (mapped && tickers.has(mapped)) {
+      result[id] = tickers.get(mapped)!;
+      continue;
+    }
+    // Try uppercase api_id as symbol
+    const upperId = id.toUpperCase();
+    if (tickers.has(upperId)) {
+      result[id] = tickers.get(upperId)!;
+      continue;
+    }
+    unresolvedAssets.push(asset);
   }
+
+  const unresolvedIds = unresolvedAssets.map((a) => a.api_id);
 
   if (unresolvedIds.length > 0) {
     log.info(
-      { resolved: ids.length - unresolvedIds.length, unresolved: unresolvedIds.length },
+      { resolved: assets.length - unresolvedIds.length, unresolved: unresolvedIds, },
       "Exchange tickers resolved some, falling back to CoinGecko for rest"
     );
   } else {
-    log.info({ count: ids.length }, "All crypto prices resolved from exchange tickers");
+    log.info({ count: assets.length }, "All crypto prices resolved from exchange tickers");
   }
 
   // 2. Fallback to CoinGecko for anything not found
@@ -215,9 +230,9 @@ export async function fetchCryptoPrices(
   // 3. Convert from USD to target currency if needed
   if (currency.toUpperCase() !== "USD") {
     const rate = await getExchangeRate("USD", currency);
-    for (const id of ids) {
-      if (result[id] != null) {
-        result[id] = Math.round(result[id]! * rate * 100) / 100;
+    for (const asset of assets) {
+      if (result[asset.api_id] != null) {
+        result[asset.api_id] = Math.round(result[asset.api_id]! * rate * 100) / 100;
       }
     }
   }
@@ -285,20 +300,18 @@ export async function fetchStockPrices(
 // --- Main Entry Point ---
 
 export async function fetchPrices(
-  assets: { api_id: string; asset_type: AssetType }[],
+  assets: { api_id: string; symbol?: string; asset_type: AssetType }[],
   currency: string
 ): Promise<Record<string, number | null>> {
-  const cryptoIds = assets
-    .filter((a) => a.asset_type === "crypto")
-    .map((a) => a.api_id);
+  const cryptoAssets = assets.filter((a) => a.asset_type === "crypto");
   const stockSymbols = assets
     .filter((a) => a.asset_type === "invest")
     .map((a) => a.api_id);
 
-  log.info({ cryptoCount: cryptoIds.length, stockCount: stockSymbols.length, currency }, "Fetching all prices");
+  log.info({ cryptoCount: cryptoAssets.length, stockCount: stockSymbols.length, currency }, "Fetching all prices");
 
   const [cryptoPrices, stockPrices] = await Promise.all([
-    fetchCryptoPrices(cryptoIds, currency),
+    fetchCryptoPrices(cryptoAssets, currency),
     fetchStockPrices(stockSymbols, currency),
   ]);
 
