@@ -15,7 +15,7 @@ import Icon from "../assets/logo.svg?react"
 const navItems = [
   { label: "Dashboard", icon: LayoutDashboard, path: "/dashboard" },
   { label: "Profile", icon: User, path: "/profile" },
-  { label: "Assets", icon: Layers, path: "/assets" },
+  { label: "Assets", icon: Layers, path: "/assets-managment" },
   { label: "Snapshots", icon: Camera, path: "/snapshots" },
   { label: "Analytics", icon: BarChart3, path: "/analytics" },
 ] as const;
