@@ -7,3 +7,4 @@ export type {
 
 export { encrypt, decrypt } from "./crypto";
 export { BinanceAdapter } from "./adapters/binance";
+export { BybitAdapter } from "./adapters/bybit";
