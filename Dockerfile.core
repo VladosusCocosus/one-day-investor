@@ -15,8 +15,5 @@ COPY apps/core/ apps/core/
 
 RUN bun install
 
-COPY packages/ packages/
-COPY apps/core/ apps/core/
-
 EXPOSE 3000
 CMD ["bun", "run", "apps/core/src/index.ts"]
