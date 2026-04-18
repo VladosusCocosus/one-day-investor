@@ -49,7 +49,9 @@ export interface UserSettings {
   snapshot_day: number;
   goal: string; // numeric comes back as string from pg
   currency: string;
-  email_notifications_enabled: boolean;
+  notify_snapshot_reminders: boolean;
+  notify_service_updates: boolean;
+  notify_blog_posts: boolean;
 }
 
 export type AssetType = 'crypto' | 'invest';
