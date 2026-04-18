@@ -140,6 +140,14 @@ const config = convict({
       sensitive: true,
     },
   },
+  admin: {
+    email: {
+      doc: "Admin user email for accessing admin features",
+      format: String,
+      default: "",
+      env: "ADMIN_EMAIL",
+    },
+  },
 });
 
 config.validate({ allowed: "strict" });
