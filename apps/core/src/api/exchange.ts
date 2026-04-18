@@ -81,10 +81,22 @@ export const exchangeApi = new Elysia({ prefix: "/api/exchange" })
       pockets
     );
 
+    // Build exchange prices map
+    const prices: Record<string, number> = {};
+    for (const pocket of pockets) {
+      for (const asset of pocket.assets) {
+        const qty = parseFloat(asset.quantity);
+        const value = parseFloat(asset.valueUsd);
+        if (qty > 0 && value > 0) {
+          prices[asset.symbol] = value / qty;
+        }
+      }
+    }
+
     // Cache in Redis
     await cacheSet(
       `user:${user.id}:exchange:${credential.id}`,
-      { pockets, cachedAt: new Date().toISOString() },
+      { pockets, prices, cachedAt: new Date().toISOString() },
       CACHE_TTL
     );
 
