@@ -5,6 +5,7 @@ import { catalogApi } from "./catalog";
 import { settingsApi } from "./settings";
 import { exchangeApi } from "./exchange";
 import { assetsApi } from "./assets";
+import { notificationsApi } from "./notifications";
 
 export const api = new Elysia({ name: "api" })
   .use(servicesApi)
@@ -12,4 +13,5 @@ export const api = new Elysia({ name: "api" })
   .use(catalogApi)
   .use(settingsApi)
   .use(exchangeApi)
-  .use(assetsApi);
+  .use(assetsApi)
+  .use(notificationsApi);
