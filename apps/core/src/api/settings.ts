@@ -23,7 +23,9 @@ export const settingsApi = new Elysia({ prefix: "/api/settings" })
       snapshot_day?: number;
       goal?: number;
       currency?: string;
-      email_notifications_enabled?: boolean;
+      notify_snapshot_reminders?: boolean;
+      notify_service_updates?: boolean;
+      notify_blog_posts?: boolean;
     };
     return updateSettings(user.id, params);
   });
