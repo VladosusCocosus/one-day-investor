@@ -123,6 +123,23 @@ const config = convict({
       env: "MAILGUN_FROM",
     },
   },
+  redis: {
+    url: {
+      doc: "Redis connection URL",
+      format: String,
+      default: "redis://localhost:6379",
+      env: "REDIS_URL",
+    },
+  },
+  exchange: {
+    encryptionKey: {
+      doc: "AES-256 encryption key for exchange API credentials (32 bytes hex)",
+      format: String,
+      default: "",
+      env: "EXCHANGE_ENCRYPTION_KEY",
+      sensitive: true,
+    },
+  },
 });
 
 config.validate({ allowed: "strict" });
