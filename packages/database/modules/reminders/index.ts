@@ -87,7 +87,7 @@ export async function findDueUsers(): Promise<ReminderData[]> {
          LIMIT 1
      ) ls ON TRUE
      WHERE
-         us.email_notifications_enabled = TRUE
+         us.notify_snapshot_reminders = TRUE
          AND date_trunc('month', now())
            > date_trunc('month', rs.last_snapshot_at)
          AND EXTRACT(DAY FROM now())::int >= us.snapshot_day
