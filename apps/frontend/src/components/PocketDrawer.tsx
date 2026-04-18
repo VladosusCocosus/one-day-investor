@@ -14,6 +14,7 @@ import { AddServiceSearch } from "@/components/AddServiceSearch";
 import { PocketTypePill } from "@/components/PocketTypePill";
 import { useCatalog } from "@/hooks/useCatalog";
 import { useServices, type Service, type ServiceTree } from "@/hooks/useServices";
+import { useExchange } from "@/hooks/useExchange";
 import type { CatalogService, ServiceType } from "@/hooks/useCatalog";
 import { cn } from "@/lib/utils";
 
@@ -48,6 +49,7 @@ type ChildDraft = { name: string; service_type: ServiceType };
 export function PocketDrawer({ mode, onModeChange }: PocketDrawerProps) {
   const { tree, addService, removeService, editService } = useServices();
   const { searchCatalog, getChildren, subscribe, unsubscribe } = useCatalog();
+  const { connections, disconnect, disconnecting } = useExchange();
 
   const open = mode !== null;
   const handleOpenChange = (next: boolean) => {
@@ -73,6 +75,10 @@ export function PocketDrawer({ mode, onModeChange }: PocketDrawerProps) {
   const [removingChildId, setRemovingChildId] = useState<string | null>(null);
 
   const parentId = mode?.kind === "edit" ? mode.parentId : null;
+
+  const exchangeConnection = parentId
+    ? connections.find((c) => c.serviceId === parentId)
+    : undefined;
 
   const seededForIdRef = useRef<string | null>(null);
 
@@ -296,6 +302,26 @@ export function PocketDrawer({ mode, onModeChange }: PocketDrawerProps) {
                       }
                     />
                   </div>
+                </div>
+              )}
+
+              {/* Exchange connection badge */}
+              {exchangeConnection && (
+                <div className="flex items-center justify-between p-3 bg-green-50 rounded mb-3">
+                  <div className="flex items-center gap-2">
+                    <span className="w-2 h-2 bg-green-500 rounded-full" />
+                    <span className="text-sm font-medium text-green-700">Connected</span>
+                    <span className="text-xs text-green-600">
+                      {exchangeConnection.exchange} · {exchangeConnection.label}
+                    </span>
+                  </div>
+                  <button
+                    onClick={() => disconnect(exchangeConnection.id)}
+                    disabled={disconnecting}
+                    className="text-xs text-red-500 hover:text-red-700"
+                  >
+                    {disconnecting ? "Disconnecting..." : "Disconnect"}
+                  </button>
                 </div>
               )}
 
