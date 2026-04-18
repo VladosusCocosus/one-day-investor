@@ -1,0 +1,19 @@
+FROM oven/bun:latest AS base
+WORKDIR /app
+
+# Copy workspace structure for dependency install caching
+COPY package.json bun.lock ./
+COPY packages/config/ packages/config/
+COPY packages/database/ packages/database/
+COPY packages/types/ packages/types/
+COPY packages/logger/ packages/logger/
+COPY packages/notifications/ packages/notifications/
+COPY packages/exchange/ packages/exchange/
+COPY packages/redis/ packages/redis/
+COPY packages/mailgun/ packages/mailgun/
+COPY apps/core/ apps/core/
+
+RUN bun install
+
+EXPOSE 3000
+CMD ["bun", "run", "apps/core/src/index.ts"]
