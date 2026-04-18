@@ -4,13 +4,17 @@ import config from "@config";
 
 const mailgun = new Mailgun(FormData);
 
-const mg = mailgun.client({
-  username: "api",
-  key: config.get("mailgun.apiKey")
-});
+let mg: ReturnType<typeof mailgun.client>;
 
-const DOMAIN = config.get("mailgun.domain");
-const FROM = config.get("mailgun.from");
+function getClient() {
+  if (!mg) {
+    mg = mailgun.client({
+      username: "api",
+      key: config.get("mailgun.apiKey"),
+    });
+  }
+  return mg;
+}
 
 export async function sendEmail(params: {
   to: string;
@@ -18,8 +22,10 @@ export async function sendEmail(params: {
   html: string;
   headers?: Record<string, string>;
 }): Promise<void> {
-  await mg.messages.create(DOMAIN, {
-    from: FROM,
+  const domain = config.get("mailgun.domain");
+  const from = config.get("mailgun.from");
+  await getClient().messages.create(domain, {
+    from,
     to: [params.to],
     subject: params.subject,
     html: params.html,
