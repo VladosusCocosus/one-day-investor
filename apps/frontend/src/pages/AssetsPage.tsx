@@ -13,6 +13,7 @@ import {
 import { useSettings } from "@/hooks/useSettings";
 import { useAllPocketAssets } from "@/hooks/useAllPocketAssets";
 import { usePriceLookup } from "@/hooks/useMarketPriceLookup";
+import { useExchangePrices } from "@/hooks/useExchangePrices";
 import type { PocketAsset } from "@/hooks/usePocketAssets";
 import { cn } from "@/lib/utils";
 import { usePageMeta } from "@/lib/use-page-meta";
@@ -63,14 +64,36 @@ export function AssetsPage() {
   );
 
   const allAssets = useAllPocketAssets(allInvestableIds);
-  const { prices } = usePriceLookup(allAssets, currency);
+  const { exchangePrices } = useExchangePrices();
 
+  // Only fetch market prices for assets that don't have exchange-reported prices
+  const nonExchangeAssets = useMemo(
+    () => allAssets.filter((a) => !(a.symbol in exchangePrices)),
+    [allAssets, exchangePrices]
+  );
+  const { prices: marketPrices } = usePriceLookup(nonExchangeAssets, currency);
+
+  // Merge: exchange prices (by symbol) take priority over market prices (by api_id)
   const rowValue = (a: PocketAsset) => {
-    const price = prices[a.api_id ?? a.symbol] ?? 0;
-    return (Number(a.quantity) || 0) * price;
+    const exchangePrice = exchangePrices[a.symbol];
+    if (exchangePrice != null) {
+      return (Number(a.quantity) || 0) * exchangePrice;
+    }
+    const marketPrice = marketPrices[a.api_id ?? a.symbol] ?? 0;
+    return (Number(a.quantity) || 0) * marketPrice;
   };
 
   // Group assets by service_id, sorted by value descending within each pocket.
+  // Merged price map for components that need a flat Record<string, number>
+  const prices = useMemo(() => {
+    const merged: Record<string, number> = { ...marketPrices };
+    // Add exchange prices keyed by symbol (overrides market if both exist)
+    for (const [symbol, price] of Object.entries(exchangePrices)) {
+      merged[symbol] = price;
+    }
+    return merged;
+  }, [marketPrices, exchangePrices]);
+
   const assetsByService = useMemo(() => {
     const map = new Map<string, PocketAsset[]>();
     for (const a of allAssets) {
@@ -79,15 +102,11 @@ export function AssetsPage() {
       map.set(a.service_id, arr);
     }
     for (const [id, arr] of map) {
-      arr.sort((x, y) => {
-        const vx = (Number(x.quantity) || 0) * (prices[x.api_id ?? x.symbol] ?? 0);
-        const vy = (Number(y.quantity) || 0) * (prices[y.api_id ?? y.symbol] ?? 0);
-        return vy - vx;
-      });
+      arr.sort((x, y) => rowValue(y) - rowValue(x));
       map.set(id, arr);
     }
     return map;
-  }, [allAssets, prices]);
+  }, [allAssets, prices, exchangePrices]);
 
   const pocketTotal = (serviceId: string) =>
     (assetsByService.get(serviceId) ?? []).reduce(
