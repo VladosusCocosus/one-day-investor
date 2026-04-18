@@ -1,10 +1,8 @@
 import { useState } from "react";
 import { useExchange } from "@/hooks/useExchange";
 
-type ExchangeId = "binance" | "bybit" | "kraken" | "coinbase" | "okx" | "kucoin" | "bitfinex" | "crypto.com";
-
 interface ExchangeConnectProps {
-  exchange: ExchangeId;
+  exchange: string;
   onSuccess: () => void;
   onCancel: () => void;
 }

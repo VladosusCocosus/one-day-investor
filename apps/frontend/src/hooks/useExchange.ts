@@ -49,7 +49,7 @@ export function useExchange() {
   });
 
   const connect = async (params: {
-    exchange: "binance" | "bybit";
+    exchange: string;
     label: string;
     apiKey: string;
     apiSecret: string;
