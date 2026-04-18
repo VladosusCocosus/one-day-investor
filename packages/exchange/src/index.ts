@@ -6,3 +6,4 @@ export type {
 } from "./types";
 
 export { encrypt, decrypt } from "./crypto";
+export { BinanceAdapter } from "./adapters/binance";
