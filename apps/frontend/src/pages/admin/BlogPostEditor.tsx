@@ -2,9 +2,10 @@ import { useState, useEffect } from "react";
 import { useParams, useNavigate } from "react-router";
 import { useQuery } from "@tanstack/react-query";
 import { blogApi } from "@/lib/blogApi";
+import { api } from "@/lib/api";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
-import { ArrowUp, ArrowDown, X, Plus } from "lucide-react";
+import { ArrowUp, ArrowDown, X, Plus, ImagePlus } from "lucide-react";
 
 type Block = Record<string, any> & { type: string };
 
@@ -21,7 +22,7 @@ interface BlogPost {
 interface FieldDef {
   path: string;
   label: string;
-  type: "text" | "textarea" | "lines" | "select" | "json";
+  type: "text" | "textarea" | "lines" | "select" | "json" | "image-url";
   options?: string[];
 }
 
@@ -83,7 +84,7 @@ const SCHEMAS: Record<string, BlockSchema> = {
   image: {
     label: "Image",
     fields: [
-      { path: "src", label: "Image URL", type: "text" },
+      { path: "src", label: "Image URL", type: "image-url" },
       { path: "alt", label: "Alt text", type: "text" },
       { path: "caption", label: "Caption", type: "text" },
     ],
@@ -231,7 +232,100 @@ function BlockField({
       </div>
     );
   }
+  if (field.type === "image-url") {
+    return <ImageUrlField value={value} onChange={onChange} label={field.label} />;
+  }
   return null;
+}
+
+function ImageUrlField({
+  value,
+  onChange,
+  label,
+}: {
+  value: any;
+  onChange: (value: string) => void;
+  label: string;
+}) {
+  const [dragging, setDragging] = useState(false);
+  const [uploading, setUploading] = useState(false);
+
+  const handleUpload = async (file: File) => {
+    setUploading(true);
+    try {
+      const form = new FormData();
+      form.append("file", file);
+      const res = await api.post<{ url: string }>("/api/admin/upload-image", form);
+      onChange(res.data.url);
+    } catch {
+      // silently ignore
+    } finally {
+      setUploading(false);
+    }
+  };
+
+  return (
+    <div>
+      <label className="block text-xs font-medium text-muted-foreground mb-1">
+        {label}
+      </label>
+      <div
+        className={cn(
+          "relative rounded-md border transition-colors",
+          dragging ? "border-primary bg-primary/5" : "border-border"
+        )}
+        onDragOver={(e) => { e.preventDefault(); setDragging(true); }}
+        onDragLeave={() => setDragging(false)}
+        onDrop={(e) => {
+          e.preventDefault();
+          setDragging(false);
+          const file = e.dataTransfer.files[0];
+          if (file?.type.startsWith("image/")) handleUpload(file);
+        }}
+      >
+        {dragging && (
+          <div className="absolute inset-0 z-10 flex items-center justify-center rounded-md bg-primary/10 pointer-events-none">
+            <span className="text-sm font-medium text-primary">Drop image here</span>
+          </div>
+        )}
+        <div className="flex items-center gap-2">
+          <input
+            type="text"
+            value={value ?? ""}
+            onChange={(e) => onChange(e.target.value)}
+            placeholder="Paste URL or drop an image"
+            className="flex-1 bg-transparent px-3 py-2 text-sm outline-none"
+          />
+          <label
+            className={cn(
+              "shrink-0 inline-flex items-center gap-1.5 rounded-md px-2.5 py-1.5 mr-1 text-xs font-medium text-muted-foreground cursor-pointer hover:bg-muted transition-colors",
+              uploading && "opacity-50 pointer-events-none"
+            )}
+          >
+            <ImagePlus className="h-3.5 w-3.5" />
+            {uploading ? "..." : "Upload"}
+            <input
+              type="file"
+              accept="image/*"
+              className="hidden"
+              onChange={(e) => {
+                const file = e.target.files?.[0];
+                if (file) handleUpload(file);
+                e.target.value = "";
+              }}
+            />
+          </label>
+        </div>
+      </div>
+      {value && (
+        <img
+          src={value}
+          alt="Preview"
+          className="mt-2 max-h-40 rounded-md border border-border object-contain"
+        />
+      )}
+    </div>
+  );
 }
 
 function BlockCard({
