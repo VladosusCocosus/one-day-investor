@@ -11,10 +11,7 @@ import {
   getPocketLabels,
 } from "@/hooks/useServices";
 import { useSettings } from "@/hooks/useSettings";
-import { useAllPocketAssets } from "@/hooks/useAllPocketAssets";
-import { usePriceLookup } from "@/hooks/useMarketPriceLookup";
-import { useExchangePrices } from "@/hooks/useExchangePrices";
-import type { PocketAsset } from "@/hooks/usePocketAssets";
+import { useAssets, type PocketAssetWithPrice } from "@/hooks/useAssets";
 import { cn } from "@/lib/utils";
 import { usePageMeta } from "@/lib/use-page-meta";
 import { pageMeta } from "@/lib/metadata";
@@ -27,7 +24,7 @@ const CURRENCY_SYMBOLS: Record<string, string> = {
 
 type AssetDrawerMode =
   | { kind: "add"; pocketId: string }
-  | { kind: "edit"; asset: PocketAsset };
+  | { kind: "edit"; asset: PocketAssetWithPrice };
 
 export function AssetsPage() {
   usePageMeta(pageMeta.assets);
@@ -35,6 +32,7 @@ export function AssetsPage() {
   const { settings } = useSettings();
   const currency = settings?.currency ?? "EUR";
   const currencySymbol = CURRENCY_SYMBOLS[currency] ?? currency;
+  const { assets: allAssets } = useAssets();
 
   const [assetDrawerOpen, setAssetDrawerOpen] = useState(false);
   const [assetDrawerMode, setAssetDrawerMode] = useState<AssetDrawerMode>({
@@ -51,51 +49,23 @@ export function AssetsPage() {
   );
   const pocketLabels = useMemo(() => getPocketLabels(services), [services]);
 
-  // All crypto/invest service IDs — parents + children — so legacy non-leaf
-  // holders are also queried. Sub-pocket totals still attribute correctly.
-  const allInvestableIds = useMemo(
-    () =>
-      services
-        .filter(
-          (s) => s.service_type === "crypto" || s.service_type === "invest"
-        )
-        .map((s) => s.id),
-    [services]
-  );
-
-  const allAssets = useAllPocketAssets(allInvestableIds);
-  const { exchangePrices } = useExchangePrices();
-
-  // Only fetch market prices for assets that don't have exchange-reported prices
-  const nonExchangeAssets = useMemo(
-    () => allAssets.filter((a) => !(a.symbol in exchangePrices)),
-    [allAssets, exchangePrices]
-  );
-  const { prices: marketPrices } = usePriceLookup(nonExchangeAssets, currency);
-
-  // Merge: exchange prices (by symbol) take priority over market prices (by api_id)
-  const rowValue = (a: PocketAsset) => {
-    const exchangePrice = exchangePrices[a.symbol];
-    if (exchangePrice != null) {
-      return (Number(a.quantity) || 0) * exchangePrice;
-    }
-    const marketPrice = marketPrices[a.api_id ?? a.symbol] ?? 0;
-    return (Number(a.quantity) || 0) * marketPrice;
+  const rowValue = (a: PocketAssetWithPrice) => {
+    return (Number(a.quantity) || 0) * (a.price ?? 0);
   };
 
-  // Group assets by service_id, sorted by value descending within each pocket.
-  // Merged price map for components that need a flat Record<string, number>
+  // Build a flat price map for components that need Record<string, number>
   const prices = useMemo(() => {
-    const merged: Record<string, number> = { ...marketPrices };
-    // Add exchange prices keyed by symbol (overrides market if both exist)
-    for (const [symbol, price] of Object.entries(exchangePrices)) {
-      merged[symbol] = price;
+    const map: Record<string, number> = {};
+    for (const a of allAssets) {
+      if (a.price != null) {
+        map[a.api_id ?? a.symbol] = a.price;
+      }
     }
-    return merged;
-  }, [marketPrices, exchangePrices]);
+    return map;
+  }, [allAssets]);
 
   const assetsByService = useMemo(() => {
-    const map = new Map<string, PocketAsset[]>();
+    const map = new Map<string, PocketAssetWithPrice[]>();
     for (const a of allAssets) {
       const arr = map.get(a.service_id) ?? [];
       arr.push(a);
@@ -106,7 +76,7 @@ export function AssetsPage() {
       map.set(id, arr);
     }
     return map;
-  }, [allAssets, prices, exchangePrices]);
+  }, [allAssets, prices]);
 
   const pocketTotal = (serviceId: string) =>
     (assetsByService.get(serviceId) ?? []).reduce(
@@ -137,7 +107,7 @@ export function AssetsPage() {
     setAssetDrawerOpen(true);
   };
 
-  const openEditAsset = (asset: PocketAsset) => {
+  const openEditAsset = (asset: PocketAssetWithPrice) => {
     setAssetDrawerMode({ kind: "edit", asset });
     setAssetDrawerOpen(true);
   };
@@ -147,8 +117,6 @@ export function AssetsPage() {
   };
 
   const openEditPocket = (pocketId: string) => {
-    // The drawer is parent-centric: if this leaf is a child, open its parent
-    // and focus it; otherwise open it as its own root.
     const leaf = services.find((s) => s.id === pocketId);
     if (!leaf) return;
     if (leaf.parent_id) {
@@ -269,12 +237,12 @@ export function AssetsPage() {
 interface PocketSectionProps {
   label: string;
   total: string;
-  assets: PocketAsset[];
-  rowValue: (a: PocketAsset) => number;
+  assets: PocketAssetWithPrice[];
+  rowValue: (a: PocketAssetWithPrice) => number;
   formatMoney: (v: number) => string;
   onHeaderClick: () => void;
   onAddAsset: () => void;
-  onRowClick: (a: PocketAsset) => void;
+  onRowClick: (a: PocketAssetWithPrice) => void;
 }
 
 function PocketSection({
@@ -289,7 +257,6 @@ function PocketSection({
 }: PocketSectionProps) {
   return (
     <div className="border-b last:border-b-0">
-      {/* Section header — left button edits the pocket, right button adds an asset */}
       <div className="flex items-center bg-muted/30">
         <button
           type="button"
@@ -321,7 +288,6 @@ function PocketSection({
         </button>
       </div>
 
-      {/* Asset rows */}
       {assets.length === 0 ? (
         <button
           type="button"
