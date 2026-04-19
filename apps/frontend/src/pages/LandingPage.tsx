@@ -2,6 +2,7 @@ import { LandingNav } from "@/components/landing/LandingNav";
 import { LandingHero } from "@/components/landing/LandingHero";
 import { LandingDashboardPreview } from "@/components/landing/LandingDashboardPreview";
 import { LandingFeatures } from "@/components/landing/LandingFeatures";
+import { LandingExchanges } from "@/components/landing/LandingExchanges";
 import { LandingPhilosophyCard } from "@/components/landing/LandingPhilosophyCard";
 import { LandingBlogPreview } from "@/components/landing/LandingBlogPreview";
 import { LandingGuide } from "@/components/landing/LandingGuide";
@@ -43,6 +44,7 @@ export function LandingPage() {
         <LandingHero />
         <LandingDashboardPreview />
         <LandingFeatures />
+        <LandingExchanges />
         <LandingPhilosophyCard />
         <LandingGuide />
         <LandingBlogPreview />
