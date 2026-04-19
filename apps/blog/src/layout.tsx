@@ -4,6 +4,7 @@ import type { User } from "@types";
 import type { Locale } from "./i18n";
 
 const SITE_URL = process.env.BLOG_URL || "https://blog.odinvestor.net";
+const DASHBOARD_URL = process.env.DASHBOARD_URL || "https://dashboard.odinvestor.net";
 
 export function Layout({
   title,
@@ -51,16 +52,21 @@ export function Layout({
             gtag('config', 'G-YSRMF124RE');
           `)}
         </script>
-        <link rel="icon" type="image/svg+xml" href="https://odinvestor.net/favicon.svg" />
-        <link rel="apple-touch-icon" href="https://odinvestor.net/apple-touch-icon.png" />
+        <link rel="icon" type="image/svg+xml" href={`${DASHBOARD_URL}/favicon.svg`} />
+        <link rel="apple-touch-icon" href={`${DASHBOARD_URL}/apple-touch-icon.png`} />
         <title>{fullTitle}</title>
         {description && <meta name="description" content={description} />}
         {canonicalUrl && <link rel="canonical" href={canonicalUrl} />}
+        <link rel="alternate" hreflang="en" href={`${SITE_URL}${canonicalPath || "/"}`} />
+        <link rel="alternate" hreflang="ru" href={`${SITE_URL}/ru${canonicalPath || "/"}`} />
+        <link rel="alternate" hreflang="es" href={`${SITE_URL}/es${canonicalPath || "/"}`} />
+        <link rel="alternate" hreflang="x-default" href={`${SITE_URL}${canonicalPath || "/"}`} />
         <meta property="og:site_name" content="One Day Investor" />
         <meta property="og:title" content={fullTitle} />
         {description && <meta property="og:description" content={description} />}
         <meta property="og:type" content={ogType || "website"} />
         {canonicalUrl && <meta property="og:url" content={canonicalUrl} />}
+        <meta property="og:locale" content={locale === "ru" ? "ru_RU" : locale === "es" ? "es_ES" : "en_US"} />
         {publishDate && <meta property="article:published_time" content={publishDate} />}
         {modifiedDate && <meta property="article:modified_time" content={modifiedDate} />}
         {ogImageUrl && <meta property="og:image" content={ogImageUrl} />}
