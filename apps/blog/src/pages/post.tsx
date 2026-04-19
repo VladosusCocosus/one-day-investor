@@ -93,7 +93,8 @@ export function PostPage({ post, user, locale = "en" }: { post: BlogPost; user?:
             var slug = "${post.slug}";
             var isLoggedIn = ${user ? "true" : "false"};
             var btn = document.getElementById("like-btn");
-            var heart = document.getElementById("like-heart");
+            var heartWrap = document.getElementById("like-heart");
+            var heart = heartWrap.querySelector("svg");
             var countEl = document.getElementById("like-count");
             var modal = document.getElementById("signin-modal");
             var dismiss = document.getElementById("signin-dismiss");
@@ -104,12 +105,12 @@ export function PostPage({ post, user, locale = "en" }: { post: BlogPost; user?:
               countEl.textContent = count;
               if (liked) {
                 heart.setAttribute("fill", "currentColor");
-                heart.classList.remove("text-emerald-300");
-                heart.classList.add("text-emerald-400");
+                heartWrap.classList.remove("text-emerald-300");
+                heartWrap.classList.add("text-emerald-400");
               } else {
                 heart.setAttribute("fill", "none");
-                heart.classList.remove("text-emerald-400");
-                heart.classList.add("text-emerald-300");
+                heartWrap.classList.remove("text-emerald-400");
+                heartWrap.classList.add("text-emerald-300");
               }
             }
 
