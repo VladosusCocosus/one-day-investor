@@ -484,7 +484,7 @@ export function BlogPostEditor() {
   const handleNotifyPreview = async () => {
     try {
       const res = await api.post<{ html: string }>("/api/admin/blog-post/preview", {
-        title, excerpt, slug,
+        title, excerpt, slug, blocks,
       });
       setNotifyPreviewHtml(res.data.html);
     } catch {
@@ -502,7 +502,7 @@ export function BlogPostEditor() {
     try {
       const res = await api.post<{ sent: number; failed: number; total: number }>(
         "/api/admin/blog-post/send",
-        { title, excerpt, slug }
+        { title, excerpt, slug, blocks }
       );
       setNotifyResult(res.data);
     } catch {
