@@ -10,8 +10,7 @@ import {
   SheetTitle,
   SheetDescription,
 } from "@/components/ui/sheet";
-import { useAllPocketAssets } from "@/hooks/useAllPocketAssets";
-import { usePriceLookup } from "@/hooks/useMarketPriceLookup";
+import { useAssets } from "@/hooks/useAssets";
 import { useSnapshots, type SnapshotDetail } from "@/hooks/useSnapshots";
 import type { ServiceTree } from "@/hooks/useServices";
 
@@ -123,22 +122,25 @@ export function SnapshotDrawer({
   }, [tree]);
 
   // Pocket assets for invest/crypto services (only used in create mode)
-  const allAssets = useAllPocketAssets(
-    modeKind === "create" ? investServiceIds : []
-  );
-  const priceableAssets = useMemo(
+  const { assets: allAssetsFromApi } = useAssets();
+  // Filter to only invest/crypto services when in create mode
+  const allAssets = useMemo(
     () =>
-      allAssets.map((a) => ({
-        api_id: a.api_id ?? a.symbol,
-        symbol: a.symbol,
-        asset_type: a.asset_type,
-      })),
-    [allAssets]
+      modeKind === "create"
+        ? allAssetsFromApi.filter((a) => investServiceIds.includes(a.service_id))
+        : [],
+    [allAssetsFromApi, investServiceIds, modeKind]
   );
-  const { prices, loading: pricesLoading } = usePriceLookup(
-    priceableAssets,
-    currency
-  );
+  const prices = useMemo(() => {
+    const map: Record<string, number> = {};
+    for (const a of allAssets) {
+      if (a.price != null) {
+        map[a.api_id ?? a.symbol] = a.price;
+      }
+    }
+    return map;
+  }, [allAssets]);
+  const pricesLoading = false; // prices come with assets, no separate loading state
 
   // Form state
   const [month, setMonth] = useState(currentMonthString());
