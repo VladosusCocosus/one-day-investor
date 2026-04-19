@@ -10,11 +10,12 @@ import { getAdapter, decrypt } from "@exchange";
 import { cacheGet, cacheSet } from "@redis";
 import { syncExchangeToDb } from "./exchange-sync";
 import { createLogger } from "@logger";
+import config from "@config";
 
 const log = createLogger("assets");
 
 const EXCHANGE_CACHE_TTL = 180; // 3 minutes
-const MARKET_URL = `http://localhost:3002`;
+const MARKET_URL = config.get("marketUrl");
 
 function getLeafServiceIds(services: { id: string; parent_id: string | null }[]): string[] {
   return services

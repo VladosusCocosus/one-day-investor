@@ -23,7 +23,6 @@ interface SnapshotDrawerProps {
   onOpenChange: (open: boolean) => void;
   mode: SnapshotDrawerMode;
   tree: ServiceTree[];
-  currency: string;
   currencySymbol: string;
   onCreated?: (snapshotId: string) => void;
   onDeleted?: () => void;
@@ -61,7 +60,6 @@ export function SnapshotDrawer({
   onOpenChange,
   mode,
   tree,
-  currency,
   currencySymbol,
   onCreated,
   onDeleted,
