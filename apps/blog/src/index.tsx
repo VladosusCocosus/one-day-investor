@@ -182,6 +182,21 @@ const app = new Elysia()
     await deleteBlogPost(Number(params.id));
     return { ok: true };
   })
+  .post("/api/admin/posts/:id/og", async ({ params, cookie, set }) => {
+    const user = await resolveUser(cookie);
+    if (!user || user.email !== ADMIN_EMAIL) { set.status = 403; return { error: "Forbidden" }; }
+    const post = await getPostById(Number(params.id));
+    if (!post) { set.status = 404; return { error: "Not found" }; }
+    const res = await fetch(`${OG_SERVICE_URL}/generate`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ slug: post.slug, title: post.title, tags: post.tags }),
+    });
+    if (!res.ok) { set.status = 502; return { error: "OG service failed" }; }
+    const { key } = await res.json() as { key: string };
+    await setOgImage(post.id, key);
+    return { key };
+  })
 
   // Post detail (must be last — catch-all slug route)
   .get("/:slug", async ({ params, cookie }) => {

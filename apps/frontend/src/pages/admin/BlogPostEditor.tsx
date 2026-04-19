@@ -17,6 +17,7 @@ interface BlogPost {
   tags: string[];
   content: Block[];
   publish_date: string | null;
+  og_image: string | null;
 }
 
 interface FieldDef {
@@ -428,6 +429,8 @@ export function BlogPostEditor() {
   const [notifyResult, setNotifyResult] = useState<{ sent: number; failed: number; total: number } | null>(null);
   const [notifyConfirming, setNotifyConfirming] = useState(false);
   const [notifyPreviewHtml, setNotifyPreviewHtml] = useState<string | null>(null);
+  const [generatingOg, setGeneratingOg] = useState(false);
+  const [ogResult, setOgResult] = useState<string | null>(null);
 
   const { data: post } = useQuery({
     queryKey: ["admin", "blog", "post", id],
@@ -506,6 +509,19 @@ export function BlogPostEditor() {
       setNotifyResult({ sent: 0, failed: 0, total: 0 });
     } finally {
       setNotifying(false);
+    }
+  };
+
+  const handleGenerateOg = async () => {
+    setGeneratingOg(true);
+    setOgResult(null);
+    try {
+      const res = await blogApi.post<{ key: string }>(`/api/admin/posts/${id}/og`);
+      setOgResult(res.data.key);
+    } catch {
+      setOgResult("error");
+    } finally {
+      setGeneratingOg(false);
     }
   };
 
@@ -626,6 +642,36 @@ export function BlogPostEditor() {
           {saving ? "Saving..." : isNew ? "Create post" : "Save changes"}
         </Button>
       </div>
+
+      {/* OG image */}
+      {!isNew && (
+        <section className="mt-6 rounded-xl border border-border bg-card p-5">
+          <h2 className="text-[10px] font-semibold uppercase tracking-wider text-muted-foreground mb-3">
+            OG image
+          </h2>
+          <p className="text-xs text-muted-foreground mb-4">
+            Generate a social sharing image from the post title and tags.
+          </p>
+          <div className="flex items-center gap-2">
+            <Button variant="outline" size="sm" onClick={handleGenerateOg} disabled={generatingOg}>
+              {generatingOg ? "Generating..." : post?.og_image ? "Regenerate OG image" : "Generate OG image"}
+            </Button>
+            {ogResult && ogResult !== "error" && (
+              <span className="text-xs text-muted-foreground">Saved: {ogResult}</span>
+            )}
+            {ogResult === "error" && (
+              <span className="text-xs text-destructive">Failed — is the OG service running?</span>
+            )}
+          </div>
+          {(post?.og_image || (ogResult && ogResult !== "error")) && (
+            <img
+              src={`${import.meta.env.VITE_S3_PUBLIC_URL || "http://localhost:4566"}/${import.meta.env.VITE_S3_BUCKET || "blog-images"}/${ogResult || post?.og_image}`}
+              alt="OG preview"
+              className="mt-3 max-w-full rounded-md border border-border"
+            />
+          )}
+        </section>
+      )}
 
       {/* Notify subscribers */}
       {!isNew && publishDate && (
