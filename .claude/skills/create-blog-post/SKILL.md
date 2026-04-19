@@ -102,7 +102,7 @@ In this format
 }
 ```
 
-**Critical:** Escape all single quotes in the JSON content as `''` for PostgreSQL.
+**Critical:** Do NOT escape single quotes as `''` — the migration uses parameterized queries, so normal apostrophes are safe in JSON.
 **Critical:** Check https://blog.odinvestor.net for cross links
 
 ## Social Media Companion

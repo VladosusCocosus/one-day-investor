@@ -12,16 +12,31 @@ function escapeHtml(str: string): string {
 }
 
 function renderInlineMarkdown(text: string): string {
-  const linkRegex = /\[([^\]]+)\]\(([^)]+)\)/g;
+  // Process inline tokens: links, bold, italic, and passthrough safe HTML tags
+  const tokenRegex = /\[([^\]]+)\]\(([^)]+)\)|\*\*(.+?)\*\*|\*(.+?)\*|(<(?:em|strong|span|br\s*\/?)(?:\s[^>]*)?>)|(<\/(?:em|strong|span)>)/g;
   let result = "";
   let lastIndex = 0;
   let match;
 
-  while ((match = linkRegex.exec(text)) !== null) {
+  while ((match = tokenRegex.exec(text)) !== null) {
     result += escapeHtml(text.slice(lastIndex, match.index));
-    const linkText = escapeHtml(match[1]);
-    const href = escapeHtml(match[2]);
-    result += `<a href="${href}" class="font-medium text-emerald-300 underline decoration-emerald-500/40 underline-offset-2 hover:text-emerald-200 hover:decoration-emerald-400/60 transition-colors">${linkText}</a>`;
+
+    if (match[1] !== undefined) {
+      // Markdown link [text](url)
+      const linkText = escapeHtml(match[1]);
+      const href = escapeHtml(match[2]);
+      result += `<a href="${href}" class="font-medium text-emerald-300 underline decoration-emerald-500/40 underline-offset-2 hover:text-emerald-200 hover:decoration-emerald-400/60 transition-colors">${linkText}</a>`;
+    } else if (match[3] !== undefined) {
+      // **bold**
+      result += `<strong class="font-semibold text-emerald-50">${escapeHtml(match[3])}</strong>`;
+    } else if (match[4] !== undefined) {
+      // *italic*
+      result += `<em class="text-emerald-50 not-italic">${escapeHtml(match[4])}</em>`;
+    } else if (match[5] !== undefined || match[6] !== undefined) {
+      // Safe HTML tag passthrough (em, strong, span, br with attributes)
+      result += match[0];
+    }
+
     lastIndex = match.index + match[0].length;
   }
 
