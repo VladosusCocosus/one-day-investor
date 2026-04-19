@@ -6,6 +6,7 @@
     "dev": "bun run --watch src/index.ts"
   },
   "dependencies": {
+    "@assets": "workspace:*",
     "@config": "workspace:*",
     "@database": "workspace:*",
     "@elysiajs/cors": "^1.4.1",
