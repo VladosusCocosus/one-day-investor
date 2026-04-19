@@ -145,6 +145,63 @@ function CurrencyEditor({
   );
 }
 
+const languages = [
+  { value: "en", label: "English" },
+  { value: "ru", label: "Русский" },
+  { value: "es", label: "Español" },
+] as const;
+
+const languageLabels: Record<string, string> = {
+  en: "English",
+  ru: "Русский",
+  es: "Español",
+};
+
+function LanguageEditor({
+  value,
+  onSave,
+  onClose,
+}: {
+  value: string;
+  onSave: (value: string) => void;
+  onClose: () => void;
+}) {
+  const [draft, setDraft] = useState(value);
+
+  const save = () => {
+    if (draft !== value) onSave(draft);
+    onClose();
+  };
+
+  return (
+    <div>
+      <div className="text-[10px] font-semibold uppercase tracking-wider text-muted-foreground">
+        Language
+      </div>
+      <select
+        value={draft}
+        onChange={(e) => setDraft(e.target.value)}
+        autoFocus
+        className="mt-2 w-full rounded-md border border-border bg-background px-2 py-1.5 text-sm outline-none focus-visible:border-ring focus-visible:ring-[3px] focus-visible:ring-ring/50"
+      >
+        {languages.map((l) => (
+          <option key={l.value} value={l.value}>
+            {l.label}
+          </option>
+        ))}
+      </select>
+      <div className="mt-3 flex gap-2">
+        <Button size="sm" onClick={save}>
+          Save
+        </Button>
+        <Button size="sm" variant="ghost" onClick={onClose}>
+          Cancel
+        </Button>
+      </div>
+    </div>
+  );
+}
+
 function EmailSettingsSection({
   snapshotDay,
   notifySnapshots,
@@ -267,6 +324,7 @@ export function ProfilePage() {
   const navigate = useNavigate();
 
   const [currencyChipOpen, setCurrencyChipOpen] = useState(false);
+  const [languageChipOpen, setLanguageChipOpen] = useState(false);
 
   const handleReplayWelcome = () => {
     window.localStorage.removeItem(WELCOME_OVERLAY_STORAGE_KEY);
@@ -284,6 +342,7 @@ export function ProfilePage() {
 
   const snapshotDay = settings?.snapshot_day ?? 1;
   const currency = settings?.currency ?? "EUR";
+  const language = settings?.language ?? "en";
   const notifySnapshots = settings?.notify_snapshot_reminders ?? false;
   const notifyUpdates = settings?.notify_service_updates ?? false;
   const notifyBlog = settings?.notify_blog_posts ?? false;
@@ -331,6 +390,18 @@ export function ProfilePage() {
             value={currency}
             onSave={(newCurrency) => updateSettings({ currency: newCurrency })}
             onClose={() => setCurrencyChipOpen(false)}
+          />
+        </SettingsChip>
+        <SettingsChip
+          label="Language"
+          displayValue={languageLabels[language] ?? language}
+          open={languageChipOpen}
+          onOpenChange={setLanguageChipOpen}
+        >
+          <LanguageEditor
+            value={language}
+            onSave={(newLanguage) => updateSettings({ language: newLanguage })}
+            onClose={() => setLanguageChipOpen(false)}
           />
         </SettingsChip>
       </div>
