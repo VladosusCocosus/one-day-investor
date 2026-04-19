@@ -1,0 +1,29 @@
+{
+  "blog.label": "Blog",
+  "blog.title1": "Reflexiones sobre el",
+  "blog.title2": "juego a largo plazo.",
+  "blog.titleTagged": "Posts con etiqueta",
+  "blog.description": "Reflexiones sobre inversión, creación de patrimonio y la filosofía de One Day Investor.",
+  "blog.noPostsYet": "Aún no hay publicaciones. Vuelve pronto.",
+  "blog.draft": "Borrador",
+
+  "nav.blog": "Blog",
+  "nav.philosophy": "Filosofía",
+  "nav.signIn": "Iniciar sesión",
+  "nav.dashboard": "Ir al panel",
+
+  "post.allPosts": "← Todos los posts",
+  "post.notFound": "Post no encontrado",
+  "post.notFoundBody": "El post que buscas no existe.",
+  "post.backToBlog": "Volver al blog",
+
+  "signin.title": "Inicia sesión para dar like",
+  "signin.body": "Únete a One Day Investor para guardar tus favoritos y recibir recomendaciones personalizadas.",
+  "signin.button": "Iniciar sesión",
+  "signin.dismiss": "Quizás más tarde",
+
+  "footer.tagline": "Estoy abierto a hablar y discutir sobre todo. Contáctame en cualquier plataforma.",
+  "footer.copyright": "© 2026 One Day Investor",
+
+  "tags.all": "Todos"
+}

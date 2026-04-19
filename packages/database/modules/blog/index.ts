@@ -93,6 +93,18 @@ export async function initBlogSchema(): Promise<void> {
       PRIMARY KEY (post_id, user_id)
     )
   `);
+  await blogPool.query(`
+    CREATE TABLE IF NOT EXISTS post_translations (
+      post_id INTEGER NOT NULL REFERENCES posts(id) ON DELETE CASCADE,
+      lang TEXT NOT NULL,
+      title TEXT NOT NULL,
+      excerpt TEXT DEFAULT '',
+      content JSONB NOT NULL DEFAULT '[]',
+      created_at TIMESTAMPTZ DEFAULT now(),
+      updated_at TIMESTAMPTZ DEFAULT now(),
+      PRIMARY KEY (post_id, lang)
+    )
+  `);
 }
 
 export async function setOgImage(id: number, key: string): Promise<void> {
@@ -232,6 +244,84 @@ export async function updateBlogPost(
 export async function deleteBlogPost(id: number): Promise<boolean> {
   const result = await blogPool.query("DELETE FROM posts WHERE id = $1", [id]);
   return (result.rowCount ?? 0) > 0;
+}
+
+// ── Post translations ──
+
+export type PostTranslation = {
+  post_id: number;
+  lang: string;
+  title: string;
+  excerpt: string;
+  content: Block[];
+};
+
+type PostTranslationRow = Omit<PostTranslation, "content"> & { content: string };
+
+function rowToTranslation(row: PostTranslationRow): PostTranslation {
+  return { ...row, content: JSON.parse(row.content) };
+}
+
+export async function getPostTranslation(
+  postId: number,
+  lang: string
+): Promise<PostTranslation | null> {
+  if (lang === "en") return null; // English is the default in `posts`
+  const result = await blogPool.query<PostTranslationRow>(
+    `SELECT post_id, lang, title, excerpt, content::text
+     FROM post_translations WHERE post_id = $1 AND lang = $2`,
+    [postId, lang]
+  );
+  return result.rows[0] ? rowToTranslation(result.rows[0]) : null;
+}
+
+export async function upsertPostTranslation(
+  postId: number,
+  lang: string,
+  data: { title: string; excerpt: string; content: Block[] }
+): Promise<PostTranslation> {
+  const result = await blogPool.query<PostTranslationRow>(
+    `INSERT INTO post_translations (post_id, lang, title, excerpt, content)
+     VALUES ($1, $2, $3, $4, $5::jsonb)
+     ON CONFLICT (post_id, lang) DO UPDATE
+       SET title = EXCLUDED.title, excerpt = EXCLUDED.excerpt,
+           content = EXCLUDED.content, updated_at = now()
+     RETURNING post_id, lang, title, excerpt, content::text`,
+    [postId, lang, data.title, data.excerpt, JSON.stringify(data.content)]
+  );
+  return rowToTranslation(result.rows[0]);
+}
+
+export async function listPostTranslations(
+  postId: number
+): Promise<PostTranslation[]> {
+  const result = await blogPool.query<PostTranslationRow>(
+    `SELECT post_id, lang, title, excerpt, content::text
+     FROM post_translations WHERE post_id = $1 ORDER BY lang`,
+    [postId]
+  );
+  return result.rows.map(rowToTranslation);
+}
+
+export async function deletePostTranslation(
+  postId: number,
+  lang: string
+): Promise<boolean> {
+  const result = await blogPool.query(
+    "DELETE FROM post_translations WHERE post_id = $1 AND lang = $2",
+    [postId, lang]
+  );
+  return (result.rowCount ?? 0) > 0;
+}
+
+/** Apply translation overlay to a post (returns new object, doesn't mutate) */
+export function applyTranslation(post: BlogPost, translation: PostTranslation): BlogPost {
+  return {
+    ...post,
+    title: translation.title,
+    excerpt: translation.excerpt,
+    content: translation.content,
+  };
 }
 
 export async function getLikeInfo(

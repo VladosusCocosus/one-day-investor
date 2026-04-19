@@ -1,6 +1,7 @@
 import Html from "@kitajs/html";
 import { BlogNav, BlogFooter } from "./components";
 import type { User } from "@types";
+import type { Locale } from "./i18n";
 
 const SITE_URL = process.env.BLOG_URL || "https://blog.odinvestor.net";
 
@@ -14,6 +15,7 @@ export function Layout({
   ogType,
   jsonLd,
   user,
+  locale = "en",
   children,
 }: {
   title: string;
@@ -25,6 +27,7 @@ export function Layout({
   ogType?: string;
   jsonLd?: object;
   user?: User | null;
+  locale?: Locale;
   children: string;
 }) {
   const ogImageUrl = ogImage
@@ -35,7 +38,7 @@ export function Layout({
   const canonicalUrl = canonicalPath ? `${SITE_URL}${canonicalPath}` : null;
 
   return (
-    <html lang="en">
+    <html lang={locale}>
       <head>
         <meta charset="utf-8" />
         <meta name="viewport" content="width=device-width, initial-scale=1" />
@@ -85,9 +88,9 @@ export function Layout({
         class="min-h-screen text-emerald-50"
         style="background: radial-gradient(ellipse 900px 700px at 85% 115%, rgba(16, 185, 129, 0.28) 0%, transparent 55%), radial-gradient(ellipse 1400px 900px at 10% -10%, #0f6d4f 0%, #064e36 38%, #02281c 100%);"
       >
-        <BlogNav user={user} currentPath={canonicalPath} />
+        <BlogNav user={user} currentPath={canonicalPath} locale={locale} />
         <main>{(children)}</main>
-        <BlogFooter />
+        <BlogFooter locale={locale} />
         <script>
           {(`
             (function() {

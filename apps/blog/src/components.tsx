@@ -2,6 +2,7 @@ import Html from "@kitajs/html";
 import { marked } from "marked";
 import type { Block } from "./db";
 import type { User } from "@types";
+import { t, type Locale } from "./i18n";
 
 function escapeHtml(str: string): string {
   return str
@@ -44,10 +45,10 @@ function renderInlineMarkdown(text: string): string {
   return result;
 }
 
-export function BlogNav({ user, currentPath }: { user?: User | null; currentPath?: string }) {
+export function BlogNav({ user, currentPath, locale = "en" }: { user?: User | null; currentPath?: string; locale?: Locale }) {
   const blogUrl = process.env.BLOG_URL || "https://blog.odinvestor.net";
   const redirectParam = currentPath ? `?redirect_to=${encodeURIComponent(blogUrl + currentPath)}` : "";
-  const ctaLabel = user ? "Go to dashboard" : "Sign in";
+  const ctaLabel = user ? t("nav.dashboard", locale) : t("nav.signIn", locale);
   const ctaHref = user
     ? "https://odinvestor.net/dashboard"
     : `https://odinvestor.net/login${redirectParam}`;
@@ -72,13 +73,13 @@ export function BlogNav({ user, currentPath }: { user?: User | null; currentPath
             href="/"
             class="hidden text-sm font-medium text-emerald-200 hover:text-white transition-colors md:inline"
           >
-            Blog
+            {t("nav.blog", locale)}
           </a>
           <a
             href="https://odinvestor.net/philosophy"
             class="hidden text-sm font-medium text-emerald-200 hover:text-white transition-colors md:inline"
           >
-            Philosophy
+            {t("nav.philosophy", locale)}
           </a>
           <a
             href={ctaHref}
@@ -92,7 +93,7 @@ export function BlogNav({ user, currentPath }: { user?: User | null; currentPath
   );
 }
 
-export function BlogFooter() {
+export function BlogFooter({ locale = "en" }: { locale?: Locale } = {}) {
   return (
     <footer class="border-t border-emerald-900/40 px-6 py-10 md:px-8">
       <div class="mx-auto max-w-[1200px]">
@@ -107,7 +108,7 @@ export function BlogFooter() {
             </span>
           </div>
           <p class="max-w-[420px] text-sm leading-relaxed text-emerald-200/70">
-            I'm open to talk and discuss everything. Reach me on any platform you want.
+            {t("footer.tagline", locale)}
           </p>
           <div class="flex items-center gap-5">
             <a
@@ -144,7 +145,7 @@ export function BlogFooter() {
               </svg>
             </a>
           </div>
-          <div class="text-xs text-emerald-300/50">&copy; 2026 One Day Investor</div>
+          <div class="text-xs text-emerald-300/50">{t("footer.copyright", locale)}</div>
         </div>
       </div>
     </footer>
@@ -547,7 +548,7 @@ export function LikeButton({ slug }: { slug: string }) {
   );
 }
 
-export function SignInModal({ currentPath }: { currentPath?: string }) {
+export function SignInModal({ currentPath, locale = "en" }: { currentPath?: string; locale?: Locale }) {
   const blogUrl = process.env.BLOG_URL || "https://blog.odinvestor.net";
   const redirectParam = currentPath ? `?redirect_to=${encodeURIComponent(blogUrl + currentPath)}` : "";
   return (
@@ -562,22 +563,22 @@ export function SignInModal({ currentPath }: { currentPath?: string }) {
       >
         <div class="text-3xl">&#x2764;&#xFE0F;</div>
         <p class="mt-4 text-lg font-semibold text-emerald-50">
-          Sign in to like this post
+          {t("signin.title", locale)}
         </p>
         <p class="mt-2 text-sm leading-relaxed text-emerald-200/80">
-          Join One Day Investor to save your favorites and get personalized insights.
+          {t("signin.body", locale)}
         </p>
         <a
           href={`https://odinvestor.net/login${redirectParam}`}
           class="mt-6 inline-flex h-10 items-center rounded-md bg-emerald-50 px-6 text-sm font-semibold text-emerald-950 shadow-sm transition-colors hover:bg-white"
         >
-          Sign in
+          {t("signin.button", locale)}
         </a>
         <p
           id="signin-dismiss"
           class="mt-3 cursor-pointer text-sm text-emerald-300 transition-colors hover:text-emerald-200"
         >
-          Maybe later
+          {t("signin.dismiss", locale)}
         </p>
       </div>
     </div>
