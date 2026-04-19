@@ -15,12 +15,27 @@ export async function getSettings(userId: string): Promise<UserSettings> {
   return result.rows[0];
 }
 
+export async function createSettings(
+  userId: string,
+  params: { language?: string } = {}
+): Promise<UserSettings> {
+  const result = await pool.query<UserSettings>(
+    `INSERT INTO user_settings (user_id, language)
+     VALUES ($1, COALESCE($2, 'en'))
+     ON CONFLICT (user_id) DO UPDATE SET language = EXCLUDED.language
+     RETURNING *`,
+    [userId, params.language ?? null]
+  );
+  return result.rows[0];
+}
+
 export async function updateSettings(
   userId: string,
   params: {
     snapshot_day?: number;
     goal?: number;
     currency?: string;
+    language?: string;
     notify_snapshot_reminders?: boolean;
     notify_service_updates?: boolean;
     notify_blog_posts?: boolean;
@@ -41,6 +56,10 @@ export async function updateSettings(
   if (params.currency !== undefined) {
     fields.push(`currency = $${idx++}`);
     values.push(params.currency);
+  }
+  if (params.language !== undefined) {
+    fields.push(`language = $${idx++}`);
+    values.push(params.language);
   }
   if (params.notify_snapshot_reminders !== undefined) {
     fields.push(`notify_snapshot_reminders = $${idx++}`);
