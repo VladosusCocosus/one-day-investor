@@ -1,6 +1,7 @@
 import Html from "@kitajs/html";
 import { t, localePath, type Locale } from "../i18n";
 import { LangSwitcher } from "./lang-switcher";
+import { Grid2x2, LogIn } from "lucide-static";
 
 const DASHBOARD_URL = process.env.DASHBOARD_URL || "https://dashboard.odinvestor.net";
 const BLOG_URL = process.env.BLOG_URL || "https://blog.odinvestor.net";
@@ -17,6 +18,7 @@ export function Nav({
   const isLanding = canonicalPath === "/";
   const ctaLabel = isLoggedIn ? t("nav.dashboard", locale) : t("nav.signIn", locale);
   const ctaHref = isLoggedIn ? `${DASHBOARD_URL}/dashboard` : `${DASHBOARD_URL}/login`;
+  const ctaIcon = isLoggedIn ? Grid2x2 : LogIn;
 
   return (
     <header
@@ -62,20 +64,7 @@ export function Nav({
             class="inline-flex h-9 items-center justify-center rounded-md bg-emerald-50 text-sm font-semibold text-emerald-950 shadow-sm hover:bg-white transition-colors px-2.5 md:px-4"
             aria-label={ctaLabel}
           >
-            {isLoggedIn ? (
-              <svg class="h-4 w-4 md:mr-2" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                <rect x="3" y="3" width="7" height="7" rx="1"></rect>
-                <rect x="14" y="3" width="7" height="7" rx="1"></rect>
-                <rect x="3" y="14" width="7" height="7" rx="1"></rect>
-                <rect x="14" y="14" width="7" height="7" rx="1"></rect>
-              </svg>
-            ) : (
-              <svg class="h-4 w-4 md:mr-2" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                <path d="M15 3h4a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-4"></path>
-                <polyline points="10 17 15 12 10 7"></polyline>
-                <line x1="15" y1="12" x2="3" y2="12"></line>
-              </svg>
-            )}
+            <span class="h-4 w-4 md:mr-2 [&>svg]:h-4 [&>svg]:w-4">{ctaIcon as "safe"}</span>
             <span class="hidden md:inline">{ctaLabel}</span>
           </a>
         </nav>

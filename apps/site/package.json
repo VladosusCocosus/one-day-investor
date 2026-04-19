@@ -8,6 +8,8 @@
   "dependencies": {
     "@config": "workspace:*",
     "@database": "workspace:*",
+    "@icons": "workspace:*",
+    "lucide-static": "^0.509.0",
     "@elysiajs/cors": "^1.4.1",
     "@elysiajs/html": "latest",
     "@kitajs/html": "latest",
