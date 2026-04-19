@@ -83,6 +83,7 @@ services:
       S3_SECRET_ACCESS_KEY: ${S3_SECRET_ACCESS_KEY:-minioadmin}
       S3_BUCKET: ${S3_BUCKET:-blog-images}
       S3_PUBLIC_URL: ${S3_PUBLIC_URL}
+      MARKET_URL: http://market:3002
     depends_on:
       db:
         condition: service_healthy
