@@ -1,0 +1,29 @@
+{
+  "blog.label": "Blog",
+  "blog.title1": "Thoughts on the",
+  "blog.title2": "long game.",
+  "blog.titleTagged": "Posts tagged",
+  "blog.description": "Thoughts on investing, wealth-building, and the One Day Investor philosophy.",
+  "blog.noPostsYet": "No posts yet. Check back soon.",
+  "blog.draft": "Draft",
+
+  "nav.blog": "Blog",
+  "nav.philosophy": "Philosophy",
+  "nav.signIn": "Sign in",
+  "nav.dashboard": "Go to dashboard",
+
+  "post.allPosts": "← All posts",
+  "post.notFound": "Post not found",
+  "post.notFoundBody": "The post you're looking for doesn't exist.",
+  "post.backToBlog": "Back to blog",
+
+  "signin.title": "Sign in to like this post",
+  "signin.body": "Join One Day Investor to save your favorites and get personalized insights.",
+  "signin.button": "Sign in",
+  "signin.dismiss": "Maybe later",
+
+  "footer.tagline": "I'm open to talk and discuss everything. Reach me on any platform you want.",
+  "footer.copyright": "© 2026 One Day Investor",
+
+  "tags.all": "All"
+}

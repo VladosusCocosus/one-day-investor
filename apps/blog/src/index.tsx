@@ -21,10 +21,16 @@ import {
   getLikeInfo,
   addLike,
   removeLike,
+  getPostTranslation,
+  upsertPostTranslation,
+  listPostTranslations,
+  deletePostTranslation,
+  applyTranslation,
 } from "./db";
 import type { Block } from "./db";
 import { ListPage } from "./pages/list";
 import { PostPage, NotFoundPage } from "./pages/post";
+import { resolveLocale } from "./i18n";
 
 const log = createLogger("blog");
 const PORT = 3003;
@@ -131,14 +137,29 @@ const app = new Elysia()
   })
 
   // Blog public routes
-  .get("/", async ({ query, cookie }) => {
+  .get("/", async ({ query, cookie, headers }) => {
     const tag = query.tag as string | undefined;
     const [posts, allTags, user] = await Promise.all([
       listPublishedPosts(tag),
       getAllTags(),
       resolveUser(cookie),
     ]);
-    return <ListPage posts={posts} allTags={allTags} activeTag={tag} user={user} />;
+    const locale = await resolveLocale(
+      cookie.session?.value,
+      cookie.lang?.value,
+      headers["accept-language"]
+    );
+
+    // Apply translations to post list items
+    const translatedPosts = await Promise.all(
+      posts.map(async (post) => {
+        if (locale === "en") return post;
+        const tr = await getPostTranslation(post.id, locale);
+        return tr ? applyTranslation(post, tr) : post;
+      })
+    );
+
+    return <ListPage posts={translatedPosts} allTags={allTags} activeTag={tag} user={user} locale={locale} />;
   })
 
   // Admin JSON API
@@ -198,14 +219,56 @@ const app = new Elysia()
     return { key };
   })
 
+  // Admin translation API
+  .get("/api/admin/posts/:id/translations", async ({ params, cookie, set }) => {
+    const user = await resolveUser(cookie);
+    if (!user || user.email !== ADMIN_EMAIL) { set.status = 403; return { error: "Forbidden" }; }
+    return listPostTranslations(Number(params.id));
+  })
+  .put("/api/admin/posts/:id/translations/:lang", async ({ params, body, cookie, set }) => {
+    const user = await resolveUser(cookie);
+    if (!user || user.email !== ADMIN_EMAIL) { set.status = 403; return { error: "Forbidden" }; }
+    const { title, excerpt, content } = body as {
+      title: string; excerpt: string; content: Block[];
+    };
+    return upsertPostTranslation(Number(params.id), params.lang, { title, excerpt, content });
+  })
+  .delete("/api/admin/posts/:id/translations/:lang", async ({ params, cookie, set }) => {
+    const user = await resolveUser(cookie);
+    if (!user || user.email !== ADMIN_EMAIL) { set.status = 403; return { error: "Forbidden" }; }
+    await deletePostTranslation(Number(params.id), params.lang);
+    return { ok: true };
+  })
+
   // Post detail (must be last — catch-all slug route)
-  .get("/:slug", async ({ params, cookie }) => {
+  .get("/:slug", async ({ params, cookie, headers }) => {
     const [post, user] = await Promise.all([
       getPostBySlug(params.slug),
       resolveUser(cookie),
     ]);
-    if (!post || !post.publish_date) return <NotFoundPage user={user} />;
-    return <PostPage post={post} user={user} />;
+    if (!post || !post.publish_date) {
+      const locale = await resolveLocale(
+        cookie.session?.value,
+        cookie.lang?.value,
+        headers["accept-language"]
+      );
+      return <NotFoundPage user={user} locale={locale} />;
+    }
+
+    const locale = await resolveLocale(
+      cookie.session?.value,
+      cookie.lang?.value,
+      headers["accept-language"]
+    );
+
+    // Apply translation if available
+    let displayPost = post;
+    if (locale !== "en") {
+      const tr = await getPostTranslation(post.id, locale);
+      if (tr) displayPost = applyTranslation(post, tr);
+    }
+
+    return <PostPage post={displayPost} user={user} locale={locale} />;
   })
 
   .listen(PORT);

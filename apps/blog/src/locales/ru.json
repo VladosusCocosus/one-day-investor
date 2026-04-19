@@ -1,0 +1,29 @@
+{
+  "blog.label": "Блог",
+  "blog.title1": "Мысли о",
+  "blog.title2": "долгосрочной игре.",
+  "blog.titleTagged": "Посты с тегом",
+  "blog.description": "Мысли об инвестициях, накоплении капитала и философии One Day Investor.",
+  "blog.noPostsYet": "Пока нет постов. Загляните позже.",
+  "blog.draft": "Черновик",
+
+  "nav.blog": "Блог",
+  "nav.philosophy": "Философия",
+  "nav.signIn": "Войти",
+  "nav.dashboard": "В панель управления",
+
+  "post.allPosts": "← Все посты",
+  "post.notFound": "Пост не найден",
+  "post.notFoundBody": "Пост, который вы ищете, не существует.",
+  "post.backToBlog": "Вернуться в блог",
+
+  "signin.title": "Войдите, чтобы поставить лайк",
+  "signin.body": "Присоединяйтесь к One Day Investor, чтобы сохранять избранное и получать персональные рекомендации.",
+  "signin.button": "Войти",
+  "signin.dismiss": "Может быть позже",
+
+  "footer.tagline": "Я открыт к общению и обсуждению. Свяжитесь со мной на любой платформе.",
+  "footer.copyright": "© 2026 One Day Investor",
+
+  "tags.all": "Все"
+}

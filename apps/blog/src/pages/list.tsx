@@ -3,15 +3,17 @@ import type { BlogPost } from "../db";
 import type { User } from "@types";
 import { TagPill } from "../components";
 import { Layout } from "../layout";
+import { t, type Locale } from "../i18n";
 
-function PostCard({ post }: { post: BlogPost }) {
+function PostCard({ post, locale }: { post: BlogPost; locale: Locale }) {
+  const dateLocales: Record<Locale, string> = { en: "en-US", ru: "ru-RU", es: "es-ES" };
   const date = post.publish_date
-    ? new Date(post.publish_date).toLocaleDateString("en-US", {
+    ? new Date(post.publish_date).toLocaleDateString(dateLocales[locale], {
         year: "numeric",
         month: "long",
         day: "numeric",
       })
-    : "Draft";
+    : t("blog.draft", locale);
 
   return (
     <a
@@ -45,18 +47,21 @@ export function ListPage({
   allTags,
   activeTag,
   user,
+  locale = "en",
 }: {
   posts: BlogPost[];
   allTags: string[];
   activeTag?: string;
   user?: User | null;
+  locale?: Locale;
 }) {
   return (
     <Layout
-      title={activeTag ? `#${activeTag}` : "Blog"}
-      description="Thoughts on investing, wealth-building, and the One Day Investor philosophy."
+      title={activeTag ? `#${activeTag}` : t("blog.label", locale)}
+      description={t("blog.description", locale)}
       canonicalPath={activeTag ? `/?tag=${encodeURIComponent(activeTag)}` : "/"}
       user={user}
+      locale={locale}
     >
       {/* Hero */}
       <section class="px-6 pt-16 pb-12 md:px-8 md:pt-24 md:pb-16">
@@ -66,21 +71,21 @@ export function ListPage({
               class="h-2 w-2 rounded-[2px]"
               style="background: linear-gradient(135deg, #6ee7b7, #10b981)"
             ></span>
-            Blog
+            {t("blog.label", locale)}
           </p>
           <h1 class="mt-6 text-4xl font-bold leading-[1.05] tracking-tight text-emerald-50 sm:text-5xl md:text-6xl">
             {activeTag ? (
               <>
-                Posts tagged{" "}
+                {t("blog.titleTagged", locale)}{" "}
                 <span class="bg-gradient-to-r from-emerald-50 via-emerald-200 to-emerald-300 bg-clip-text text-transparent">
                   #{activeTag}
                 </span>
               </>
             ) : (
               <>
-                Thoughts on the{" "}
+                {t("blog.title1", locale)}{" "}
                 <span class="bg-gradient-to-r from-emerald-50 via-emerald-200 to-emerald-300 bg-clip-text text-transparent">
-                  long game.
+                  {t("blog.title2", locale)}
                 </span>
               </>
             )}
@@ -92,7 +97,7 @@ export function ListPage({
       {allTags.length > 0 && (
         <section class="px-6 pb-12 md:px-8">
           <div class="mx-auto flex max-w-[960px] flex-wrap justify-center gap-2">
-            <TagPill tag="All" active={!activeTag} href="/" />
+            <TagPill tag={t("tags.all", locale)} active={!activeTag} href="/" />
             {allTags.map((tag) => (
               <TagPill
                 tag={tag}
@@ -109,12 +114,12 @@ export function ListPage({
         <div class="mx-auto max-w-[960px]">
           {posts.length === 0 ? (
             <p class="text-center text-lg text-emerald-200/60">
-              No posts yet. Check back soon.
+              {t("blog.noPostsYet", locale)}
             </p>
           ) : (
             <div class="space-y-6">
               {posts.map((post) => (
-                <PostCard post={post} />
+                <PostCard post={post} locale={locale} />
               ))}
             </div>
           )}

@@ -1,6 +1,7 @@
 export {
   type Block,
   type BlogPost,
+  type PostTranslation,
   initBlogSchema,
   migrateBlogPostsFromJson,
   listLatestPosts,
@@ -16,4 +17,9 @@ export {
   getLikeInfo,
   addLike,
   removeLike,
+  getPostTranslation,
+  upsertPostTranslation,
+  listPostTranslations,
+  deletePostTranslation,
+  applyTranslation,
 } from "@database";

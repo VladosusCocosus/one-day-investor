@@ -3,15 +3,17 @@ import type { BlogPost } from "../db";
 import type { User } from "@types";
 import { renderBlock, TagPill, LikeButton, SignInModal } from "../components";
 import { Layout } from "../layout";
+import { t, type Locale } from "../i18n";
 
-export function PostPage({ post, user }: { post: BlogPost; user?: User | null }) {
+export function PostPage({ post, user, locale = "en" }: { post: BlogPost; user?: User | null; locale?: Locale }) {
+  const dateLocales: Record<Locale, string> = { en: "en-US", ru: "ru-RU", es: "es-ES" };
   const date = post.publish_date
-    ? new Date(post.publish_date).toLocaleDateString("en-US", {
+    ? new Date(post.publish_date).toLocaleDateString(dateLocales[locale], {
         year: "numeric",
         month: "long",
         day: "numeric",
       })
-    : "Draft";
+    : t("blog.draft", locale);
 
   const jsonLd = {
     "@context": "https://schema.org",
@@ -20,6 +22,7 @@ export function PostPage({ post, user }: { post: BlogPost; user?: User | null })
     description: post.excerpt || undefined,
     datePublished: post.publish_date || undefined,
     dateModified: post.updated_at || undefined,
+    inLanguage: locale,
     author: {
       "@type": "Organization",
       name: "One Day Investor",
@@ -49,6 +52,7 @@ export function PostPage({ post, user }: { post: BlogPost; user?: User | null })
       ogType="article"
       jsonLd={jsonLd}
       user={user}
+      locale={locale}
     >
       {/* Post metadata */}
       <div class="px-6 pt-8 md:px-8">
@@ -57,7 +61,7 @@ export function PostPage({ post, user }: { post: BlogPost; user?: User | null })
             href="/"
             class="inline-flex items-center gap-1.5 text-sm text-emerald-300 hover:text-emerald-200 transition-colors"
           >
-            &larr; All posts
+            {t("post.allPosts", locale)}
           </a>
           <p class="mt-4 text-xs font-medium text-emerald-400/80">{date}</p>
           {post.tags.length > 0 && (
@@ -80,7 +84,7 @@ export function PostPage({ post, user }: { post: BlogPost; user?: User | null })
       <LikeButton slug={post.slug} />
 
       {/* Sign-in modal (hidden by default) */}
-      <SignInModal currentPath={`/${post.slug}`} />
+      <SignInModal currentPath={`/${post.slug}`} locale={locale} />
 
       {/* Client-side like interactivity */}
       <script>
@@ -341,19 +345,19 @@ export function PostPage({ post, user }: { post: BlogPost; user?: User | null })
   );
 }
 
-export function NotFoundPage({ user }: { user?: User | null }) {
+export function NotFoundPage({ user, locale = "en" }: { user?: User | null; locale?: Locale }) {
   return (
-    <Layout title="Not Found" user={user}>
+    <Layout title={t("post.notFound", locale)} user={user} locale={locale}>
       <section class="px-6 py-32 text-center md:px-8">
-        <h1 class="text-4xl font-bold text-emerald-50">Post not found</h1>
+        <h1 class="text-4xl font-bold text-emerald-50">{t("post.notFound", locale)}</h1>
         <p class="mt-4 text-lg text-emerald-200/80">
-          The post you're looking for doesn't exist.
+          {t("post.notFoundBody", locale)}
         </p>
         <a
           href="/"
           class="mt-8 inline-flex h-10 items-center rounded-md bg-emerald-50 px-5 text-sm font-semibold text-emerald-950 hover:bg-white transition-colors"
         >
-          Back to blog
+          {t("post.backToBlog", locale)}
         </a>
       </section>
     </Layout>
