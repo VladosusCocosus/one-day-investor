@@ -1,7 +1,6 @@
 import { Elysia } from "elysia";
 import { fetchPrices, type AssetType } from "@market";
 import { cacheGet, cacheSet } from "@redis";
-import { resolveUser } from "../auth/session";
 import { createLogger } from "@logger";
 
 const log = createLogger("market-api");
@@ -9,15 +8,7 @@ const log = createLogger("market-api");
 const PRICE_CACHE_TTL = 180; // 3 minutes
 
 export const marketApi = new Elysia({ prefix: "/api/market" })
-  .derive(async ({ cookie }) => {
-    const user = await resolveUser(cookie as Record<string, { value: string }>);
-    return { user };
-  })
-  .post("/prices", async ({ user, set, body }) => {
-    if (!user) {
-      set.status = 401;
-      return { error: "Unauthorized" };
-    }
+  .post("/prices", async ({ set, body }) => {
     const { assets, currency } = body as {
       assets: { api_id: string; symbol?: string; asset_type: AssetType }[];
       currency: string;
