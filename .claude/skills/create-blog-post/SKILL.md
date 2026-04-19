@@ -70,20 +70,36 @@ The core philosophy: **your savings rate and salary growth are the primary drive
 
 ## Output Files
 
-Save to `docs/brainstorm/blog-post-{slug}.json` and `docs/brainstorm/blog-post-{slug}.sql`.
-
-### SQL Format
-
-```sql
-INSERT INTO posts (slug, title, excerpt, tags, content, publish_date)
-VALUES (
-  '{slug}',
-  '{title}',
-  '{excerpt — 120-160 chars for SEO}',
-  '["tag1", "tag2"]'::jsonb,
-  '{content JSON with single quotes escaped as two single quotes}'::jsonb,
-  '{YYYY-MM-DD}'
-);
+Save to `apps/blog/content/posts/[name]`.
+In this format 
+```json
+{
+  "slug": "invest-one-day",
+  "title": "Invest one day a month. Ignore the other thirty.",
+  "excerpt": "A letter from the person building One Day Investor — why we believe in monthly check-ins over daily anxiety.",
+  "tags": ["philosophy", "investing"],
+  "publish_date": "2026-04-01",
+  "content": [
+    {
+      "type": "hero",
+      "label": "Philosophy",
+      "title": "Invest one day a month.<br/><span style=\"background: linear-gradient(to right, #ecfdf5, #a7f3d0, #6ee7b7); -webkit-background-clip: text; -webkit-text-fill-color: transparent;\">Ignore the other thirty.</span>",
+      "subtitle": "A letter from the person building One Day Investor."
+    },
+    {
+      "type": "prose",
+      "label": "The ritual",
+      "heading": "Why a month, not a day.",
+      "paragraphs": [
+        "I don't want to check the markets every day. I don't think you should either.",
+        "Most financial apps are built on an assumption I don't share: that more frequent data is more useful data. So they give you notifications, intraday charts, red and green arrows, a little dopamine hit every time your portfolio moves. The implicit message is: <em class=\"text-emerald-50 not-italic\">pay attention, you might miss something.</em>",
+        "One Day Investor is built on the opposite assumption. You almost certainly won't miss anything. The things that actually matter to your long-term wealth — jobs, savings rate, whether you kept investing through the scary months — move at the speed of months and years, not minutes.",
+        "So the ritual is this: <strong class=\"font-semibold text-emerald-50\">one day a month, you open the app and write down where your money is.</strong> That's it. The other thirty days, you live your life."
+      ]
+    },
+    ...
+  ]
+}
 ```
 
 **Critical:** Escape all single quotes in the JSON content as `''` for PostgreSQL.
