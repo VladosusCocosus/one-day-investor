@@ -61,6 +61,25 @@ const ADMIN_EMAIL = process.env.BLOG_ADMIN_EMAIL || "razin36986@gmail.com";
 const cssPath = new URL("./styles/output.css", import.meta.url).pathname;
 const cssFile = Bun.file(cssPath);
 
+/** Set Cloudflare-aware cache headers on a response */
+function setCacheHeaders(
+  set: { headers: Record<string, string> },
+  user: User | null,
+  opts: { edgeTtl?: number; browserTtl?: number; tag?: string } = {}
+) {
+  const { edgeTtl = 3600, browserTtl = 60, tag } = opts;
+  if (user) {
+    // Logged-in: personalized nav, bypass CDN
+    set.headers["cache-control"] = "private, no-cache";
+  } else {
+    // Anonymous: cache at edge, short browser cache
+    set.headers["cache-control"] = `public, max-age=${browserTtl}, s-maxage=${edgeTtl}`;
+    set.headers["cdn-cache-control"] = `public, max-age=${edgeTtl}`;
+  }
+  set.headers["vary"] = "Accept-Language, Cookie";
+  if (tag) set.headers["cache-tag"] = tag;
+}
+
 const app = new Elysia()
   .use(html())
   .use(cors({ origin: FRONTEND_URL, methods: ["GET", "POST", "PUT", "DELETE"], credentials: true }))
@@ -74,7 +93,10 @@ const app = new Elysia()
     });
   })
 
-  .get("/api/latest", async () => {
+  .get("/api/latest", async ({ set }) => {
+    set.headers["cache-control"] = "public, max-age=60, s-maxage=3600";
+    set.headers["cdn-cache-control"] = "public, max-age=3600";
+    set.headers["cache-tag"] = "blog-list";
     const posts = await listLatestPosts(3);
     return posts.map((p) => ({
       slug: p.slug,
@@ -117,7 +139,7 @@ const app = new Elysia()
   .get("/robots.txt", () => {
     return new Response(
       `User-agent: *\nAllow: /\n\nSitemap: ${SITE_URL}/sitemap.xml`,
-      { headers: { "Content-Type": "text/plain" } }
+      { headers: { "Content-Type": "text/plain", "Cache-Control": "public, max-age=86400, s-maxage=86400" } }
     );
   })
 
@@ -132,12 +154,12 @@ const app = new Elysia()
     ];
     const xml = `<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n${urls.join("\n")}\n</urlset>`;
     return new Response(xml, {
-      headers: { "Content-Type": "application/xml" },
+      headers: { "Content-Type": "application/xml", "Cache-Control": "public, max-age=3600, s-maxage=3600" },
     });
   })
 
   // Blog public routes
-  .get("/", async ({ query, cookie, headers }) => {
+  .get("/", async ({ query, cookie, headers, set }) => {
     const tag = query.tag as string | undefined;
     const [posts, allTags, user] = await Promise.all([
       listPublishedPosts(tag),
@@ -149,6 +171,8 @@ const app = new Elysia()
       cookie.lang?.value,
       headers["accept-language"]
     );
+
+    setCacheHeaders(set, user, { edgeTtl: 3600, browserTtl: 60, tag: "blog-list" });
 
     // Apply translations to post list items
     const translatedPosts = await Promise.all(
@@ -241,7 +265,7 @@ const app = new Elysia()
   })
 
   // Post detail (must be last — catch-all slug route)
-  .get("/:slug", async ({ params, cookie, headers }) => {
+  .get("/:slug", async ({ params, cookie, headers, set }) => {
     const [post, user] = await Promise.all([
       getPostBySlug(params.slug),
       resolveUser(cookie),
@@ -252,6 +276,7 @@ const app = new Elysia()
         cookie.lang?.value,
         headers["accept-language"]
       );
+      set.headers["cache-control"] = "public, max-age=60, s-maxage=300";
       return <NotFoundPage user={user} locale={locale} />;
     }
 
@@ -260,6 +285,8 @@ const app = new Elysia()
       cookie.lang?.value,
       headers["accept-language"]
     );
+
+    setCacheHeaders(set, user, { edgeTtl: 86400, browserTtl: 120, tag: `post-${post.slug}` });
 
     // Apply translation if available
     let displayPost = post;
