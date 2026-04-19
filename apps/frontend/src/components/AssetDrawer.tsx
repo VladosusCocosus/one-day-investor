@@ -11,7 +11,8 @@ import {
   SheetDescription,
 } from "@/components/ui/sheet";
 import { useAssetCatalog } from "@/hooks/useAssetCatalog";
-import { usePocketAssets, type PocketAsset } from "@/hooks/usePocketAssets";
+import { usePocketAssets } from "@/hooks/usePocketAssets";
+import type { PocketAssetWithPrice as PocketAsset } from "@/hooks/useAssets";
 import { getPocketLabels, type Service } from "@/hooks/useServices";
 import type { AssetCatalog, AssetType } from "@/hooks/useAssetCatalog";
 import { cn } from "@/lib/utils";

@@ -1,6 +1,6 @@
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { marketApi } from "@/lib/market-api";
-import type { AssetType } from "./useAssetCatalog";
+import type { AssetType } from "./useAssets";
 
 export interface PocketAsset {
   id: string;
@@ -28,6 +28,7 @@ export function usePocketAssets(serviceId: string | undefined) {
 
   const invalidateAll = () => {
     queryClient.invalidateQueries({ queryKey: ["pocket-assets"] });
+    queryClient.invalidateQueries({ queryKey: ["assets"] });
   };
 
   const addMutation = useMutation({
