@@ -146,6 +146,12 @@ const config = convict({
       sensitive: true,
     },
   },
+  marketUrl: {
+    doc: "Market service URL for price fetching",
+    format: String,
+    default: "http://localhost:3002",
+    env: "MARKET_URL",
+  },
   admin: {
     email: {
       doc: "Admin user email for accessing admin features",
