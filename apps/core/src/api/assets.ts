@@ -4,6 +4,7 @@ import {
   findServicesByUserId,
   findPocketAssetsByServiceIds,
   findExchangeCredentialsByUserId,
+  getSettings,
 } from "@database";
 import { enrichAssetsWithPrices } from "@assets";
 import { getAdapter, decrypt } from "@exchange";
@@ -59,8 +60,9 @@ export const assetsApi = new Elysia({ prefix: "/api/assets" })
     const leafIds = getLeafServiceIds(services);
     const assets = await findPocketAssetsByServiceIds(leafIds);
 
-    // 3. Enrich with cached market prices
-    const currency = "USD"; // prices always in USD, frontend converts via settings
+    // 3. Enrich with cached market prices in user's preferred currency
+    const settings = await getSettings(user.id);
+    const currency = settings.currency ?? "EUR";
     const assetsWithPrices = await enrichAssetsWithPrices(assets, MARKET_URL, currency);
 
     return { services, assets: assetsWithPrices, currency };
