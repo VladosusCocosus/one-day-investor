@@ -56,10 +56,16 @@ const config = convict({
     },
   },
   frontendUrl: {
-    doc: "Frontend URL for redirects and CORS",
+    doc: "Frontend/dashboard URL for redirects and CORS",
     format: String,
     default: "http://localhost:5173",
     env: "FRONTEND_URL",
+  },
+  siteUrl: {
+    doc: "Public site URL for CORS",
+    format: String,
+    default: "http://localhost:3005",
+    env: "SITE_URL",
   },
   session: {
     maxAge: {

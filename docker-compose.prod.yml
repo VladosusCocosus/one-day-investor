@@ -69,6 +69,7 @@ services:
       GOOGLE_CLIENT_SECRET: ${GOOGLE_CLIENT_SECRET}
       GOOGLE_REDIRECT_URI: ${GOOGLE_REDIRECT_URI}
       FRONTEND_URL: ${FRONTEND_URL}
+      SITE_URL: ${SITE_URL:-https://odinvestor.net}
       SESSION_MAX_AGE: ${SESSION_MAX_AGE:-2592000}
       DATABASE_URL: postgres://${POSTGRES_USER}:${POSTGRES_PASSWORD}@db:5432/${POSTGRES_DB}
       REDIS_URL: redis://redis:6379
@@ -108,6 +109,7 @@ services:
       POSTGRES_USER: ${POSTGRES_USER}
       POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
       FRONTEND_URL: ${FRONTEND_URL}
+      SITE_URL: ${SITE_URL:-https://odinvestor.net}
     depends_on:
       db:
         condition: service_healthy
@@ -128,6 +130,7 @@ services:
       POSTGRES_USER: ${POSTGRES_USER}
       POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
       FRONTEND_URL: ${FRONTEND_URL}
+      SITE_URL: ${SITE_URL:-https://odinvestor.net}
       REDIS_URL: redis://redis:6379
     depends_on:
       db:
