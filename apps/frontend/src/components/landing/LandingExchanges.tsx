@@ -1,11 +1,13 @@
-import type { SVGProps } from "react";
+import type { FC, SVGProps } from "react";
+
+type IconProps = SVGProps<SVGSVGElement>;
 
 type Exchange = {
   name: string;
-  Icon: (props: SVGProps<SVGSVGElement>) => JSX.Element;
+  Icon: FC<IconProps>;
 };
 
-function BinanceIcon(props: SVGProps<SVGSVGElement>) {
+function BinanceIcon(props: IconProps) {
   return (
     <svg viewBox="0 0 24 24" aria-hidden="true" {...props}>
       <rect width="24" height="24" rx="5" fill="#0B0E11" />
@@ -17,7 +19,7 @@ function BinanceIcon(props: SVGProps<SVGSVGElement>) {
   );
 }
 
-function BybitIcon(props: SVGProps<SVGSVGElement>) {
+function BybitIcon(props: IconProps) {
   return (
     <svg viewBox="0 0 24 24" aria-hidden="true" {...props}>
       <rect width="24" height="24" rx="5" fill="#17181F" />
@@ -29,7 +31,7 @@ function BybitIcon(props: SVGProps<SVGSVGElement>) {
   );
 }
 
-function KrakenIcon(props: SVGProps<SVGSVGElement>) {
+function KrakenIcon(props: IconProps) {
   return (
     <svg viewBox="0 0 24 24" aria-hidden="true" {...props}>
       <rect width="24" height="24" rx="5" fill="#5741D9" />
@@ -46,7 +48,7 @@ function KrakenIcon(props: SVGProps<SVGSVGElement>) {
   );
 }
 
-function CoinbaseIcon(props: SVGProps<SVGSVGElement>) {
+function CoinbaseIcon(props: IconProps) {
   return (
     <svg viewBox="0 0 24 24" aria-hidden="true" {...props}>
       <circle cx="12" cy="12" r="12" fill="#0052FF" />
@@ -55,7 +57,7 @@ function CoinbaseIcon(props: SVGProps<SVGSVGElement>) {
   );
 }
 
-function OkxIcon(props: SVGProps<SVGSVGElement>) {
+function OkxIcon(props: IconProps) {
   return (
     <svg viewBox="0 0 24 24" aria-hidden="true" {...props}>
       <rect width="24" height="24" rx="5" fill="#fff" />
@@ -68,7 +70,7 @@ function OkxIcon(props: SVGProps<SVGSVGElement>) {
   );
 }
 
-function KucoinIcon(props: SVGProps<SVGSVGElement>) {
+function KucoinIcon(props: IconProps) {
   return (
     <svg viewBox="0 0 24 24" aria-hidden="true" {...props}>
       <rect width="24" height="24" rx="5" fill="#01121A" />
@@ -80,7 +82,7 @@ function KucoinIcon(props: SVGProps<SVGSVGElement>) {
   );
 }
 
-function BitfinexIcon(props: SVGProps<SVGSVGElement>) {
+function BitfinexIcon(props: IconProps) {
   return (
     <svg viewBox="0 0 24 24" aria-hidden="true" {...props}>
       <rect width="24" height="24" rx="5" fill="#0F2C2C" />
@@ -92,7 +94,7 @@ function BitfinexIcon(props: SVGProps<SVGSVGElement>) {
   );
 }
 
-function CryptoComIcon(props: SVGProps<SVGSVGElement>) {
+function CryptoComIcon(props: IconProps) {
   return (
     <svg viewBox="0 0 24 24" aria-hidden="true" {...props}>
       <rect width="24" height="24" rx="5" fill="#002D74" />
