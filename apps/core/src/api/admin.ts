@@ -7,6 +7,25 @@ import { renderServiceUpdateEmail } from "../template/service-update";
 import { renderBlogPostEmail } from "../template/blog-post";
 import config from "@config";
 
+/** Extract up to 3 section teasers from post blocks for the email template. */
+function extractSections(blocks?: any[]): { heading: string; snippet: string }[] {
+  if (!blocks) return [];
+  return blocks
+    .filter((b: any) => b.type === "markdown" && b.heading && b.body)
+    .slice(0, 3)
+    .map((b: any) => {
+      // Take first paragraph of the markdown body as snippet
+      const firstPara = b.body.split("\n\n")[0]
+        .replace(/\[([^\]]+)\]\([^)]+\)/g, "$1") // strip links
+        .replace(/\*\*(.+?)\*\*/g, "$1")          // strip bold
+        .replace(/\*(.+?)\*/g, "$1");              // strip italic
+      return {
+        heading: b.heading,
+        snippet: firstPara.length > 160 ? firstPara.slice(0, 157) + "..." : firstPara,
+      };
+    });
+}
+
 function isAdmin(email: string): boolean {
   const adminEmail = config.get("admin.email");
   return adminEmail !== "" && email === adminEmail;
@@ -85,19 +104,22 @@ export const adminApi = new Elysia({ prefix: "/api/admin" })
     return { sent, failed, total: rows.length };
   })
   .post("/blog-post/preview", async ({ body }) => {
-    const { title, excerpt, slug } = body as { title: string; excerpt: string; slug: string };
+    const { title, excerpt, slug, blocks } = body as { title: string; excerpt: string; slug: string; blocks?: any[] };
     const blogUrl = process.env.VITE_BLOG_URL || process.env.BLOG_URL || "https://blog.odinvestor.net";
+    const sections = extractSections(blocks);
     const html = renderBlogPostEmail({
       title,
       excerpt,
+      sections,
       postUrl: `${blogUrl}/${slug}`,
       unsubscribeUrl: "#",
     });
     return { html };
   })
   .post("/blog-post/send", async ({ body }) => {
-    const { title, excerpt, slug } = body as { title: string; excerpt: string; slug: string };
+    const { title, excerpt, slug, blocks } = body as { title: string; excerpt: string; slug: string; blocks?: any[] };
     const blogUrl = process.env.VITE_BLOG_URL || process.env.BLOG_URL || "https://blog.odinvestor.net";
+    const sections = extractSections(blocks);
 
     const { rows } = await pool.query<{ user_id: string; email: string; name: string | null }>(
       `SELECT us.user_id, u.email, u.name
@@ -117,6 +139,7 @@ export const adminApi = new Elysia({ prefix: "/api/admin" })
         const html = renderBlogPostEmail({
           title,
           excerpt,
+          sections,
           postUrl: `${blogUrl}/${slug}`,
           unsubscribeUrl,
         });

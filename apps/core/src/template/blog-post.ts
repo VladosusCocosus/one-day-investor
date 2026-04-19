@@ -10,9 +10,24 @@ function escapeHtml(s: string): string {
 export function renderBlogPostEmail(data: {
   title: string;
   excerpt: string;
+  sections?: { heading: string; snippet: string }[];
   postUrl: string;
   unsubscribeUrl: string;
 }): string {
+  const sectionsHtml = (data.sections ?? [])
+    .map(
+      (s) => `
+      <tr><td style="padding:0 32px 24px;">
+        <h2 style="margin:0 0 6px;font-size:16px;font-weight:700;color:#059669;line-height:1.3;">
+          ${escapeHtml(s.heading)}
+        </h2>
+        <p style="margin:0;font-size:14px;line-height:1.65;color:#475569;">
+          ${escapeHtml(s.snippet)}
+        </p>
+      </td></tr>`
+    )
+    .join("");
+
   return `<!doctype html>
 <html>
   <body style="margin:0;padding:20px;background:#f1f5f9;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;color:#0f172a;">
@@ -27,13 +42,18 @@ export function renderBlogPostEmail(data: {
         </h1>
       </td></tr>
 
-      <tr><td style="padding:32px;">
-        <p style="margin:0 0 24px;font-size:15px;line-height:1.7;color:#334155;">
+      <tr><td style="padding:32px 32px 16px;">
+        <p style="margin:0;font-size:15px;line-height:1.7;color:#334155;">
           ${escapeHtml(data.excerpt)}
         </p>
+      </td></tr>
+
+      ${sectionsHtml ? `<tr><td style="padding:0 32px 8px;"><hr style="border:none;border-top:1px solid #e2e8f0;margin:0;"></td></tr>${sectionsHtml}` : ""}
+
+      <tr><td style="padding:16px 32px 32px;">
         <a href="${escapeHtml(data.postUrl)}"
            style="display:inline-block;background:linear-gradient(135deg,#059669,#10b981);color:#ffffff;padding:12px 24px;border-radius:10px;font-size:15px;font-weight:700;text-decoration:none;box-shadow:0 6px 16px rgba(16,185,129,0.3);">
-          Read the post &rarr;
+          Read the full post &rarr;
         </a>
       </td></tr>
 
