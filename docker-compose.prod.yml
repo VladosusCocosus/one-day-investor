@@ -206,6 +206,29 @@ services:
     networks:
       - internal
 
+  site:
+    build:
+      context: .
+      dockerfile: Dockerfile.site
+    restart: unless-stopped
+    ports:
+      - "127.0.0.1:3005:3005"
+    environment:
+      POSTGRES_HOST: db
+      POSTGRES_PORT: 5432
+      POSTGRES_DB: ${POSTGRES_DB}
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+      SITE_URL: ${SITE_URL:-https://odinvestor.net}
+      DASHBOARD_URL: ${DASHBOARD_URL:-https://dashboard.odinvestor.net}
+      BLOG_URL: ${BLOG_URL:-https://blog.odinvestor.net}
+      FRONTEND_URL: ${FRONTEND_URL:-https://dashboard.odinvestor.net}
+    depends_on:
+      db:
+        condition: service_healthy
+    networks:
+      - internal
+
   frontend:
     build:
       context: .
