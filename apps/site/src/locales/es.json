@@ -3,6 +3,10 @@
   "site.description": "Una forma tranquila y visual de ver crecer tu patrimonio.",
   "site.ogImageAlt": "One Day Investor — Una forma tranquila y visual de ver crecer tu patrimonio.",
 
+  "notFound.title": "Página no encontrada",
+  "notFound.description": "La página que buscas no existe o ha sido movida.",
+  "notFound.cta": "Ir a la página principal",
+
   "nav.features": "Funciones",
   "nav.philosophy": "Filosofía",
   "nav.blog": "Blog",
