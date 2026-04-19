@@ -49,6 +49,7 @@ export interface UserSettings {
   snapshot_day: number;
   goal: string; // numeric comes back as string from pg
   currency: string;
+  language: string;
   notify_snapshot_reminders: boolean;
   notify_service_updates: boolean;
   notify_blog_posts: boolean;

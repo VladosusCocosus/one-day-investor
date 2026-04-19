@@ -8,8 +8,11 @@ import {
   findUserByEmail,
   createUser,
   createSession,
+  createSettings,
+  getSettings,
 } from "@database";
 import { sendWelcomeEmail } from "../emails/welcome";
+import { parseAcceptLanguage } from "./language";
 
 const log = createLogger("auth");
 
@@ -45,7 +48,7 @@ export const googleAuth = new Elysia({ prefix: "/auth" })
     log.info("OAuth flow initiated, redirecting to Google");
     return redirect(url.toString());
   })
-  .get("/google/callback", async ({ query, cookie, redirect, set }) => {
+  .get("/google/callback", async ({ query, cookie, redirect, set, request }) => {
     const { code, state } = query;
     const storedState = cookie.oauth_state.value;
     const codeVerifier = cookie.code_verifier.value as string;
@@ -102,8 +105,10 @@ export const googleAuth = new Elysia({ prefix: "/auth" })
             name: googleUser.name,
             avatar_url: googleUser.picture,
           });
+          const language = parseAcceptLanguage(request.headers.get("accept-language"));
+          await createSettings(user.id, { language });
           isNewUser = true;
-          log.info({ userId: user.id, email: user.email }, "New user created");
+          log.info({ userId: user.id, email: user.email, language }, "New user created");
         }
         await createOAuthAccount({
           user_id: user.id,
@@ -137,7 +142,20 @@ export const googleAuth = new Elysia({ prefix: "/auth" })
         domain: isProduction ? ".odinvestor.net" : undefined,
       });
 
-      log.info({ userId }, "Session created, redirecting to frontend");
+      // Mirror the user's language preference into a cookie so the frontend
+      // can render in the right language before any API call is made.
+      const settings = await getSettings(userId);
+      cookie.lang.set({
+        value: settings.language,
+        httpOnly: false,
+        sameSite: "lax",
+        secure: isProduction,
+        path: "/",
+        maxAge: sessionMaxAge,
+        domain: isProduction ? ".odinvestor.net" : undefined,
+      });
+
+      log.info({ userId, language: settings.language }, "Session created, redirecting to frontend");
       return redirect(config.get("frontendUrl"));
     } catch (err) {
       log.error({ err }, "OAuth callback failed");
