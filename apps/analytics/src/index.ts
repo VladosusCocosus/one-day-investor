@@ -8,7 +8,7 @@ const log = createLogger("analytics");
 
 const app = new Elysia()
   .use(cors({
-    origin: config.get("frontendUrl"),
+    origin: config.get("frontendUrl").split(','),
     credentials: true,
   }))
   .onError(({ error, code, path }) => {
