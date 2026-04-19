@@ -157,7 +157,6 @@ export function SnapshotsPage() {
         onOpenChange={setDrawerOpen}
         mode={drawerMode}
         tree={tree}
-        currency={currency}
         currencySymbol={currencySymbol}
         onCreated={(id) => {
           setSelectedId(id);
