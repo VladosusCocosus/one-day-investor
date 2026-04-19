@@ -7,6 +7,7 @@ import type { User } from "@types";
 import { resolveLocale, isLocale, type Locale } from "./i18n";
 import { LandingPage } from "./pages/landing";
 import { PhilosophyPage } from "./pages/philosophy";
+import { NotFoundPage } from "./pages/not-found";
 
 const log = createLogger("site");
 const PORT = 3005;
@@ -127,6 +128,14 @@ const app = new Elysia()
   .get("/es/philosophy", async ({ cookie }) => {
     const user = await resolveUser(cookie);
     return PhilosophyPage({ locale: "es", isLoggedIn: !!user });
+  })
+
+  // 404 catch-all
+  .all("/*", async ({ cookie, path, set }) => {
+    const match = path.match(/^\/(ru|es)\//);
+    const locale: Locale = match ? (match[1] as Locale) : "en";
+    set.status = 404;
+    return NotFoundPage({ locale });
   })
 
   .listen(PORT);
