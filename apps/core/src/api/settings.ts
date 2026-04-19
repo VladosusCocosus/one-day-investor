@@ -23,6 +23,7 @@ export const settingsApi = new Elysia({ prefix: "/api/settings" })
       snapshot_day?: number;
       goal?: number;
       currency?: string;
+      language?: string;
       notify_snapshot_reminders?: boolean;
       notify_service_updates?: boolean;
       notify_blog_posts?: boolean;
