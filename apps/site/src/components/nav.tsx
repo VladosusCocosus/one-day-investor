@@ -63,14 +63,14 @@ export function Nav({
             aria-label={ctaLabel}
           >
             {isLoggedIn ? (
-              <svg class="h-5 w-5 md:hidden" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <svg class="h-4 w-4 md:mr-2" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                 <rect x="3" y="3" width="7" height="7" rx="1"></rect>
                 <rect x="14" y="3" width="7" height="7" rx="1"></rect>
                 <rect x="3" y="14" width="7" height="7" rx="1"></rect>
                 <rect x="14" y="14" width="7" height="7" rx="1"></rect>
               </svg>
             ) : (
-              <svg class="h-5 w-5 md:hidden" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <svg class="h-4 w-4 md:mr-2" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                 <path d="M15 3h4a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-4"></path>
                 <polyline points="10 17 15 12 10 7"></polyline>
                 <line x1="15" y1="12" x2="3" y2="12"></line>
