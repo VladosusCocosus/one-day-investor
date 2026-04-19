@@ -5,9 +5,7 @@ import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { createBrowserRouter } from "react-router";
 import { RouterProvider } from "react-router/dom";
 import { AuthProvider } from "./hooks/AuthContext";
-import { LandingPage } from "./pages/LandingPage";
 import { LoginPage } from "./pages/LoginPage";
-import { PhilosophyPage } from "./pages/PhilosophyPage";
 import { UnsubscribePage } from "./pages/UnsubscribePage";
 import { ProtectedRoute } from "./components/ProtectedRoute";
 import { AppLayout } from "./components/AppLayout";
@@ -40,18 +38,16 @@ const queryClient = new QueryClient({
   },
 });
 
+import { Navigate } from "react-router";
+
 const router = createBrowserRouter([
   {
     path: "/",
-    element: <LandingPage />,
+    element: <Navigate to="/login" replace />,
   },
   {
     path: "/login",
     element: <LoginPage />,
-  },
-  {
-    path: "/philosophy",
-    element: <PhilosophyPage />,
   },
   {
     path: "/unsubscribe",

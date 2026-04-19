@@ -19,8 +19,7 @@ export const pageMeta: Record<
   | "profile"
   | "assets"
   | "snapshots"
-  | "analytics"
-  | "philosophy",
+  | "analytics",
   Meta
 > = {
   login: {
@@ -49,10 +48,5 @@ export const pageMeta: Record<
     title: "Analytics",
     description:
       "Distribution, timelines, and performance for your portfolio.",
-  },
-  philosophy: {
-    title: "Philosophy",
-    description:
-      "A letter from the person building One Day Investor: invest one day a month, ignore the other thirty.",
   },
 };

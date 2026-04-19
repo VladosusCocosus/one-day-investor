@@ -1,25 +1,30 @@
-export function LandingFooter() {
+import Html from "@kitajs/html";
+import { t, type Locale } from "../i18n";
+
+export function Footer({ locale }: { locale: Locale }) {
   return (
-    <footer className="border-t border-emerald-900/40 px-6 py-10 md:px-8">
-      <div className="mx-auto max-w-[1200px]">
-        <div className="flex flex-col items-center gap-6 text-center sm:gap-8">
-          <div className="flex items-center gap-2.5">
+    <footer class="border-t border-emerald-900/40 px-6 py-10 md:px-8">
+      <div class="mx-auto max-w-[1200px]">
+        <div class="flex flex-col items-center gap-6 text-center sm:gap-8">
+          <div class="flex items-center gap-2.5">
             <span
               aria-hidden="true"
-              className="h-2.5 w-2.5 rounded-[2px]"
-              style={{ background: "linear-gradient(135deg, #6ee7b7, #10b981)" }}
-            />
-            <span className="text-xs font-semibold tracking-[0.18em] uppercase text-emerald-300">One Day Investor</span>
+              class="h-2.5 w-2.5 rounded-[2px]"
+              style="background: linear-gradient(135deg, #6ee7b7, #10b981)"
+            ></span>
+            <span class="text-xs font-semibold tracking-[0.18em] uppercase text-emerald-300">
+              One Day Investor
+            </span>
           </div>
-          <p className="max-w-[420px] text-sm leading-relaxed text-emerald-200/70">
-            I'm open to talk and discuss everything. Reach me on any platform you want.
+          <p class="max-w-[420px] text-sm leading-relaxed text-emerald-200/70">
+            {t("footer.tagline", locale)}
           </p>
-          <div className="flex items-center gap-5">
+          <div class="flex items-center gap-5">
             <a
               href="https://x.com/razin36986"
               target="_blank"
               rel="noopener noreferrer"
-              className="text-emerald-300/70 transition-colors hover:text-emerald-200"
+              class="text-emerald-300/70 transition-colors hover:text-emerald-200"
               aria-label="X (Twitter)"
             >
               <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="currentColor">
@@ -30,7 +35,7 @@ export function LandingFooter() {
               href="https://www.linkedin.com/in/vladislav-razin-7b3420240/"
               target="_blank"
               rel="noopener noreferrer"
-              className="text-emerald-300/70 transition-colors hover:text-emerald-200"
+              class="text-emerald-300/70 transition-colors hover:text-emerald-200"
               aria-label="LinkedIn"
             >
               <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="currentColor">
@@ -41,7 +46,7 @@ export function LandingFooter() {
               href="https://www.instagram.com/cocosik86/"
               target="_blank"
               rel="noopener noreferrer"
-              className="text-emerald-300/70 transition-colors hover:text-emerald-200"
+              class="text-emerald-300/70 transition-colors hover:text-emerald-200"
               aria-label="Instagram"
             >
               <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="currentColor">
@@ -49,7 +54,7 @@ export function LandingFooter() {
               </svg>
             </a>
           </div>
-          <div className="text-xs text-emerald-300/50">© 2026 One Day Investor</div>
+          <div class="text-xs text-emerald-300/50">{t("footer.copyright", locale)}</div>
         </div>
       </div>
     </footer>
