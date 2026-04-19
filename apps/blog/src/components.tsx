@@ -49,9 +49,10 @@ export function BlogNav({ user, currentPath, locale = "en" }: { user?: User | nu
   const blogUrl = process.env.BLOG_URL || "https://blog.odinvestor.net";
   const redirectParam = currentPath ? `?redirect_to=${encodeURIComponent(blogUrl + currentPath)}` : "";
   const ctaLabel = user ? t("nav.dashboard", locale) : t("nav.signIn", locale);
+  const dashboardUrl = process.env.DASHBOARD_URL || "https://dashboard.odinvestor.net";
   const ctaHref = user
-    ? "https://odinvestor.net/dashboard"
-    : `https://odinvestor.net/login${redirectParam}`;
+    ? `${dashboardUrl}/dashboard`
+    : `${dashboardUrl}/login${redirectParam}`;
 
   return (
     <header id="blog-nav" class="sticky top-0 z-50 w-full transition-colors duration-200" style="background: transparent;">
@@ -83,9 +84,16 @@ export function BlogNav({ user, currentPath, locale = "en" }: { user?: User | nu
           </a>
           <a
             href={ctaHref}
-            class="inline-flex h-9 items-center rounded-md bg-emerald-50 px-4 text-sm font-semibold text-emerald-950 shadow-sm hover:bg-white transition-colors"
+            class="inline-flex h-9 items-center justify-center rounded-md bg-emerald-50 text-sm font-semibold text-emerald-950 shadow-sm hover:bg-white transition-colors px-2.5 md:px-4"
+            aria-label={ctaLabel}
           >
-            {ctaLabel}
+            <svg class="h-5 w-5 md:hidden" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <rect x="3" y="3" width="7" height="7" rx="1"></rect>
+              <rect x="14" y="3" width="7" height="7" rx="1"></rect>
+              <rect x="3" y="14" width="7" height="7" rx="1"></rect>
+              <rect x="14" y="14" width="7" height="7" rx="1"></rect>
+            </svg>
+            <span class="hidden md:inline">{ctaLabel}</span>
           </a>
         </nav>
       </div>
