@@ -215,6 +215,7 @@ services:
         VITE_ANALYTICS_URL: ${VITE_ANALYTICS_URL}
         VITE_MARKET_URL: ${VITE_MARKET_URL}
         VITE_BLOG_URL: ${VITE_BLOG_URL:-https://blog.odinvestor.net}
+        VITE_S3_PUBLIC_URL: ${S3_PUBLIC_URL}
     restart: unless-stopped
     ports:
       - "127.0.0.1:8080:8080"
