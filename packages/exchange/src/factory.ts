@@ -7,6 +7,7 @@ import { OkxAdapter } from "./adapters/okx";
 import { KucoinAdapter } from "./adapters/kucoin";
 import { BitfinexAdapter } from "./adapters/bitfinex";
 import { CryptoDotComAdapter } from "./adapters/cryptodotcom";
+import { RevolutXAdapter } from "./adapters/revolut-x";
 
 const adapters: Record<ExchangeType, () => IExchangeAdapter> = {
   binance: () => new BinanceAdapter(),
@@ -17,6 +18,7 @@ const adapters: Record<ExchangeType, () => IExchangeAdapter> = {
   kucoin: () => new KucoinAdapter(),
   bitfinex: () => new BitfinexAdapter(),
   "crypto.com": () => new CryptoDotComAdapter(),
+  "revolut-x": () => new RevolutXAdapter(),
 };
 
 export function getAdapter(exchange: ExchangeType): IExchangeAdapter {
