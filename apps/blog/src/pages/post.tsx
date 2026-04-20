@@ -58,7 +58,7 @@ export function PostPage({ post, user, locale = "en" }: { post: BlogPost; user?:
       <div class="px-6 pt-8 md:px-8">
         <div class="mx-auto max-w-[1200px]">
           <a
-            href="/"
+            href={locale === "en" ? "/" : `/${locale}`}
             class="inline-flex items-center gap-1.5 text-sm text-emerald-300 hover:text-emerald-200 transition-colors"
           >
             {t("post.allPosts", locale)}
@@ -69,7 +69,7 @@ export function PostPage({ post, user, locale = "en" }: { post: BlogPost; user?:
               {post.tags.map((tag) => (
                 <TagPill
                   tag={tag}
-                  href={`/?tag=${encodeURIComponent(tag)}`}
+                  href={`${locale === "en" ? "" : `/${locale}`}/?tag=${encodeURIComponent(tag)}`}
                 />
               ))}
             </div>
@@ -355,7 +355,7 @@ export function NotFoundPage({ user, locale = "en" }: { user?: User | null; loca
           {t("post.notFoundBody", locale)}
         </p>
         <a
-          href="/"
+          href={locale === "en" ? "/" : `/${locale}`}
           class="mt-8 inline-flex h-10 items-center rounded-md bg-emerald-50 px-5 text-sm font-semibold text-emerald-950 hover:bg-white transition-colors"
         >
           {t("post.backToBlog", locale)}

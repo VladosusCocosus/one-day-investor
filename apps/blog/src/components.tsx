@@ -73,13 +73,13 @@ export function BlogNav({ user, currentPath, locale = "en" }: { user?: User | nu
         </a>
         <nav class="flex items-center gap-6">
           <a
-            href="/"
+            href={locale === "en" ? "/" : `/${locale}`}
             class="hidden text-sm font-medium text-emerald-200 hover:text-white transition-colors md:inline"
           >
             {t("nav.blog", locale)}
           </a>
           <a
-            href="https://odinvestor.net/philosophy"
+            href={locale === "en" ? "https://odinvestor.net/philosophy" : `https://odinvestor.net/${locale}/philosophy`}
             class="hidden text-sm font-medium text-emerald-200 hover:text-white transition-colors md:inline"
           >
             {t("nav.philosophy", locale)}

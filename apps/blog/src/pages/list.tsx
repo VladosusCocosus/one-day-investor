@@ -15,9 +15,11 @@ function PostCard({ post, locale }: { post: BlogPost; locale: Locale }) {
       })
     : t("blog.draft", locale);
 
+  const prefix = locale === "en" ? "" : `/${locale}`;
+
   return (
     <a
-      href={`/${post.slug}`}
+      href={`${prefix}/${post.slug}`}
       class="group block rounded-2xl border border-emerald-900/50 bg-emerald-950/40 p-8 backdrop-blur-sm transition-colors hover:border-emerald-700/60 hover:bg-emerald-950/60"
     >
       <p class="text-xs font-medium text-emerald-400/80">{date}</p>
@@ -97,12 +99,12 @@ export function ListPage({
       {allTags.length > 0 && (
         <section class="px-6 pb-12 md:px-8">
           <div class="mx-auto flex max-w-[960px] flex-wrap justify-center gap-2">
-            <TagPill tag={t("tags.all", locale)} active={!activeTag} href="/" />
+            <TagPill tag={t("tags.all", locale)} active={!activeTag} href={locale === "en" ? "/" : `/${locale}`} />
             {allTags.map((tag) => (
               <TagPill
                 tag={tag}
                 active={activeTag === tag}
-                href={`/?tag=${encodeURIComponent(tag)}`}
+                href={`${locale === "en" ? "" : `/${locale}`}/?tag=${encodeURIComponent(tag)}`}
               />
             ))}
           </div>
