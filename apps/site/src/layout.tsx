@@ -1,10 +1,13 @@
 import Html from "@kitajs/html";
 import { t, localePath, type Locale } from "./i18n";
-import { Nav } from "./components/nav";
-import { Footer } from "./components/footer";
+import { LangSwitcher } from "./components/lang-switcher";
+import { PageShell } from "@ui";
+import { XTwitterIcon, LinkedInIcon, InstagramIcon } from "@icons";
+import { Grid2x2, LogIn } from "lucide-static";
 
 const SITE_URL = process.env.SITE_URL || "https://odinvestor.net";
 const DASHBOARD_URL = process.env.DASHBOARD_URL || "https://dashboard.odinvestor.net";
+const BLOG_URL = process.env.BLOG_URL || "https://blog.odinvestor.net";
 
 export function Layout({
   title,
@@ -25,6 +28,37 @@ export function Layout({
 }) {
   const fullTitle = `One Day Investor — ${title}`;
   const canonicalUrl = `${SITE_URL}${localePath(canonicalPath, locale)}`;
+  const isLanding = canonicalPath === "/";
+
+  const ctaLabel = isLoggedIn ? t("nav.dashboard", locale) : t("nav.signIn", locale);
+  const ctaHref = isLoggedIn ? `${DASHBOARD_URL}/dashboard` : `${DASHBOARD_URL}/login`;
+  const ctaIcon = isLoggedIn ? Grid2x2 : LogIn;
+
+  const navContent = (
+    <>
+      {isLanding && (
+        <a
+          href="#features"
+          class="hidden text-sm font-medium text-emerald-200 hover:text-white transition-colors md:inline"
+        >
+          {t("nav.features", locale)}
+        </a>
+      )}
+      <a
+        href={localePath("/philosophy", locale)}
+        class="hidden text-sm font-medium text-emerald-200 hover:text-white transition-colors md:inline"
+      >
+        {t("nav.philosophy", locale)}
+      </a>
+      <a
+        href={BLOG_URL}
+        class="hidden text-sm font-medium text-emerald-200 hover:text-white transition-colors md:inline"
+      >
+        {t("nav.blog", locale)}
+      </a>
+      <LangSwitcher locale={locale} canonicalPath={canonicalPath} />
+    </>
+  );
 
   return (
     <html lang={locale}>
@@ -85,9 +119,29 @@ export function Layout({
         >
           {t("skip_to_content", locale)}
         </a>
-        <Nav locale={locale} canonicalPath={canonicalPath} isLoggedIn={isLoggedIn} />
-        <main id="main">{children as "safe"}</main>
-        <Footer locale={locale} />
+        <PageShell
+          nav={{
+            id: "site-nav",
+            logoText: "One Day Investor",
+            logoHref: localePath("/", locale),
+            navContent: String(navContent),
+            ctaHref,
+            ctaLabel,
+            ctaIconHtml: String(ctaIcon),
+          }}
+          footer={{
+            logoText: "One Day Investor",
+            tagline: t("footer.tagline", locale),
+            socialLinks: [
+              { href: "https://x.com/razin36986", iconHtml: XTwitterIcon, label: "X (Twitter)" },
+              { href: "https://www.linkedin.com/in/vladislav-razin-7b3420240/", iconHtml: LinkedInIcon, label: "LinkedIn" },
+              { href: "https://www.instagram.com/cocosik86/", iconHtml: InstagramIcon, label: "Instagram" },
+            ],
+            copyrightText: t("footer.copyright", locale),
+          }}
+        >
+          {children as "safe"}
+        </PageShell>
         <script>
           {`
             (function() {
