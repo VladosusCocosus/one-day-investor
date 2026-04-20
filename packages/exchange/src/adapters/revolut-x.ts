@@ -4,17 +4,28 @@ import type { ExchangeAsset, ExchangePocket, IExchangeAdapter } from "../types";
 import { getSymbolName, STABLECOINS } from "../symbols";
 
 const log = createLogger("exchange:revolut-x");
-const BASE_URL = "https://revx.revolut.com/api/1.0";
+const BASE = "https://revx.revolut.com";
+const API_PREFIX = "/api/1.0";
+
+/** Normalize private key input — accept full PEM or raw base64 */
+function normalizePem(input: string): string {
+  const trimmed = input.trim();
+  if (trimmed.startsWith("-----BEGIN")) return trimmed;
+  // Raw base64 — wrap in PEM envelope
+  const base64 = trimmed.replace(/\s+/g, "");
+  return `-----BEGIN PRIVATE KEY-----\n${base64}\n-----END PRIVATE KEY-----`;
+}
 
 function signRequest(
   privateKeyPem: string,
   timestamp: string,
   method: string,
-  path: string,
+  fullPath: string,
   query?: string,
   body?: string
 ): string {
-  const message = `${timestamp}${method}${path}${query ?? ""}${body ?? ""}`;
+  // Revolut X requires signing the path starting from /api (e.g. /api/1.0/balances)
+  const message = `${timestamp}${method}${fullPath}${query ?? ""}${body ?? ""}`;
   const signature = sign(null, Buffer.from(message), privateKeyPem);
   return signature.toString("base64");
 }
@@ -25,9 +36,10 @@ async function authedRequest(
   apiKey: string,
   privateKeyPem: string
 ): Promise<Response> {
+  const fullPath = `${API_PREFIX}${path}`;
   const timestamp = Date.now().toString();
-  const signature = signRequest(privateKeyPem, timestamp, method, path);
-  const url = `${BASE_URL}${path}`;
+  const signature = signRequest(privateKeyPem, timestamp, method, fullPath);
+  const url = `${BASE}${fullPath}`;
 
   return fetch(url, {
     method,
@@ -51,7 +63,8 @@ export class RevolutXAdapter implements IExchangeAdapter {
 
   async validateCredentials(apiKey: string, privateKeyPem: string): Promise<boolean> {
     try {
-      const res = await authedRequest("GET", "/balances", apiKey, privateKeyPem);
+      const pem = normalizePem(privateKeyPem);
+      const res = await authedRequest("GET", "/balances", apiKey, pem);
       return res.ok;
     } catch (err) {
       log.error({ err }, "validateCredentials failed");
@@ -63,9 +76,10 @@ export class RevolutXAdapter implements IExchangeAdapter {
     const pockets: ExchangePocket[] = [];
 
     try {
-      const res = await authedRequest("GET", "/balances", apiKey, privateKeyPem);
+      const pem = normalizePem(privateKeyPem);
+      const res = await authedRequest("GET", "/balances", apiKey, pem);
       if (!res.ok) {
-        log.warn({ status: res.status }, "Failed to fetch balances");
+        log.warn({ status: res.status, body: await res.text().catch(() => "") }, "Failed to fetch balances");
         return pockets;
       }
 
