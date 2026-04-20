@@ -3,8 +3,7 @@ import { marked } from "marked";
 import type { Block } from "./db";
 import type { User } from "@types";
 import { t, type Locale } from "./i18n";
-import { Grid2x2, LogIn, Heart } from "lucide-static";
-import { XTwitterIcon, LinkedInIcon, InstagramIcon } from "@icons";
+import { Heart } from "lucide-static";
 
 function escapeHtml(str: string): string {
   return str
@@ -45,110 +44,6 @@ function renderInlineMarkdown(text: string): string {
 
   result += escapeHtml(text.slice(lastIndex));
   return result;
-}
-
-export function BlogNav({ user, currentPath, locale = "en" }: { user?: User | null; currentPath?: string; locale?: Locale }) {
-  const blogUrl = process.env.BLOG_URL || "https://blog.odinvestor.net";
-  const redirectParam = currentPath ? `?redirect_to=${encodeURIComponent(blogUrl + currentPath)}` : "";
-  const ctaLabel = user ? t("nav.dashboard", locale) : t("nav.signIn", locale);
-  const dashboardUrl = process.env.DASHBOARD_URL || "https://dashboard.odinvestor.net";
-  const ctaHref = user
-    ? `${dashboardUrl}/dashboard`
-    : `${dashboardUrl}/login${redirectParam}`;
-
-  return (
-    <header id="blog-nav" class="sticky top-0 z-50 w-full transition-colors duration-200" style="background: transparent;">
-      <div class="mx-auto flex max-w-[1200px] items-center justify-between px-6 py-4 md:px-8">
-        <a
-          href="https://odinvestor.net"
-          class="flex items-center gap-2.5 text-emerald-100 hover:text-white transition-colors"
-        >
-          <span
-            class="h-3 w-3 rounded-[3px]"
-            style="background: linear-gradient(135deg, #6ee7b7, #10b981)"
-          ></span>
-          <span class="text-sm font-semibold tracking-[0.18em] uppercase">
-            One Day Investor
-          </span>
-        </a>
-        <nav class="flex items-center gap-6">
-          <a
-            href={locale === "en" ? "/" : `/${locale}`}
-            class="hidden text-sm font-medium text-emerald-200 hover:text-white transition-colors md:inline"
-          >
-            {t("nav.blog", locale)}
-          </a>
-          <a
-            href={locale === "en" ? "https://odinvestor.net/philosophy" : `https://odinvestor.net/${locale}/philosophy`}
-            class="hidden text-sm font-medium text-emerald-200 hover:text-white transition-colors md:inline"
-          >
-            {t("nav.philosophy", locale)}
-          </a>
-          <a
-            href={ctaHref}
-            class="inline-flex h-9 items-center justify-center rounded-md bg-emerald-50 text-sm font-semibold text-emerald-950 shadow-sm hover:bg-white transition-colors px-2.5 md:px-4"
-            aria-label={ctaLabel}
-          >
-            <span class="h-4 w-4 md:mr-2 [&>svg]:h-4 [&>svg]:w-4">{(user ? Grid2x2 : LogIn) as "safe"}</span>
-            <span class="hidden md:inline">{ctaLabel}</span>
-          </a>
-        </nav>
-      </div>
-    </header>
-  );
-}
-
-export function BlogFooter({ locale = "en" }: { locale?: Locale } = {}) {
-  return (
-    <footer class="border-t border-emerald-900/40 px-6 py-10 md:px-8">
-      <div class="mx-auto max-w-[1200px]">
-        <div class="flex flex-col items-center gap-6 text-center sm:gap-8">
-          <div class="flex items-center gap-2.5">
-            <span
-              class="h-2.5 w-2.5 rounded-[2px]"
-              style="background: linear-gradient(135deg, #6ee7b7, #10b981)"
-            ></span>
-            <span class="text-xs font-semibold tracking-[0.18em] uppercase text-emerald-300">
-              One Day Investor
-            </span>
-          </div>
-          <p class="max-w-[420px] text-sm leading-relaxed text-emerald-200/70">
-            {t("footer.tagline", locale)}
-          </p>
-          <div class="flex items-center gap-5">
-            <a
-              href="https://x.com/razin36986"
-              target="_blank"
-              rel="noopener noreferrer"
-              class="text-emerald-300/70 transition-colors hover:text-emerald-200 [&>svg]:h-[18px] [&>svg]:w-[18px]"
-              aria-label="X (Twitter)"
-            >
-              {XTwitterIcon as "safe"}
-            </a>
-            <a
-              href="https://www.linkedin.com/in/vladislav-razin-7b3420240/"
-              target="_blank"
-              rel="noopener noreferrer"
-              class="text-emerald-300/70 transition-colors hover:text-emerald-200 [&>svg]:h-[18px] [&>svg]:w-[18px]"
-              aria-label="LinkedIn"
-            >
-              {LinkedInIcon as "safe"}
-            </a>
-            <a
-              href="https://www.instagram.com/cocosik86/"
-              target="_blank"
-              rel="noopener noreferrer"
-              class="text-emerald-300/70 transition-colors hover:text-emerald-200 [&>svg]:h-[18px] [&>svg]:w-[18px]"
-              aria-label="Instagram"
-            >
-              {InstagramIcon as "safe"}
-            </a>
-          </div>
-          <div class="text-xs text-emerald-300/50">{t("footer.copyright", locale)}</div>
-        </div>
-      </div>
-    </footer>
-  );
 }
 
 export function HeroBlock({

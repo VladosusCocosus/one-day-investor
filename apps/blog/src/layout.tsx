@@ -1,7 +1,9 @@
 import Html from "@kitajs/html";
-import { BlogNav, BlogFooter } from "./components";
+import { PageShell } from "@ui";
 import type { User } from "@types";
-import { localePath, type Locale } from "./i18n";
+import { t, type Locale } from "./i18n";
+import { Grid2x2, LogIn } from "lucide-static";
+import { XTwitterIcon, LinkedInIcon, InstagramIcon } from "@icons";
 
 const SITE_URL = process.env.BLOG_URL || "https://blog.odinvestor.net";
 const DASHBOARD_URL = process.env.DASHBOARD_URL || "https://dashboard.odinvestor.net";
@@ -36,8 +38,32 @@ export function Layout({
     : null;
   const ogAlt = description || title;
   const fullTitle = `One Day Investor — ${title}`;
-  const basePath = canonicalPath || "/";
-  const canonicalUrl = `${SITE_URL}${localePath(basePath, locale)}`;
+  const canonicalUrl = canonicalPath ? `${SITE_URL}${canonicalPath}` : null;
+
+  const blogUrl = process.env.BLOG_URL || "https://blog.odinvestor.net";
+  const redirectParam = canonicalPath ? `?redirect_to=${encodeURIComponent(blogUrl + canonicalPath)}` : "";
+  const ctaLabel = user ? t("nav.dashboard", locale) : t("nav.signIn", locale);
+  const ctaHref = user
+    ? `${DASHBOARD_URL}/dashboard`
+    : `${DASHBOARD_URL}/login${redirectParam}`;
+  const ctaIcon = user ? Grid2x2 : LogIn;
+
+  const navContent = (
+    <>
+      <a
+        href="/"
+        class="hidden text-sm font-medium text-emerald-200 hover:text-white transition-colors md:inline"
+      >
+        {t("nav.blog", locale)}
+      </a>
+      <a
+        href="https://odinvestor.net/philosophy"
+        class="hidden text-sm font-medium text-emerald-200 hover:text-white transition-colors md:inline"
+      >
+        {t("nav.philosophy", locale)}
+      </a>
+    </>
+  );
 
   return (
     <html lang={locale}>
@@ -57,11 +83,11 @@ export function Layout({
         <link rel="apple-touch-icon" href={`${DASHBOARD_URL}/apple-touch-icon.png`} />
         <title>{fullTitle}</title>
         {description && <meta name="description" content={description} />}
-        <link rel="canonical" href={canonicalUrl} />
-        <link rel="alternate" hreflang="en" href={`${SITE_URL}${basePath}`} />
-        <link rel="alternate" hreflang="ru" href={`${SITE_URL}${localePath(basePath, "ru")}`} />
-        <link rel="alternate" hreflang="es" href={`${SITE_URL}${localePath(basePath, "es")}`} />
-        <link rel="alternate" hreflang="x-default" href={`${SITE_URL}${basePath}`} />
+        {canonicalUrl && <link rel="canonical" href={canonicalUrl} />}
+        <link rel="alternate" hreflang="en" href={`${SITE_URL}${canonicalPath || "/"}`} />
+        <link rel="alternate" hreflang="ru" href={`${SITE_URL}/ru${canonicalPath || "/"}`} />
+        <link rel="alternate" hreflang="es" href={`${SITE_URL}/es${canonicalPath || "/"}`} />
+        <link rel="alternate" hreflang="x-default" href={`${SITE_URL}${canonicalPath || "/"}`} />
         <meta property="og:site_name" content="One Day Investor" />
         <meta property="og:title" content={fullTitle} />
         {description && <meta property="og:description" content={description} />}
@@ -95,9 +121,29 @@ export function Layout({
         class="min-h-screen text-emerald-50"
         style="background: radial-gradient(ellipse 900px 700px at 85% 115%, rgba(16, 185, 129, 0.28) 0%, transparent 55%), radial-gradient(ellipse 1400px 900px at 10% -10%, #0f6d4f 0%, #064e36 38%, #02281c 100%);"
       >
-        <BlogNav user={user} currentPath={canonicalPath} locale={locale} />
-        <main>{(children)}</main>
-        <BlogFooter locale={locale} />
+        <PageShell
+          nav={{
+            id: "blog-nav",
+            logoText: "One Day Investor",
+            logoHref: "https://odinvestor.net",
+            navContent: String(navContent),
+            ctaHref,
+            ctaLabel,
+            ctaIconHtml: String(ctaIcon),
+          }}
+          footer={{
+            logoText: "One Day Investor",
+            tagline: t("footer.tagline", locale),
+            socialLinks: [
+              { href: "https://x.com/razin36986", iconHtml: XTwitterIcon, label: "X (Twitter)" },
+              { href: "https://www.linkedin.com/in/vladislav-razin-7b3420240/", iconHtml: LinkedInIcon, label: "LinkedIn" },
+              { href: "https://www.instagram.com/cocosik86/", iconHtml: InstagramIcon, label: "Instagram" },
+            ],
+            copyrightText: t("footer.copyright", locale),
+          }}
+        >
+          {children as "safe"}
+        </PageShell>
         <script>
           {(`
             (function() {
