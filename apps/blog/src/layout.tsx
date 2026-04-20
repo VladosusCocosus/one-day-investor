@@ -1,7 +1,7 @@
 import Html from "@kitajs/html";
 import { BlogNav, BlogFooter } from "./components";
 import type { User } from "@types";
-import type { Locale } from "./i18n";
+import { localePath, type Locale } from "./i18n";
 
 const SITE_URL = process.env.BLOG_URL || "https://blog.odinvestor.net";
 const DASHBOARD_URL = process.env.DASHBOARD_URL || "https://dashboard.odinvestor.net";
@@ -36,7 +36,8 @@ export function Layout({
     : null;
   const ogAlt = description || title;
   const fullTitle = `One Day Investor — ${title}`;
-  const canonicalUrl = canonicalPath ? `${SITE_URL}${canonicalPath}` : null;
+  const basePath = canonicalPath || "/";
+  const canonicalUrl = `${SITE_URL}${localePath(basePath, locale)}`;
 
   return (
     <html lang={locale}>
@@ -56,11 +57,11 @@ export function Layout({
         <link rel="apple-touch-icon" href={`${DASHBOARD_URL}/apple-touch-icon.png`} />
         <title>{fullTitle}</title>
         {description && <meta name="description" content={description} />}
-        {canonicalUrl && <link rel="canonical" href={canonicalUrl} />}
-        <link rel="alternate" hreflang="en" href={`${SITE_URL}${canonicalPath || "/"}`} />
-        <link rel="alternate" hreflang="ru" href={`${SITE_URL}/ru${canonicalPath || "/"}`} />
-        <link rel="alternate" hreflang="es" href={`${SITE_URL}/es${canonicalPath || "/"}`} />
-        <link rel="alternate" hreflang="x-default" href={`${SITE_URL}${canonicalPath || "/"}`} />
+        <link rel="canonical" href={canonicalUrl} />
+        <link rel="alternate" hreflang="en" href={`${SITE_URL}${basePath}`} />
+        <link rel="alternate" hreflang="ru" href={`${SITE_URL}${localePath(basePath, "ru")}`} />
+        <link rel="alternate" hreflang="es" href={`${SITE_URL}${localePath(basePath, "es")}`} />
+        <link rel="alternate" hreflang="x-default" href={`${SITE_URL}${basePath}`} />
         <meta property="og:site_name" content="One Day Investor" />
         <meta property="og:title" content={fullTitle} />
         {description && <meta property="og:description" content={description} />}

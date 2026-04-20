@@ -30,7 +30,7 @@ import {
 import type { Block } from "./db";
 import { ListPage } from "./pages/list";
 import { PostPage, NotFoundPage } from "./pages/post";
-import { resolveLocale } from "./i18n";
+import { resolveLocale, isLocale, localePath, type Locale } from "./i18n";
 
 const log = createLogger("blog");
 const PORT = 3003;
@@ -78,6 +78,57 @@ function setCacheHeaders(
   }
   set.headers["vary"] = "Accept-Language, Cookie";
   if (tag) set.headers["cache-tag"] = tag;
+}
+
+async function handleLocalizedList(
+  locale: Locale,
+  tag: string | undefined,
+  cookie: Record<string, any>,
+  set: { headers: Record<string, string> }
+) {
+  const [posts, allTags, user] = await Promise.all([
+    listPublishedPosts(tag),
+    getAllTags(),
+    resolveUser(cookie),
+  ]);
+
+  setCacheHeaders(set, user as User | null, { edgeTtl: 3600, browserTtl: 60, tag: "blog-list" });
+
+  const translatedPosts = await Promise.all(
+    posts.map(async (post) => {
+      if (locale === "en") return post;
+      const tr = await getPostTranslation(post.id, locale);
+      return tr ? applyTranslation(post, tr) : post;
+    })
+  );
+
+  return <ListPage posts={translatedPosts} allTags={allTags} activeTag={tag} user={user} locale={locale} />;
+}
+
+async function handleLocalizedPost(
+  locale: Locale,
+  slug: string,
+  cookie: Record<string, any>,
+  set: { headers: Record<string, string>; status?: number }
+) {
+  const [post, user] = await Promise.all([
+    getPostBySlug(slug),
+    resolveUser(cookie),
+  ]);
+  if (!post || !post.publish_date) {
+    set.headers["cache-control"] = "public, max-age=60, s-maxage=300";
+    return <NotFoundPage user={user} locale={locale} />;
+  }
+
+  setCacheHeaders(set, user as User | null, { edgeTtl: 86400, browserTtl: 120, tag: `post-${post.slug}` });
+
+  let displayPost = post;
+  if (locale !== "en") {
+    const tr = await getPostTranslation(post.id, locale);
+    if (tr) displayPost = applyTranslation(post, tr);
+  }
+
+  return <PostPage post={displayPost} user={user} locale={locale} />;
 }
 
 const app = new Elysia()
@@ -145,14 +196,30 @@ const app = new Elysia()
 
   .get("/sitemap.xml", async () => {
     const posts = await listPublishedPosts();
-    const urls = [
-      `  <url>\n    <loc>${SITE_URL}/</loc>\n    <changefreq>weekly</changefreq>\n    <priority>1.0</priority>\n  </url>`,
-      ...posts.map(
-        (p) =>
-          `  <url>\n    <loc>${SITE_URL}/${p.slug}</loc>\n    <lastmod>${p.updated_at?.split("T")[0] || p.publish_date}</lastmod>\n    <changefreq>monthly</changefreq>\n    <priority>0.8</priority>\n  </url>`
-      ),
-    ];
-    const xml = `<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n${urls.join("\n")}\n</urlset>`;
+    const locales: Locale[] = ["en", "ru", "es"];
+
+    function hreflangs(path: string) {
+      return locales
+        .map((l) => `    <xhtml:link rel="alternate" hreflang="${l}" href="${SITE_URL}${localePath(path, l)}" />`)
+        .concat(`    <xhtml:link rel="alternate" hreflang="x-default" href="${SITE_URL}${path}" />`)
+        .join("\n");
+    }
+
+    const urls: string[] = [];
+    // Homepage in all languages
+    for (const l of locales) {
+      urls.push(`  <url>\n    <loc>${SITE_URL}${localePath("/", l)}</loc>\n    <changefreq>weekly</changefreq>\n    <priority>1.0</priority>\n${hreflangs("/")}\n  </url>`);
+    }
+    // Posts in all languages
+    for (const p of posts) {
+      const path = `/${p.slug}`;
+      const lastmod = p.updated_at?.split("T")[0] || p.publish_date;
+      for (const l of locales) {
+        urls.push(`  <url>\n    <loc>${SITE_URL}${localePath(path, l)}</loc>\n    <lastmod>${lastmod}</lastmod>\n    <changefreq>monthly</changefreq>\n    <priority>0.8</priority>\n${hreflangs(path)}\n  </url>`);
+      }
+    }
+
+    const xml = `<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9" xmlns:xhtml="http://www.w3.org/1999/xhtml">\n${urls.join("\n")}\n</urlset>`;
     return new Response(xml, {
       headers: { "Content-Type": "application/xml", "Cache-Control": "public, max-age=3600, s-maxage=3600" },
     });
@@ -184,6 +251,22 @@ const app = new Elysia()
     );
 
     return <ListPage posts={translatedPosts} allTags={allTags} activeTag={tag} user={user} locale={locale} />;
+  })
+
+  // Locale-prefixed blog list: /ru, /es
+  .get("/ru", async ({ query, cookie, set }) => {
+    return handleLocalizedList("ru", query.tag as string | undefined, cookie, set);
+  })
+  .get("/es", async ({ query, cookie, set }) => {
+    return handleLocalizedList("es", query.tag as string | undefined, cookie, set);
+  })
+
+  // Locale-prefixed post detail: /ru/:slug, /es/:slug
+  .get("/ru/:slug", async ({ params, cookie, set }) => {
+    return handleLocalizedPost("ru", params.slug, cookie, set);
+  })
+  .get("/es/:slug", async ({ params, cookie, set }) => {
+    return handleLocalizedPost("es", params.slug, cookie, set);
   })
 
   // Admin JSON API

@@ -15,6 +15,12 @@ export function t(key: string, locale: Locale): string {
   return messages[locale]?.[key] ?? messages.en[key] ?? key;
 }
 
+/** Build a locale-prefixed path: en stays bare, others get /ru, /es prefix */
+export function localePath(path: string, locale: Locale): string {
+  if (locale === "en") return path;
+  return `/${locale}${path === "/" ? "" : path}` || `/${locale}`;
+}
+
 function parseAcceptLanguage(header: string | undefined): Locale | null {
   if (!header) return null;
   const langs = header
