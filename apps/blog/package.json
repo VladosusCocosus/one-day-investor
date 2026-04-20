@@ -9,6 +9,7 @@
     "@config": "workspace:*",
     "@database": "workspace:*",
     "@icons": "workspace:*",
+    "@ui": "workspace:*",
     "lucide-static": "^0.509.0",
     "@elysiajs/cors": "^1.4.1",
     "@elysiajs/html": "latest",
