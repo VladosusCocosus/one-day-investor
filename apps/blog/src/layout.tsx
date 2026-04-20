@@ -1,5 +1,5 @@
 import Html from "@kitajs/html";
-import { PageShell } from "@ui";
+import { PageShell, LangSelect } from "@ui";
 import type { User } from "@types";
 import { t, localePath, type Locale } from "./i18n";
 import { Grid2x2, LogIn } from "lucide-static";
@@ -49,6 +49,12 @@ export function Layout({
     : `${DASHBOARD_URL}/login${redirectParam}`;
   const ctaIcon = user ? Grid2x2 : LogIn;
 
+  const langOptions = (["en", "ru", "es"] as const).map((l) => ({
+    value: l,
+    label: l.toUpperCase(),
+    href: localePath(basePath, l),
+  }));
+
   const navContent = (
     <>
       <a
@@ -63,6 +69,7 @@ export function Layout({
       >
         {t("nav.philosophy", locale)}
       </a>
+      <LangSelect locale={locale} options={langOptions} />
     </>
   );
 
