@@ -1,4 +1,5 @@
 import { useEffect, useMemo, useRef, useState } from "react";
+import { useTranslation } from "react-i18next";
 import { Trash2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import {
@@ -47,6 +48,7 @@ interface ParentDraft {
 type ChildDraft = { name: string; service_type: ServiceType };
 
 export function PocketDrawer({ mode, onModeChange }: PocketDrawerProps) {
+  const { t } = useTranslation();
   const { tree, addService, removeService, editService } = useServices();
   const { searchCatalog, getChildren, subscribe, unsubscribe } = useCatalog();
   const { connections, disconnect, disconnecting } = useExchange();
@@ -229,14 +231,16 @@ export function PocketDrawer({ mode, onModeChange }: PocketDrawerProps) {
   // ---- Header copy -----------------------------------------------------------
   const isAdd = mode?.kind === "add";
   const titleText = isAdd
-    ? "New pocket"
-    : parentDraft?.name ?? editingGroup?.service.name ?? "Editing pocket";
+    ? t("pocketDrawer.newPocket")
+    : parentDraft?.name ?? editingGroup?.service.name ?? t("pocketDrawer.editingPocket");
   const description = isAdd
-    ? "Search the catalog, or create a custom one"
+    ? t("pocketDrawer.searchCatalogDescription")
     : editingGroup
       ? editingGroup.children.length === 0
-        ? "Leaf pocket"
-        : `${editingGroup.children.length} sub-pocket${editingGroup.children.length === 1 ? "" : "s"}`
+        ? t("pocketDrawer.leafPocket")
+        : editingGroup.children.length === 1
+          ? t("pocketDrawer.subPocketCount", { count: editingGroup.children.length })
+          : t("pocketDrawer.subPocketCountPlural", { count: editingGroup.children.length })
       : "";
 
   const isLeafParent = editingGroup?.children.length === 0;
@@ -253,7 +257,7 @@ export function PocketDrawer({ mode, onModeChange }: PocketDrawerProps) {
       <SheetContent widthClass="w-full sm:max-w-[480px]">
         <SheetHeader>
           <div className="text-[10px] font-semibold uppercase tracking-wider text-muted-foreground">
-            {isAdd ? "Add pocket" : "Editing pocket"}
+            {isAdd ? t("pocketDrawer.addPocket") : t("pocketDrawer.editingPocket")}
           </div>
           {isAdd ? (
             <SheetTitle className="mt-0.5">{titleText}</SheetTitle>
@@ -285,14 +289,14 @@ export function PocketDrawer({ mode, onModeChange }: PocketDrawerProps) {
               onCreateCustom={handleCreateCustom}
             />
           ) : !editingGroup || !parentDraft ? (
-            <div className="text-xs text-muted-foreground">Pocket not found.</div>
+            <div className="text-xs text-muted-foreground">{t("pocketDrawer.pocketNotFound")}</div>
           ) : (
             <div className="space-y-5">
               {/* Leaf-parent type row */}
               {isLeafParent && (
                 <div>
                   <div className="text-[10px] font-semibold uppercase tracking-wider text-muted-foreground">
-                    Type
+                    {t("common.type")}
                   </div>
                   <div className="mt-2">
                     <PocketTypePill
@@ -310,7 +314,7 @@ export function PocketDrawer({ mode, onModeChange }: PocketDrawerProps) {
                 <div className="flex items-center justify-between p-3 bg-green-50 rounded mb-3">
                   <div className="flex items-center gap-2">
                     <span className="w-2 h-2 bg-green-500 rounded-full" />
-                    <span className="text-sm font-medium text-green-700">Connected</span>
+                    <span className="text-sm font-medium text-green-700">{t("pocketDrawer.connected")}</span>
                     <span className="text-xs text-green-600">
                       {exchangeConnection.exchange} · {exchangeConnection.label}
                     </span>
@@ -320,7 +324,7 @@ export function PocketDrawer({ mode, onModeChange }: PocketDrawerProps) {
                     disabled={disconnecting}
                     className="text-xs text-red-500 hover:text-red-700"
                   >
-                    {disconnecting ? "Disconnecting..." : "Disconnect"}
+                    {disconnecting ? t("pocketDrawer.disconnecting") : t("pocketDrawer.disconnect")}
                   </button>
                 </div>
               )}
@@ -328,11 +332,11 @@ export function PocketDrawer({ mode, onModeChange }: PocketDrawerProps) {
               {/* Children list */}
               <div>
                 <div className="text-[10px] font-semibold uppercase tracking-wider text-muted-foreground">
-                  Sub-pockets · {editingGroup.children.length}
+                  {t("pocketDrawer.subPockets", { count: editingGroup.children.length })}
                 </div>
                 {needsChild && (
                   <p className="mt-1 text-[11px] text-destructive">
-                    A pocket needs at least one sub-pocket before you can save.
+                    {t("pocketDrawer.needsSubPocket")}
                   </p>
                 )}
                 <div className="mt-2 space-y-1.5">
@@ -354,7 +358,7 @@ export function PocketDrawer({ mode, onModeChange }: PocketDrawerProps) {
                         removeDisabled={isOnlyChild}
                         removeDisabledReason={
                           isOnlyChild
-                            ? "A pocket must keep at least one sub-pocket."
+                            ? t("pocketDrawer.mustKeepOne")
                             : undefined
                         }
                         onNameChange={(name) => updateChildDraft(child.id, { name }, child)}
@@ -378,7 +382,7 @@ export function PocketDrawer({ mode, onModeChange }: PocketDrawerProps) {
                           handleAddChild();
                         }
                       }}
-                      placeholder="+ Add sub-pocket"
+                      placeholder={t("pocketDrawer.addSubPocketPlaceholder")}
                       aria-label="New sub-pocket name"
                       className="flex-1 border-none bg-transparent text-[13px] text-foreground outline-none placeholder:text-muted-foreground"
                     />
@@ -390,7 +394,7 @@ export function PocketDrawer({ mode, onModeChange }: PocketDrawerProps) {
                       onClick={handleAddChild}
                       disabled={!newChildName.trim() || addingChild || saving || deleting}
                     >
-                      Add
+                      {t("common.add")}
                     </Button>
                   </div>
                 </div>
@@ -411,14 +415,14 @@ export function PocketDrawer({ mode, onModeChange }: PocketDrawerProps) {
                 className="border-red-200 text-red-600 hover:bg-red-50 hover:text-red-700"
               >
                 <Trash2 className="mr-1 h-3.5 w-3.5" />
-                Delete pocket
+                {t("pocketDrawer.deletePocket")}
               </Button>
             )}
           </div>
           {/* Right slot */}
           <div className="flex items-center gap-2">
             <Button variant="ghost" size="sm" onClick={() => onModeChange(null)}>
-              Cancel
+              {t("common.cancel")}
             </Button>
             {!isAdd && (
               <Button
@@ -427,11 +431,11 @@ export function PocketDrawer({ mode, onModeChange }: PocketDrawerProps) {
                 disabled={saving || deleting || addingChild || needsChild}
                 title={
                   needsChild
-                    ? "Add at least one sub-pocket first"
+                    ? t("pocketDrawer.addAtLeastOne")
                     : undefined
                 }
               >
-                {saving ? "..." : "Save"}
+                {saving ? "..." : t("common.save")}
               </Button>
             )}
           </div>

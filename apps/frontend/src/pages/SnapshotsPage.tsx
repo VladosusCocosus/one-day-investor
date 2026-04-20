@@ -1,4 +1,5 @@
 import { useEffect, useRef, useState } from "react";
+import { useTranslation } from "react-i18next";
 import { Plus } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
@@ -25,6 +26,7 @@ const CURRENCY_SYMBOLS: Record<string, string> = {
 };
 
 export function SnapshotsPage() {
+  const { t } = useTranslation();
   usePageMeta(pageMeta.snapshots);
   const { tree } = useServices();
   const { summaries, loading, removeSnapshot } = useSnapshots();
@@ -76,7 +78,7 @@ export function SnapshotsPage() {
 
   const handleDelete = async () => {
     if (!selectedSummary) return;
-    const ok = window.confirm("Delete this snapshot? This can't be undone.");
+    const ok = window.confirm(t("snapshots.deleteConfirm"));
     if (!ok) return;
     try {
       await removeSnapshot(selectedSummary.id);
@@ -86,7 +88,7 @@ export function SnapshotsPage() {
       // detail view don't show a persistent error banner here because
       // the delete button lives on the detail header.
       alert(
-        e instanceof Error ? `Delete failed: ${e.message}` : "Delete failed"
+        e instanceof Error ? t("snapshots.deleteFailedMessage", { message: e.message }) : t("snapshots.deleteFailedGeneric")
       );
     }
   };
@@ -97,15 +99,15 @@ export function SnapshotsPage() {
     <div>
       <div className="flex items-start justify-between gap-4">
         <div>
-          <h1 className="text-xl font-bold text-foreground">Snapshots</h1>
+          <h1 className="text-xl font-bold text-foreground">{t("snapshots.title")}</h1>
           <p className="mt-1 text-sm text-muted-foreground">
-            Track your portfolio snapshots
+            {t("snapshots.subtitle")}
           </p>
         </div>
         {!hasNoSnapshots && (
           <Button size="sm" onClick={openCreate}>
             <Plus className="mr-1.5 h-3.5 w-3.5" />
-            New snapshot
+            {t("snapshots.newSnapshot")}
           </Button>
         )}
       </div>
@@ -125,10 +127,10 @@ export function SnapshotsPage() {
       ) : hasNoSnapshots ? (
         <Card className="mt-6">
           <CardContent className="flex flex-col items-center justify-center gap-3 py-12">
-            <p className="text-sm text-muted-foreground">No snapshots yet</p>
+            <p className="text-sm text-muted-foreground">{t("snapshots.noSnapshotsYet")}</p>
             <Button size="sm" onClick={openCreate}>
               <Plus className="mr-1.5 h-3.5 w-3.5" />
-              Create first snapshot
+              {t("snapshots.createFirstSnapshot")}
             </Button>
           </CardContent>
         </Card>

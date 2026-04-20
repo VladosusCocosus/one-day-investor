@@ -1,4 +1,5 @@
 import { useMemo, useState } from "react";
+import { useTranslation } from "react-i18next";
 import { useDistribution, useTimeline, useAssetTimeline } from "@/hooks/useAnalytics";
 import { MonthPicker } from "@/components/MonthPicker";
 import { AnalyticsKpiStrip } from "@/components/AnalyticsKpiStrip";
@@ -9,6 +10,7 @@ import { usePageMeta } from "@/lib/use-page-meta";
 import { pageMeta } from "@/lib/metadata";
 
 export function AnalyticsPage() {
+  const { t } = useTranslation();
   usePageMeta(pageMeta.analytics);
   const { data: timeline = [], isLoading: timelineLoading } = useTimeline();
   const [selectedMonth, setSelectedMonth] = useState<string | undefined>();
@@ -27,9 +29,9 @@ export function AnalyticsPage() {
 
   return (
     <div>
-      <h1 className="text-xl font-bold text-foreground">Analytics</h1>
+      <h1 className="text-xl font-bold text-foreground">{t("analytics.title")}</h1>
       <p className="mt-1 text-sm text-muted-foreground">
-        Portfolio performance and distribution
+        {t("analytics.subtitle")}
       </p>
 
       {/* Month selector */}

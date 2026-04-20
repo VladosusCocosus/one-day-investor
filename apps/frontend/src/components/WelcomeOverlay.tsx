@@ -1,5 +1,6 @@
 import { useState, type KeyboardEvent } from "react";
 import { useNavigate } from "react-router";
+import { useTranslation } from "react-i18next";
 import { Dialog as DialogPrimitive } from "radix-ui";
 import {
   X,
@@ -16,67 +17,49 @@ import { Button } from "@/components/ui/button";
 import { useSettings } from "@/hooks/useSettings";
 import { cn } from "@/lib/utils";
 
-type Step = {
+type StepDef = {
   icon: LucideIcon;
-  title: string;
-  shortTitle: string;
-  body: [string, string];
+  titleKey: string;
+  shortKey: string;
+  bodyKeys: [string, string];
 };
 
-const steps: Step[] = [
+const stepDefs: StepDef[] = [
   {
     icon: Wallet,
-    title: "Create a pocket",
-    shortTitle: "Create a pocket",
-    body: [
-      "A pocket is wherever you mentally keep a chunk of money — Revolut, Interactive Brokers, your apartment, cash in your drawer. Make one per service or per thing; the structure should match how you already think about your money.",
-      "Don't worry about getting it right the first time. You can split, rename, or merge pockets later.",
-    ],
+    titleKey: "welcome.step1Title",
+    shortKey: "welcome.step1Short",
+    bodyKeys: ["welcome.step1Body1", "welcome.step1Body2"],
   },
   {
     icon: Layers,
-    title: "Add your assets",
-    shortTitle: "Add your assets",
-    body: [
-      "Fill each pocket with what's inside: stocks, cash, crypto, real estate, cars, whatever counts. Exchange rates and market prices update automatically — everything else you write down once.",
-      "If an asset doesn't have a public price (an apartment, a collection, a car), you set the number. The app trusts you to know your own stuff.",
-    ],
+    titleKey: "welcome.step2Title",
+    shortKey: "welcome.step2Short",
+    bodyKeys: ["welcome.step2Body1", "welcome.step2Body2"],
   },
   {
     icon: Camera,
-    title: "Take your first snapshot",
-    shortTitle: "First snapshot",
-    body: [
-      "A snapshot is a monthly photograph of your entire net worth. One click captures the whole picture, and the totals stay fixed even as prices move later.",
-      "You'll end up with one snapshot per month. That's the building block of your timeline.",
-    ],
+    titleKey: "welcome.step3Title",
+    shortKey: "welcome.step3Short",
+    bodyKeys: ["welcome.step3Body1", "welcome.step3Body2"],
   },
   {
     icon: CalendarDays,
-    title: "Come back once a month",
-    shortTitle: "Come back monthly",
-    body: [
-      "We'll email you a gentle reminder when it's time. Five minutes in the app, update the numbers that changed, click snapshot. Then close the tab and live your life.",
-      "That's the whole ritual. Not daily. Not weekly. One day a month.",
-    ],
+    titleKey: "welcome.step4Title",
+    shortKey: "welcome.step4Short",
+    bodyKeys: ["welcome.step4Body1", "welcome.step4Body2"],
   },
   {
     icon: LineChart,
-    title: "See the curve, not the ticker",
-    shortTitle: "Watch the curve",
-    body: [
-      "The Dashboard shows your net worth over months and years — the one chart that actually matters. Not yesterday's 0.3% dip. Not minute-by-minute market noise.",
-      "The slow, honest line that tells you where your capital is really going.",
-    ],
+    titleKey: "welcome.step5Title",
+    shortKey: "welcome.step5Short",
+    bodyKeys: ["welcome.step5Body1", "welcome.step5Body2"],
   },
   {
     icon: Repeat,
-    title: "Build the habit",
-    shortTitle: "Build the habit",
-    body: [
-      "Twelve snapshots a year, and then another twelve, and another. A decade of snapshots is a decade of your financial story in one honest line.",
-      "No bank, no broker, no spreadsheet can show you that — they don't live long enough. One Day Investor does.",
-    ],
+    titleKey: "welcome.step6Title",
+    shortKey: "welcome.step6Short",
+    bodyKeys: ["welcome.step6Body1", "welcome.step6Body2"],
   },
 ];
 
@@ -86,6 +69,7 @@ interface WelcomeOverlayProps {
 }
 
 export function WelcomeOverlay({ open, onDismiss }: WelcomeOverlayProps) {
+  const { t } = useTranslation();
   const [current, setCurrent] = useState(0);
   const [prevOpen, setPrevOpen] = useState(open);
   const navigate = useNavigate();
@@ -111,7 +95,7 @@ export function WelcomeOverlay({ open, onDismiss }: WelcomeOverlayProps) {
   };
 
   const goNext = () => {
-    if (current < steps.length - 1) {
+    if (current < stepDefs.length - 1) {
       setCurrent((c) => c + 1);
     } else {
       onDismiss();
@@ -133,9 +117,9 @@ export function WelcomeOverlay({ open, onDismiss }: WelcomeOverlayProps) {
     }
   };
 
-  const step = steps[current];
+  const step = stepDefs[current];
   const Icon = step.icon;
-  const isLast = current === steps.length - 1;
+  const isLast = current === stepDefs.length - 1;
   const isFirst = current === 0;
   const isReminderStep = current === 3;
 
@@ -165,7 +149,7 @@ export function WelcomeOverlay({ open, onDismiss }: WelcomeOverlayProps) {
             <div className="flex flex-col justify-between border-b border-emerald-200 bg-gradient-to-br from-emerald-50 to-emerald-100 p-6 md:border-b-0 md:border-r md:p-7">
               <div>
                 <p className="text-[10px] font-semibold uppercase tracking-[0.18em] text-emerald-700">
-                  Welcome
+                  {t("welcome.label")}
                 </p>
                 <div className="mt-4 hidden h-24 w-24 items-center justify-center rounded-2xl border border-emerald-200 bg-white shadow-sm md:flex">
                   <Icon
@@ -176,9 +160,9 @@ export function WelcomeOverlay({ open, onDismiss }: WelcomeOverlayProps) {
                 </div>
               </div>
               <ol className="mt-4 hidden space-y-0.5 md:block">
-                {steps.map((s, i) => (
+                {stepDefs.map((s, i) => (
                   <li
-                    key={s.title}
+                    key={s.titleKey}
                     aria-current={i === current ? "step" : undefined}
                     className={cn(
                       "flex items-center gap-2 rounded-md px-2 py-1.5 text-xs transition-colors",
@@ -197,7 +181,7 @@ export function WelcomeOverlay({ open, onDismiss }: WelcomeOverlayProps) {
                     >
                       {i + 1}
                     </span>
-                    <span>{s.shortTitle}</span>
+                    <span>{t(s.shortKey)}</span>
                   </li>
                 ))}
               </ol>
@@ -207,33 +191,33 @@ export function WelcomeOverlay({ open, onDismiss }: WelcomeOverlayProps) {
             <div className="relative flex flex-col p-6 md:p-8">
               <DialogPrimitive.Close
                 className="absolute right-4 top-4 rounded-md p-1 text-slate-400 transition-colors hover:bg-slate-100 hover:text-slate-700 focus:outline-none focus-visible:ring-2 focus-visible:ring-emerald-500"
-                aria-label="Close welcome tour"
+                aria-label={t("welcome.closeWelcomeTour")}
               >
                 <X className="h-4 w-4" aria-hidden="true" />
               </DialogPrimitive.Close>
 
               <div className="flex-1 pt-2" aria-live="polite">
                 <span className="inline-block rounded-full border border-emerald-200 bg-emerald-50 px-2.5 py-0.5 text-[10px] font-semibold uppercase tracking-[0.12em] text-emerald-700">
-                  Step {current + 1} of {steps.length}
+                  {t("welcome.stepOf", { current: current + 1, total: stepDefs.length })}
                 </span>
                 <DialogPrimitive.Title className="mt-3 text-2xl font-bold leading-tight text-slate-900">
-                  {step.title}
+                  {t(step.titleKey)}
                 </DialogPrimitive.Title>
                 <DialogPrimitive.Description
                   id="welcome-step-body"
                   className="mt-3 text-sm leading-relaxed text-slate-600"
                 >
-                  {step.body[0]}
+                  {t(step.bodyKeys[0])}
                 </DialogPrimitive.Description>
                 <p className="mt-3 text-sm leading-relaxed text-slate-600">
-                  {step.body[1]}
+                  {t(step.bodyKeys[1])}
                 </p>
                 {isReminderStep && (
                   <div className="mt-4">
                     {emailEnabled ? (
                       <div className="inline-flex items-center gap-1.5 rounded-full border border-emerald-200 bg-emerald-50 px-3 py-1.5 text-xs font-semibold text-emerald-800">
                         <Check className="h-3.5 w-3.5" aria-hidden="true" />
-                        Reminder enabled
+                        {t("welcome.reminderEnabled")}
                       </div>
                     ) : (
                       <Button
@@ -242,7 +226,7 @@ export function WelcomeOverlay({ open, onDismiss }: WelcomeOverlayProps) {
                         variant="outline"
                         className="border-emerald-300 text-emerald-800 hover:bg-emerald-50"
                       >
-                        Enable monthly reminder
+                        {t("welcome.enableMonthlyReminder")}
                       </Button>
                     )}
                   </div>
@@ -256,13 +240,13 @@ export function WelcomeOverlay({ open, onDismiss }: WelcomeOverlayProps) {
                   onClick={goBack}
                   className={cn(isFirst && "pointer-events-none opacity-40")}
                 >
-                  ← Back
+                  {t("welcome.backButton")}
                 </Button>
                 <Button
                   onClick={goNext}
                   className="bg-emerald-700 text-white hover:bg-emerald-800"
                 >
-                  {isLast ? "Get started →" : "Next →"}
+                  {isLast ? t("welcome.getStarted") : t("welcome.nextButton")}
                 </Button>
               </div>
             </div>

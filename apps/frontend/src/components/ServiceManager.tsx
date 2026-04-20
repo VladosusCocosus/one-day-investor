@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { useTranslation } from "react-i18next";
 import { Trash2, Plus, Pencil, Check, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
@@ -14,6 +15,7 @@ interface ServiceManagerProps {
 }
 
 export function ServiceManager({ tree, onAdd, onRemove, onEdit, onClose }: ServiceManagerProps) {
+  const { t } = useTranslation();
   const [newName, setNewName] = useState("");
   const [newParentId, setNewParentId] = useState<string | null>(null);
   const [editingId, setEditingId] = useState<string | null>(null);
@@ -41,8 +43,8 @@ export function ServiceManager({ tree, onAdd, onRemove, onEdit, onClose }: Servi
     <Card>
       <CardContent className="pt-4">
         <div className="flex items-center justify-between mb-4">
-          <h3 className="text-sm font-semibold text-foreground">Manage Services</h3>
-          <Button variant="ghost" size="sm" onClick={onClose}>Done</Button>
+          <h3 className="text-sm font-semibold text-foreground">{t("serviceManager.title")}</h3>
+          <Button variant="ghost" size="sm" onClick={onClose}>{t("common.done")}</Button>
         </div>
 
         {/* Existing services */}
@@ -121,7 +123,7 @@ export function ServiceManager({ tree, onAdd, onRemove, onEdit, onClose }: Servi
         <div className="flex items-center gap-2 pt-2 border-t">
           <input
             className="flex-1 text-sm border rounded px-2 py-1.5 bg-background"
-            placeholder="Service name"
+            placeholder={t("serviceManager.serviceName")}
             value={newName}
             onChange={(e) => setNewName(e.target.value)}
             onKeyDown={(e) => e.key === "Enter" && handleAdd()}
@@ -131,7 +133,7 @@ export function ServiceManager({ tree, onAdd, onRemove, onEdit, onClose }: Servi
             value={newParentId ?? ""}
             onChange={(e) => setNewParentId(e.target.value || null)}
           >
-            <option value="">Top level</option>
+            <option value="">{t("serviceManager.topLevel")}</option>
             {tree.map((g) => (
               <option key={g.service.id} value={g.service.id}>
                 ↳ {g.service.name}
@@ -140,7 +142,7 @@ export function ServiceManager({ tree, onAdd, onRemove, onEdit, onClose }: Servi
           </select>
           <Button size="sm" onClick={handleAdd} disabled={!newName.trim()}>
             <Plus className="h-3.5 w-3.5 mr-1" />
-            Add
+            {t("common.add")}
           </Button>
         </div>
       </CardContent>

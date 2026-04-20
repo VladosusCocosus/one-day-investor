@@ -1,4 +1,5 @@
 import { useMemo, useState } from "react";
+import { Trans, useTranslation } from "react-i18next";
 import { Plus } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
@@ -27,6 +28,7 @@ type AssetDrawerMode =
   | { kind: "edit"; asset: PocketAssetWithPrice };
 
 export function AssetsPage() {
+  const { t } = useTranslation();
   usePageMeta(pageMeta.assets);
   const { services, loading: servicesLoading } = useServices();
   const { settings } = useSettings();
@@ -134,15 +136,15 @@ export function AssetsPage() {
     <div>
       <div className="flex items-start justify-between gap-4">
         <div>
-          <h1 className="text-xl font-bold text-foreground">Assets</h1>
+          <h1 className="text-xl font-bold text-foreground">{t("assets.title")}</h1>
           <p className="mt-1 text-sm text-muted-foreground">
-            Manage your investment holdings
+            {t("assets.subtitle")}
           </p>
         </div>
         {!servicesLoading && (
           <Button variant="outline" size="sm" onClick={openAddPocket}>
             <Plus className="mr-1.5 h-3.5 w-3.5" />
-            Add pocket
+            {t("assets.addPocket")}
           </Button>
         )}
       </div>
@@ -153,9 +155,12 @@ export function AssetsPage() {
             {formatMoney(grandTotal)}
           </p>
           <p className="text-xs text-muted-foreground">
-            across {grandAssetCount}{" "}
-            {grandAssetCount === 1 ? "asset" : "assets"} in {grandPocketCount}{" "}
-            {grandPocketCount === 1 ? "pocket" : "pockets"}
+            {t("assets.acrossAssets", {
+              assetCount: grandAssetCount,
+              assetLabel: grandAssetCount === 1 ? t("assets.asset") : t("assets.assets"),
+              pocketCount: grandPocketCount,
+              pocketLabel: grandPocketCount === 1 ? t("assets.pocket") : t("assets.pockets"),
+            })}
           </p>
         </div>
       )}
@@ -173,7 +178,7 @@ export function AssetsPage() {
         <Card className="mt-6">
           <CardContent className="flex items-center justify-center py-12">
             <p className="text-sm text-muted-foreground">
-              No pockets yet. Click <span className="font-medium">Add pocket</span> to start.
+              <Trans i18nKey="assets.noPocketsYet" components={{ bold: <span className="font-medium" /> }} />
             </p>
           </CardContent>
         </Card>
@@ -206,7 +211,7 @@ export function AssetsPage() {
           {hasInvestmentPockets && (
             <div className="flex items-center justify-between border-t bg-muted/20 px-4 py-3">
               <span className="text-[11px] font-semibold uppercase tracking-wider text-muted-foreground">
-                Total
+                {t("common.total")}
               </span>
               <span className="text-sm font-semibold text-foreground tabular-nums">
                 {formatMoney(grandTotal)}
@@ -255,6 +260,7 @@ function PocketSection({
   onAddAsset,
   onRowClick,
 }: PocketSectionProps) {
+  const { t } = useTranslation();
   return (
     <div className="border-b last:border-b-0">
       <div className="flex items-center bg-muted/30">
@@ -265,7 +271,7 @@ function PocketSection({
             "flex flex-1 items-center px-4 py-2 text-left transition-colors",
             "hover:bg-muted/50 focus-visible:bg-muted/50 focus-visible:outline-none"
           )}
-          aria-label={`Edit pocket ${label}`}
+          aria-label={t("assets.editPocket", { label })}
         >
           <span className="text-[11px] font-semibold uppercase tracking-wider text-muted-foreground">
             {label}
@@ -277,7 +283,7 @@ function PocketSection({
         <button
           type="button"
           onClick={onAddAsset}
-          aria-label={`Add asset to ${label}`}
+          aria-label={t("assets.addAssetTo", { label })}
           className={cn(
             "mr-2 flex h-6 w-6 items-center justify-center rounded-md text-muted-foreground transition-colors",
             "hover:bg-emerald-50 hover:text-emerald-700",
@@ -294,7 +300,7 @@ function PocketSection({
           onClick={onAddAsset}
           className="block w-full px-4 py-3 text-left text-xs italic text-muted-foreground transition-colors hover:bg-muted/40 focus-visible:bg-muted/40 focus-visible:outline-none"
         >
-          No assets — click <span className="font-medium">+</span> to add one
+          <Trans i18nKey="assets.noAssetsClickToAdd" components={{ bold: <span className="font-medium" /> }} />
         </button>
       ) : (
         assets.map((a) => {
@@ -338,6 +344,7 @@ function CommonPocketRow({
   label: string;
   onClick: () => void;
 }) {
+  const { t } = useTranslation();
   return (
     <button
       type="button"
@@ -346,7 +353,7 @@ function CommonPocketRow({
         "flex w-full items-center justify-between border-b bg-muted/10 px-4 py-2 text-left transition-colors last:border-b-0",
         "hover:bg-muted/30 focus-visible:bg-muted/30 focus-visible:outline-none"
       )}
-      aria-label={`Edit pocket ${label}`}
+      aria-label={t("assets.editPocket", { label })}
     >
       <span className="text-[11px] font-semibold uppercase tracking-wider text-muted-foreground/70">
         {label}

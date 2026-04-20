@@ -1,4 +1,5 @@
 import { NavLink, useNavigate } from "react-router";
+import { useTranslation } from "react-i18next";
 import { LayoutDashboard, User, Layers, Camera, BarChart3, PanelLeftClose, PanelLeft, LogOut } from "lucide-react";
 import { useAuth } from "@/hooks/useAuth";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
@@ -13,11 +14,11 @@ import { cn } from "@/lib/utils";
 import Icon from "../assets/logo.svg?react"
 
 const navItems = [
-  { label: "Dashboard", icon: LayoutDashboard, path: "/dashboard" },
-  { label: "Profile", icon: User, path: "/profile" },
-  { label: "Assets", icon: Layers, path: "/assets-managment" },
-  { label: "Snapshots", icon: Camera, path: "/snapshots" },
-  { label: "Analytics", icon: BarChart3, path: "/analytics" },
+  { labelKey: "nav.dashboard", icon: LayoutDashboard, path: "/dashboard" },
+  { labelKey: "nav.profile", icon: User, path: "/profile" },
+  { labelKey: "nav.assets", icon: Layers, path: "/assets-managment" },
+  { labelKey: "nav.snapshots", icon: Camera, path: "/snapshots" },
+  { labelKey: "nav.analytics", icon: BarChart3, path: "/analytics" },
 ] as const;
 
 interface SidebarProps {
@@ -26,6 +27,7 @@ interface SidebarProps {
 }
 
 export function Sidebar({ collapsed, onToggle }: SidebarProps) {
+  const { t } = useTranslation();
   const { user, logout } = useAuth();
   const navigate = useNavigate();
 
@@ -62,7 +64,7 @@ export function Sidebar({ collapsed, onToggle }: SidebarProps) {
               <Icon width={24} height={24}/>
             {!collapsed && (
               <span className="text-[15px] font-semibold text-sidebar-foreground">
-                ODInvestor
+                {t("common.appNameShort")}
               </span>
             )}
           </div>
@@ -88,7 +90,7 @@ export function Sidebar({ collapsed, onToggle }: SidebarProps) {
                   <PanelLeft className="h-3 w-3" />
                 </Button>
               </TooltipTrigger>
-              <TooltipContent side="right">Expand sidebar</TooltipContent>
+              <TooltipContent side="right">{t("sidebar.expandSidebar")}</TooltipContent>
             </Tooltip>
           )}
         </div>
@@ -110,7 +112,7 @@ export function Sidebar({ collapsed, onToggle }: SidebarProps) {
                 }
               >
                 <item.icon className="h-4 w-4 flex-shrink-0" />
-                {!collapsed && <span>{item.label}</span>}
+                {!collapsed && <span>{t(item.labelKey)}</span>}
               </NavLink>
             );
 
@@ -118,7 +120,7 @@ export function Sidebar({ collapsed, onToggle }: SidebarProps) {
               return (
                 <Tooltip key={item.path}>
                   <TooltipTrigger asChild>{link}</TooltipTrigger>
-                  <TooltipContent side="right">{item.label}</TooltipContent>
+                  <TooltipContent side="right">{t(item.labelKey)}</TooltipContent>
                 </Tooltip>
               );
             }
@@ -145,7 +147,7 @@ export function Sidebar({ collapsed, onToggle }: SidebarProps) {
             <>
               <div className="min-w-0 flex-1">
                 <p className="truncate text-[13px] font-medium text-sidebar-foreground">
-                  {user?.name ?? "User"}
+                  {user?.name ?? t("sidebar.defaultUserLabel")}
                 </p>
                 <p className="truncate text-[11px] text-sidebar-muted-foreground">
                   {user?.email}
@@ -162,7 +164,7 @@ export function Sidebar({ collapsed, onToggle }: SidebarProps) {
                     <LogOut className="h-3.5 w-3.5" />
                   </Button>
                 </TooltipTrigger>
-                <TooltipContent side="right">Sign out</TooltipContent>
+                <TooltipContent side="right">{t("sidebar.signOut")}</TooltipContent>
               </Tooltip>
             </>
           )}
@@ -178,7 +180,7 @@ export function Sidebar({ collapsed, onToggle }: SidebarProps) {
                   <LogOut className="h-3.5 w-3.5" />
                 </Button>
               </TooltipTrigger>
-              <TooltipContent side="right">Sign out</TooltipContent>
+              <TooltipContent side="right">{t("sidebar.signOut")}</TooltipContent>
             </Tooltip>
           )}
         </div>

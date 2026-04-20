@@ -1,4 +1,5 @@
 import { useState, useRef } from "react";
+import { useTranslation } from "react-i18next";
 import { api } from "@/lib/api";
 import { useQuery } from "@tanstack/react-query";
 import { Button } from "@/components/ui/button";
@@ -6,6 +7,7 @@ import { cn } from "@/lib/utils";
 import { ImagePlus } from "lucide-react";
 
 export function AdminPage() {
+  const { t } = useTranslation();
   const { data: adminCheck, isLoading, isError } = useQuery({
     queryKey: ["admin", "check"],
     queryFn: async () => {
@@ -28,7 +30,7 @@ export function AdminPage() {
   if (isLoading) {
     return (
       <div className="flex items-center justify-center py-20">
-        <div className="text-sm text-muted-foreground">Checking access...</div>
+        <div className="text-sm text-muted-foreground">{t("admin.checkingAccess")}</div>
       </div>
     );
   }
@@ -36,7 +38,7 @@ export function AdminPage() {
   if (isError || !adminCheck?.admin) {
     return (
       <div className="flex items-center justify-center py-20">
-        <div className="text-sm text-destructive">Access denied.</div>
+        <div className="text-sm text-destructive">{t("admin.accessDenied")}</div>
       </div>
     );
   }
@@ -99,21 +101,21 @@ export function AdminPage() {
 
   return (
     <div>
-      <h1 className="text-xl font-bold text-foreground">Admin</h1>
+      <h1 className="text-xl font-bold text-foreground">{t("admin.title")}</h1>
       <p className="mt-1 text-sm text-muted-foreground">
-        Send service update emails to opted-in users.
+        {t("admin.subtitle")}
       </p>
 
       <div className="mt-6 space-y-4">
         <div>
           <label className="text-[10px] font-semibold uppercase tracking-wider text-muted-foreground">
-            Subject
+            {t("admin.subject")}
           </label>
           <input
             type="text"
             value={subject}
             onChange={(e) => setSubject(e.target.value)}
-            placeholder="What's new in One Day Investor"
+            placeholder={t("admin.subjectPlaceholder")}
             className="mt-1.5 w-full rounded-lg border border-border bg-background px-3 py-2 text-sm outline-none focus-visible:border-ring focus-visible:ring-[3px] focus-visible:ring-ring/50"
           />
         </div>
@@ -121,7 +123,7 @@ export function AdminPage() {
         <div>
           <div className="flex items-center justify-between">
             <label className="text-[10px] font-semibold uppercase tracking-wider text-muted-foreground">
-              Content (Markdown)
+              {t("admin.contentMarkdown")}
             </label>
             <label
               className={cn(
@@ -130,7 +132,7 @@ export function AdminPage() {
               )}
             >
               <ImagePlus className="h-3.5 w-3.5" aria-hidden="true" />
-              {uploading ? "Uploading..." : "Add image"}
+              {uploading ? t("admin.uploading") : t("admin.addImage")}
               <input
                 type="file"
                 accept="image/*"
@@ -164,7 +166,7 @@ export function AdminPage() {
           >
             {dragging && (
               <div className="absolute inset-0 z-10 flex items-center justify-center rounded-lg bg-primary/10 pointer-events-none">
-                <span className="text-sm font-medium text-primary">Drop image here</span>
+                <span className="text-sm font-medium text-primary">{t("common.dropImageHere")}</span>
               </div>
             )}
             <textarea
@@ -192,7 +194,7 @@ export function AdminPage() {
             onClick={handlePreview}
             disabled={!subject.trim() || !markdown.trim()}
           >
-            Preview
+            {t("common.preview")}
           </Button>
           <Button
             size="sm"
@@ -202,11 +204,11 @@ export function AdminPage() {
               confirming && "bg-destructive hover:bg-destructive/90"
             )}
           >
-            {sending ? "Sending..." : confirming ? "Click again to confirm send" : "Send to all opted-in users"}
+            {sending ? t("admin.sending") : confirming ? t("admin.confirmSend") : t("admin.sendToAll")}
           </Button>
           {confirming && (
             <Button variant="ghost" size="sm" onClick={() => setConfirming(false)}>
-              Cancel
+              {t("common.cancel")}
             </Button>
           )}
         </div>
@@ -214,10 +216,10 @@ export function AdminPage() {
         {result && (
           <div className="rounded-lg border border-border bg-card p-4 text-sm">
             <div className="font-semibold text-foreground">
-              Sent: {result.sent} / {result.total}
+              {t("admin.sentResult", { sent: result.sent, total: result.total })}
             </div>
             {result.failed > 0 && (
-              <div className="mt-1 text-destructive">Failed: {result.failed}</div>
+              <div className="mt-1 text-destructive">{t("admin.failedResult", { failed: result.failed })}</div>
             )}
           </div>
         )}
@@ -227,10 +229,10 @@ export function AdminPage() {
         <div className="mt-8">
           <div className="flex items-center justify-between">
             <h2 className="text-[10px] font-semibold uppercase tracking-wider text-muted-foreground">
-              Preview
+              {t("common.preview")}
             </h2>
             <Button variant="ghost" size="sm" onClick={() => setPreviewHtml(null)}>
-              Close
+              {t("common.close")}
             </Button>
           </div>
           <div className="mt-2 rounded-lg border border-border overflow-hidden bg-[#f1f5f9]">

@@ -1,5 +1,6 @@
 import { useState, useEffect } from "react";
 import { useParams, useNavigate } from "react-router";
+import { useTranslation } from "react-i18next";
 import { useQuery } from "@tanstack/react-query";
 import { blogApi } from "@/lib/blogApi";
 import { api } from "@/lib/api";
@@ -248,6 +249,7 @@ function ImageUrlField({
   onChange: (value: string) => void;
   label: string;
 }) {
+  const { t } = useTranslation();
   const [dragging, setDragging] = useState(false);
   const [uploading, setUploading] = useState(false);
 
@@ -286,7 +288,7 @@ function ImageUrlField({
       >
         {dragging && (
           <div className="absolute inset-0 z-10 flex items-center justify-center rounded-md bg-primary/10 pointer-events-none">
-            <span className="text-sm font-medium text-primary">Drop image here</span>
+            <span className="text-sm font-medium text-primary">{t("common.dropImageHere")}</span>
           </div>
         )}
         <div className="flex items-center gap-2">
@@ -294,7 +296,7 @@ function ImageUrlField({
             type="text"
             value={value ?? ""}
             onChange={(e) => onChange(e.target.value)}
-            placeholder="Paste URL or drop an image"
+            placeholder={t("blogEditor.pasteUrlOrDrop")}
             className="flex-1 bg-transparent px-3 py-2 text-sm outline-none"
           />
           <label
@@ -304,7 +306,7 @@ function ImageUrlField({
             )}
           >
             <ImagePlus className="h-3.5 w-3.5" />
-            {uploading ? "..." : "Upload"}
+            {uploading ? "..." : t("blogEditor.upload")}
             <input
               type="file"
               accept="image/*"
@@ -344,6 +346,7 @@ function BlockCard({
   onRemove: () => void;
   onMove: (dir: -1 | 1) => void;
 }) {
+  const { t } = useTranslation();
   const schema = SCHEMAS[block.type];
   if (!schema) return null;
 
@@ -355,7 +358,7 @@ function BlockCard({
 
   const handleTypeChange = (newType: string) => {
     if (newType === block.type) return;
-    if (!confirm("Changing the block type will reset its fields. Continue?")) return;
+    if (!confirm(t("blogEditor.changeBlockTypeConfirm"))) return;
     const newSchema = SCHEMAS[newType];
     if (newSchema) onUpdate(newSchema.defaults());
   };
@@ -412,6 +415,7 @@ function BlockCard({
 }
 
 export function BlogPostEditor() {
+  const { t } = useTranslation();
   const { id } = useParams();
   const navigate = useNavigate();
   const isNew = !id || id === "new";
@@ -454,7 +458,7 @@ export function BlogPostEditor() {
 
   const handleSave = async () => {
     if (!title.trim() || !slug.trim()) {
-      setError("Title and slug are required.");
+      setError(t("blogEditor.titleAndSlugRequired"));
       return;
     }
     setSaving(true);
@@ -475,7 +479,7 @@ export function BlogPostEditor() {
       }
       navigate("/admin/blog");
     } catch (err: any) {
-      setError(err?.response?.data?.error || "Failed to save.");
+      setError(err?.response?.data?.error || t("common.saveFailed"));
     } finally {
       setSaving(false);
     }
@@ -537,7 +541,7 @@ export function BlogPostEditor() {
   };
 
   const removeBlock = (index: number) => {
-    if (!confirm("Delete this block?")) return;
+    if (!confirm(t("blogEditor.deleteBlockConfirm"))) return;
     setBlocks(blocks.filter((_, i) => i !== index));
   };
 
@@ -553,10 +557,10 @@ export function BlogPostEditor() {
     <div className="max-w-3xl">
       <div className="flex items-center justify-between mb-6">
         <h1 className="text-xl font-bold text-foreground">
-          {isNew ? "New post" : "Edit post"}
+          {isNew ? t("blogEditor.newPost") : t("blogEditor.editPost")}
         </h1>
         <Button variant="ghost" size="sm" onClick={() => navigate("/admin/blog")}>
-          Back
+          {t("common.back")}
         </Button>
       </div>
 
@@ -569,26 +573,26 @@ export function BlogPostEditor() {
       {/* Post details */}
       <section className="rounded-xl border border-border bg-card p-5 space-y-4">
         <h2 className="text-[10px] font-semibold uppercase tracking-wider text-muted-foreground">
-          Details
+          {t("blogEditor.details")}
         </h2>
         <div>
-          <label className="block text-xs font-medium text-muted-foreground mb-1">Title</label>
+          <label className="block text-xs font-medium text-muted-foreground mb-1">{t("blogEditor.titleLabel")}</label>
           <input type="text" value={title} onChange={(e) => setTitle(e.target.value)} className={inputCls} />
         </div>
         <div>
-          <label className="block text-xs font-medium text-muted-foreground mb-1">Slug</label>
-          <input type="text" value={slug} onChange={(e) => setSlug(e.target.value)} placeholder="my-post-slug" className={inputCls} />
+          <label className="block text-xs font-medium text-muted-foreground mb-1">{t("blogEditor.slug")}</label>
+          <input type="text" value={slug} onChange={(e) => setSlug(e.target.value)} placeholder={t("blogEditor.slugPlaceholder")} className={inputCls} />
         </div>
         <div>
-          <label className="block text-xs font-medium text-muted-foreground mb-1">Excerpt</label>
+          <label className="block text-xs font-medium text-muted-foreground mb-1">{t("blogEditor.excerpt")}</label>
           <input type="text" value={excerpt} onChange={(e) => setExcerpt(e.target.value)} className={inputCls} />
         </div>
         <div>
-          <label className="block text-xs font-medium text-muted-foreground mb-1">Tags (comma-separated)</label>
-          <input type="text" value={tags} onChange={(e) => setTags(e.target.value)} placeholder="philosophy, investing" className={inputCls} />
+          <label className="block text-xs font-medium text-muted-foreground mb-1">{t("blogEditor.tagsLabel")}</label>
+          <input type="text" value={tags} onChange={(e) => setTags(e.target.value)} placeholder={t("blogEditor.tagsPlaceholder")} className={inputCls} />
         </div>
         <div>
-          <label className="block text-xs font-medium text-muted-foreground mb-1">Publish date (empty = draft)</label>
+          <label className="block text-xs font-medium text-muted-foreground mb-1">{t("blogEditor.publishDate")}</label>
           <input type="date" value={publishDate} onChange={(e) => setPublishDate(e.target.value)} className={inputCls} />
         </div>
       </section>
@@ -596,12 +600,12 @@ export function BlogPostEditor() {
       {/* Content blocks */}
       <section className="mt-6 rounded-xl border border-border bg-card p-5">
         <h2 className="text-[10px] font-semibold uppercase tracking-wider text-muted-foreground mb-4">
-          Content blocks
+          {t("blogEditor.contentBlocks")}
         </h2>
 
         {blocks.length === 0 && (
           <p className="text-sm text-muted-foreground italic py-4 text-center">
-            No blocks yet. Pick a type below and tap Add.
+            {t("blogEditor.noBlocksYet")}
           </p>
         )}
 
@@ -631,7 +635,7 @@ export function BlogPostEditor() {
           </select>
           <Button variant="outline" size="sm" onClick={addBlock}>
             <Plus className="mr-1.5 h-3.5 w-3.5" />
-            Add block
+            {t("blogEditor.addBlock")}
           </Button>
         </div>
       </section>
@@ -639,7 +643,7 @@ export function BlogPostEditor() {
       {/* Actions */}
       <div className="mt-6 flex gap-3">
         <Button onClick={handleSave} disabled={saving}>
-          {saving ? "Saving..." : isNew ? "Create post" : "Save changes"}
+          {saving ? t("common.saving") : isNew ? t("blogEditor.createPost") : t("blogEditor.saveChanges")}
         </Button>
       </div>
 
@@ -647,20 +651,20 @@ export function BlogPostEditor() {
       {!isNew && (
         <section className="mt-6 rounded-xl border border-border bg-card p-5">
           <h2 className="text-[10px] font-semibold uppercase tracking-wider text-muted-foreground mb-3">
-            OG image
+            {t("blogEditor.ogImage")}
           </h2>
           <p className="text-xs text-muted-foreground mb-4">
-            Generate a social sharing image from the post title and tags.
+            {t("blogEditor.ogImageDescription")}
           </p>
           <div className="flex items-center gap-2">
             <Button variant="outline" size="sm" onClick={handleGenerateOg} disabled={generatingOg}>
-              {generatingOg ? "Generating..." : post?.og_image ? "Regenerate OG image" : "Generate OG image"}
+              {generatingOg ? t("blogEditor.generating") : post?.og_image ? t("blogEditor.regenerateOg") : t("blogEditor.generateOg")}
             </Button>
             {ogResult && ogResult !== "error" && (
-              <span className="text-xs text-muted-foreground">Saved: {ogResult}</span>
+              <span className="text-xs text-muted-foreground">{t("blogEditor.ogSaved", { key: ogResult })}</span>
             )}
             {ogResult === "error" && (
-              <span className="text-xs text-destructive">Failed — is the OG service running?</span>
+              <span className="text-xs text-destructive">{t("blogEditor.ogFailed")}</span>
             )}
           </div>
           {(post?.og_image || (ogResult && ogResult !== "error")) && (
@@ -677,14 +681,14 @@ export function BlogPostEditor() {
       {!isNew && publishDate && (
         <section className="mt-6 rounded-xl border border-border bg-card p-5">
           <h2 className="text-[10px] font-semibold uppercase tracking-wider text-muted-foreground mb-3">
-            Notify subscribers
+            {t("blogEditor.notifySubscribers")}
           </h2>
           <p className="text-xs text-muted-foreground mb-4">
-            Send an email to users who opted in to blog post notifications.
+            {t("blogEditor.notifyDescription")}
           </p>
           <div className="flex items-center gap-2">
             <Button variant="outline" size="sm" onClick={handleNotifyPreview} disabled={!title || !slug}>
-              Preview email
+              {t("blogEditor.previewEmail")}
             </Button>
             <Button
               size="sm"
@@ -692,27 +696,27 @@ export function BlogPostEditor() {
               disabled={!title || !slug || !excerpt || notifying}
               className={cn(notifyConfirming && "bg-destructive hover:bg-destructive/90")}
             >
-              {notifying ? "Sending..." : notifyConfirming ? "Click again to confirm" : "Send to subscribers"}
+              {notifying ? t("admin.sending") : notifyConfirming ? t("blogEditor.confirmSend") : t("blogEditor.sendToSubscribers")}
             </Button>
             {notifyConfirming && (
               <Button variant="ghost" size="sm" onClick={() => setNotifyConfirming(false)}>
-                Cancel
+                {t("common.cancel")}
               </Button>
             )}
           </div>
           {notifyResult && (
             <div className="mt-3 rounded-lg border border-border p-3 text-sm">
-              <span className="font-semibold">Sent: {notifyResult.sent} / {notifyResult.total}</span>
+              <span className="font-semibold">{t("admin.sentResult", { sent: notifyResult.sent, total: notifyResult.total })}</span>
               {notifyResult.failed > 0 && (
-                <span className="ml-2 text-destructive">Failed: {notifyResult.failed}</span>
+                <span className="ml-2 text-destructive">{t("admin.failedResult", { failed: notifyResult.failed })}</span>
               )}
             </div>
           )}
           {notifyPreviewHtml && (
             <div className="mt-4">
               <div className="flex items-center justify-between mb-2">
-                <span className="text-xs font-medium text-muted-foreground">Email preview</span>
-                <Button variant="ghost" size="sm" onClick={() => setNotifyPreviewHtml(null)}>Close</Button>
+                <span className="text-xs font-medium text-muted-foreground">{t("blogEditor.emailPreview")}</span>
+                <Button variant="ghost" size="sm" onClick={() => setNotifyPreviewHtml(null)}>{t("common.close")}</Button>
               </div>
               <div className="rounded-lg border border-border overflow-hidden bg-[#f1f5f9]">
                 <iframe srcDoc={notifyPreviewHtml} title="Blog post email preview" className="w-full border-0" style={{ minHeight: 400 }} sandbox="" />

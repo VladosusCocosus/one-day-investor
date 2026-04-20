@@ -1,5 +1,6 @@
 import { useState, useEffect } from "react";
 import { useSearchParams } from "react-router";
+import { useTranslation } from "react-i18next";
 import { Switch } from "radix-ui";
 import { api } from "@/lib/api";
 import { cn } from "@/lib/utils";
@@ -11,25 +12,28 @@ interface Preferences {
   notify_blog_posts: boolean;
 }
 
-const CATEGORIES: { key: keyof Preferences; label: string; description: string }[] = [
+type CategoryDef = { key: keyof Preferences; labelKey: string; descKey: string };
+
+const CATEGORIES: CategoryDef[] = [
   {
     key: "notify_snapshot_reminders",
-    label: "Snapshot reminders",
-    description: "Monthly reminder to record your portfolio snapshot.",
+    labelKey: "unsubscribe.snapshotReminders",
+    descKey: "unsubscribe.snapshotRemindersDesc",
   },
   {
     key: "notify_service_updates",
-    label: "Service updates",
-    description: "New features, integrations, and maintenance notices.",
+    labelKey: "unsubscribe.serviceUpdates",
+    descKey: "unsubscribe.serviceUpdatesDesc",
   },
   {
     key: "notify_blog_posts",
-    label: "Blog posts",
-    description: "New blog posts published on One Day Investor.",
+    labelKey: "unsubscribe.blogPosts",
+    descKey: "unsubscribe.blogPostsDesc",
   },
 ];
 
 export function UnsubscribePage() {
+  const { t } = useTranslation();
   const [searchParams] = useSearchParams();
   const token = searchParams.get("token");
 
@@ -39,13 +43,13 @@ export function UnsubscribePage() {
 
   useEffect(() => {
     if (!token) {
-      setError("Missing token. Please use the link from your email.");
+      setError(t("unsubscribe.missingToken"));
       return;
     }
     api
       .get<Preferences>(`/api/notifications/preferences?token=${token}`)
       .then((res) => setPrefs(res.data))
-      .catch(() => setError("Invalid or expired link."));
+      .catch(() => setError(t("unsubscribe.invalidLink")));
   }, [token]);
 
   const update = async (patch: Partial<Preferences>) => {
@@ -59,7 +63,7 @@ export function UnsubscribePage() {
       );
       setPrefs(res.data);
     } catch {
-      setError("Failed to save. Please try again.");
+      setError(t("unsubscribe.saveFailed"));
     } finally {
       setSaving(false);
     }
@@ -78,16 +82,16 @@ export function UnsubscribePage() {
         {/* Logo */}
         <div className="text-center mb-8">
           <div className="inline-flex items-center gap-2 text-lg font-bold text-foreground">
-            <span className="text-primary">●</span> One Day Investor
+            <span className="text-primary">●</span> {t("unsubscribe.appName")}
           </div>
         </div>
 
         <div className="rounded-xl border border-border bg-card p-6">
           <h1 className="text-lg font-bold text-foreground">
-            Email preferences
+            {t("unsubscribe.emailPreferences")}
           </h1>
           <p className="mt-1 text-sm text-muted-foreground">
-            Choose which emails you'd like to receive.
+            {t("unsubscribe.chooseEmails")}
           </p>
 
           {error && !prefs && (
@@ -106,10 +110,10 @@ export function UnsubscribePage() {
                   >
                     <div className="min-w-0">
                       <div className="text-sm font-semibold text-foreground">
-                        {cat.label}
+                        {t(cat.labelKey)}
                       </div>
                       <p className="mt-0.5 text-xs text-muted-foreground">
-                        {cat.description}
+                        {t(cat.descKey)}
                       </p>
                     </div>
                     <Switch.Root
@@ -118,7 +122,7 @@ export function UnsubscribePage() {
                       onCheckedChange={(checked) =>
                         update({ [cat.key]: checked })
                       }
-                      aria-label={cat.label}
+                      aria-label={t(cat.labelKey)}
                       className={cn(
                         "relative h-6 w-11 shrink-0 cursor-pointer rounded-full border border-border transition-colors outline-none",
                         "focus-visible:ring-[3px] focus-visible:ring-ring/50",
@@ -144,7 +148,7 @@ export function UnsubscribePage() {
                   disabled={saving}
                   onClick={unsubscribeAll}
                 >
-                  Unsubscribe from all
+                  {t("unsubscribe.unsubscribeAll")}
                 </Button>
               </div>
 
@@ -156,9 +160,9 @@ export function UnsubscribePage() {
         </div>
 
         <p className="mt-4 text-center text-xs text-muted-foreground">
-          You can also manage these from your{" "}
+          {t("unsubscribe.manageFromProfile")}{" "}
           <a href="/profile" className="text-foreground underline">
-            profile settings
+            {t("unsubscribe.profileSettings")}
           </a>
           .
         </p>

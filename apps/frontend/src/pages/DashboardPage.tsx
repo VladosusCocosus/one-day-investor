@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { useTranslation } from "react-i18next";
 import { useAuth } from "@/hooks/useAuth";
 import {
   useCurrentTotal,
@@ -28,6 +29,7 @@ const CURRENCY_SYMBOLS: Record<string, string> = {
 
 export function DashboardPage() {
   usePageMeta(pageMeta.dashboard);
+  const { t } = useTranslation();
   const { user } = useAuth();
   const { data: timeline = [], isLoading: timelineLoading } = useTimeline();
   const { data: current = null } = useCurrentTotal();
@@ -96,24 +98,24 @@ export function DashboardPage() {
         <Card>
           <CardContent className="pt-4 pb-4">
             <p className="text-[11px] font-medium uppercase tracking-wider text-muted-foreground">
-              Services
+              {t("dashboard.services")}
             </p>
             <p className="mt-2 text-2xl font-semibold text-foreground tabular-nums">
               {servicesCount}
             </p>
-            <p className="mt-1.5 text-xs text-muted-foreground">tracked</p>
+            <p className="mt-1.5 text-xs text-muted-foreground">{t("dashboard.tracked")}</p>
           </CardContent>
         </Card>
         <Card>
           <CardContent className="pt-4 pb-4">
             <p className="text-[11px] font-medium uppercase tracking-wider text-muted-foreground">
-              Largest holding
+              {t("dashboard.largestHolding")}
             </p>
             <p className="mt-2 truncate text-2xl font-semibold text-foreground">
               {largest?.name ?? "—"}
             </p>
             <p className="mt-1.5 text-xs text-muted-foreground">
-              {largestPct !== null ? `${largestPct}% of portfolio` : "No data"}
+              {largestPct !== null ? t("dashboard.percentOfPortfolio", { percent: largestPct }) : t("common.noData")}
             </p>
           </CardContent>
         </Card>
