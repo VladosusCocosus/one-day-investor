@@ -62,10 +62,15 @@ export function AddServiceSearch({
   };
 
   const handleSelectCatalog = (service: CatalogService) => {
-    const exchangeNames = ["binance", "bybit", "kraken", "coinbase", "okx", "kucoin", "bitfinex", "crypto.com"];
+    const exchangeNameMap: Record<string, string> = {
+      binance: "binance", bybit: "bybit", kraken: "kraken", coinbase: "coinbase",
+      okx: "okx", kucoin: "kucoin", bitfinex: "bitfinex", "crypto.com": "crypto.com",
+      "revolut x": "revolut-x",
+    };
     const serviceName = service.name.toLowerCase();
-    if (exchangeNames.includes(serviceName)) {
-      setExchangeConnect(serviceName);
+    const exchangeId = exchangeNameMap[serviceName];
+    if (exchangeId) {
+      setExchangeConnect(exchangeId);
       setShowDropdown(false);
       return;
     }
