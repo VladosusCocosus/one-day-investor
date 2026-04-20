@@ -213,7 +213,7 @@ const app = new Elysia()
     // Posts in all languages
     for (const p of posts) {
       const path = `/${p.slug}`;
-      const lastmod = p.updated_at?.split("T")[0] || p.publish_date;
+      const lastmod = p.updated_at ? new Date(p.updated_at).toISOString().split("T")[0] : p.publish_date;
       for (const l of locales) {
         urls.push(`  <url>\n    <loc>${SITE_URL}${localePath(path, l)}</loc>\n    <lastmod>${lastmod}</lastmod>\n    <changefreq>monthly</changefreq>\n    <priority>0.8</priority>\n${hreflangs(path)}\n  </url>`);
       }
