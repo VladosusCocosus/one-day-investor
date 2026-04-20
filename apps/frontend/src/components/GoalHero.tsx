@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { useTranslation } from "react-i18next";
 import { Link } from "react-router";
 
 interface GoalHeroProps {
@@ -26,6 +27,7 @@ export function GoalHero({
   symbol,
   onSave,
 }: GoalHeroProps) {
+  const { t } = useTranslation();
   const [editing, setEditing] = useState(false);
   const [draft, setDraft] = useState(String(goal));
 
@@ -63,11 +65,11 @@ export function GoalHero({
     <div className={wrapperClass}>
       <div className="flex items-center gap-2">
         <span className="text-[10px] font-bold uppercase tracking-widest text-primary-foreground/75">
-          Goal
+          {t("goal.label")}
         </span>
         {reached && (
           <span className="rounded-full border border-primary-foreground/35 bg-primary-foreground/20 px-2 py-0.5 text-[9px] font-bold uppercase tracking-wider text-primary-foreground">
-            ✓ Reached
+            ✓ {t("goal.reached")}
           </span>
         )}
       </div>
@@ -111,7 +113,7 @@ export function GoalHero({
           to="/snapshots"
           className="mt-3 inline-block text-xs text-primary-foreground/90 underline underline-offset-2"
         >
-          Take your first snapshot to see progress →
+          {t("goal.takeFirstSnapshot")}
         </Link>
       )}
 
@@ -125,8 +127,8 @@ export function GoalHero({
           </div>
           <div className="mt-2 text-xs font-medium tabular-nums text-primary-foreground/90">
             {reached
-              ? `${percent}% · +${formatAmount(currentTotal - goal, symbol)} over goal`
-              : `${formatAmount(currentTotal, symbol)} · ${percent}% reached`}
+              ? `${percent}% · +${formatAmount(currentTotal - goal, symbol)} ${t("goal.overGoal")}`
+              : `${formatAmount(currentTotal, symbol)} · ${percent}% ${t("goal.reached")}`}
           </div>
         </>
       )}

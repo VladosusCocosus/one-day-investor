@@ -47,6 +47,12 @@
     "goodEvening": "Good evening",
     "defaultName": "there"
   },
+  "goal": {
+    "label": "Goal",
+    "reached": "Reached",
+    "overGoal": "over goal",
+    "takeFirstSnapshot": "Take your first snapshot to see progress →"
+  },
   "profile": {
     "title": "Profile",
     "subtitle": "Your account and preferences",

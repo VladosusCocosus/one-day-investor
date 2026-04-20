@@ -47,6 +47,12 @@
     "goodEvening": "Добрый вечер",
     "defaultName": "друг"
   },
+  "goal": {
+    "label": "Цель",
+    "reached": "Достигнута",
+    "overGoal": "сверх цели",
+    "takeFirstSnapshot": "Сделайте первый снимок, чтобы отслеживать прогресс →"
+  },
   "profile": {
     "title": "Профиль",
     "subtitle": "Ваш аккаунт и настройки",
