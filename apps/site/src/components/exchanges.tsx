@@ -4,11 +4,39 @@ import { t, type Locale } from "../i18n";
 const exchangeIcons: { name: string; svg: string }[] = [
   {
     name: "Binance",
-    svg: `<svg viewBox="0 0 24 24" aria-hidden="true" class="h-12 w-12"><rect width="24" height="24" rx="5" fill="#0B0E11"/><path fill="#F0B90B" d="M7.93 10.24 12 6.17l4.08 4.08 2.37-2.37L12 1.43 5.57 7.87l2.36 2.37Zm-6.5 1.76 2.37-2.37L6.17 12l-2.37 2.37L1.43 12Zm6.5 1.76L12 17.83l4.08-4.08 2.37 2.37L12 22.57l-6.44-6.44 2.3-2.37Zm9.9-1.76 2.37-2.37L22.57 12l-2.37 2.37L17.83 12ZM14.4 12 12 9.6 10.23 11.4l-.2.2-.43.4L9.6 12l2.4 2.4 2.4-2.4Z"/></svg>`,
+    svg: `<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" version="1.1" id="Your_design" x="0px" y="0px" width="126.611px" height="126.611px" viewBox="0 0 126.611 126.611" enable-background="new 0 0 126.611 126.611" xml:space="preserve"><script xmlns=""/>
+<polygon fill="#F3BA2F" points="38.171,53.203 62.759,28.616 87.36,53.216 101.667,38.909 62.759,0 23.864,38.896 "/>
+<rect x="3.644" y="53.188" transform="matrix(0.7071 0.7071 -0.7071 0.7071 48.7933 8.8106)" fill="#F3BA2F" width="20.233" height="20.234"/>
+<polygon fill="#F3BA2F" points="38.171,73.408 62.759,97.995 87.359,73.396 101.674,87.695 101.667,87.703 62.759,126.611   23.863,87.716 23.843,87.696 "/>
+<rect x="101.64" y="53.189" transform="matrix(-0.7071 0.7071 -0.7071 -0.7071 235.5457 29.0503)" fill="#F3BA2F" width="20.234" height="20.233"/>
+<polygon fill="#F3BA2F" points="77.271,63.298 77.277,63.298 62.759,48.78 52.03,59.509 52.029,59.509 50.797,60.742 48.254,63.285   48.254,63.285 48.234,63.305 48.254,63.326 62.759,77.831 77.277,63.313 77.284,63.305 "/>
+</svg>`,
   },
   {
     name: "Bybit",
-    svg: `<svg viewBox="0 0 24 24" aria-hidden="true" class="h-12 w-12"><rect width="24" height="24" rx="5" fill="#17181F"/><path fill="#F7A600" d="M15.1 14.4V8h1.5v6.4h-1.5Zm-9.1 2V6.7h3.1c1.5 0 2.4.8 2.4 2.1 0 .9-.5 1.4-.9 1.6.5.2 1.1.7 1.1 1.8 0 1.4-1 2.2-2.5 2.2H6Zm1.5-5.7h1.5c.7 0 1.1-.4 1.1-1s-.4-.9-1.1-.9H7.5v1.9Zm0 4.3h1.7c.7 0 1.2-.4 1.2-1s-.5-1-1.2-1H7.5v2Zm7.1 1.4v-2.8l-2.2-3.6h1.6l1.3 2.3 1.3-2.3h1.6l-2.2 3.6v2.8h-1.4Z"/></svg>`,
+    svg: `<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" xmlns:svg="http://www.w3.org/2000/svg" xml:space="preserve" width="135.467mm" height="45.1272mm" style="shape-rendering:geometricPrecision; text-rendering:geometricPrecision; image-rendering:optimizeQuality; fill-rule:evenodd; clip-rule:evenodd" viewBox="0 0 13547 4513"><script xmlns=""/>
+ <defs>
+  <style type="text/css">
+   <![CDATA[
+    .fil1 {fill:#15182A;fill-rule:nonzero}
+    .fil0 {fill:#F6A500;fill-rule:nonzero}
+   ]]>
+  </style>
+ </defs>
+ <g id="Layer_x0020_1">
+  <metadata id="CorelCorpID_0Corel-Layer"/>
+ </g>
+ <g id="Layer_x0020_1_0">
+  <metadata id="CorelCorpID_1Corel-Layer"/>
+  <g id="Bybit_x0020_Logo.cdr">
+   <polygon class="fil0" points="9655,3480 9655,-1 10355,-1 10355,3480 "/>
+   <path class="fil1" d="M1500 4514l-1500 0 0 -3481 1440 0c700,0 1107,381 1107,978 0,386 -262,636 -443,719 216,98 493,318 493,782 0,650 -458,1002 -1097,1002zm-116 -2875l0 0 -685 0 0 802 685 0c297,0 463,-161 463,-401 0,-239 -166,-401 -463,-401zm45 1413l0 0 -730 0 0 856 730 0c317,0 468,-195 468,-430 0,-235 -151,-425 -468,-425z"/>
+   <polygon class="fil1" points="4732,3086 4732,4514 4037,4514 4037,3086 2960,1033 3720,1033 4389,2436 5049,1033 5809,1033 "/>
+   <path class="fil1" d="M7793 4514l-1500 0 0 -3481 1440 0c700,0 1107,381 1107,978 0,386 -262,636 -443,719 216,98 493,318 493,782 0,650 -458,1002 -1097,1002zm-116 -2875l0 0 -685 0 0 802 685 0c297,0 463,-161 463,-401 0,-239 -166,-401 -463,-401zm45 1413l0 0 -730 0 0 856 730 0c317,0 468,-195 468,-430 0,-235 -151,-425 -468,-425z"/>
+   <polygon class="fil1" points="12610,1639 12610,4514 11911,4514 11911,1639 10974,1639 10974,1033 13547,1033 13547,1639 "/>
+  </g>
+ </g>
+</svg>`,
   },
   {
     name: "Kraken",
