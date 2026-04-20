@@ -1,4 +1,5 @@
 import { Elysia } from "elysia";
+import { createLogger } from "@logger";
 import { resolveUser } from "../auth/session";
 import {
   createExchangeCredential,
@@ -22,6 +23,7 @@ import {
 } from "@redis";
 import { syncExchangeToDb } from "./exchange-sync";
 
+const log = createLogger("api:exchange");
 const CACHE_TTL = 180; // 3 minutes
 
 export const exchangeApi = new Elysia({ prefix: "/api/exchange" })
@@ -44,16 +46,22 @@ export const exchangeApi = new Elysia({ prefix: "/api/exchange" })
 
     if (!exchange || !label || !apiKey || !apiSecret) {
       set.status = 400;
+      log.warn({ userId: user.id, exchange }, "connect: missing required fields");
       return { error: "exchange, label, apiKey, and apiSecret are required" };
     }
+
+    log.info({ userId: user.id, exchange, label }, "connect: validating credentials");
 
     // Validate credentials
     const adapter = getAdapter(exchange);
     const valid = await adapter.validateCredentials(apiKey, apiSecret);
     if (!valid) {
       set.status = 400;
+      log.warn({ userId: user.id, exchange, label }, "connect: invalid credentials");
       return { error: "Invalid API credentials" };
     }
+
+    log.info({ userId: user.id, exchange, label }, "connect: credentials valid, creating service");
 
     // Create parent service for this exchange account
     const parentService = await createService({
@@ -73,8 +81,13 @@ export const exchangeApi = new Elysia({ prefix: "/api/exchange" })
       service_id: parentService.id,
     });
 
+    log.info({ userId: user.id, exchange, credentialId: credential.id, serviceId: parentService.id }, "connect: credential stored, syncing pockets");
+
     // First sync — fetch from exchange, persist to DB, cache in Redis
     const pockets = await adapter.fetchPockets(apiKey, apiSecret);
+
+    log.info({ userId: user.id, exchange, pocketCount: pockets.length, assetCount: pockets.reduce((s, p) => s + p.assets.length, 0) }, "connect: fetched pockets from exchange");
+
     const syncResult = await syncExchangeToDb(
       user.id,
       parentService.id,
@@ -99,6 +112,8 @@ export const exchangeApi = new Elysia({ prefix: "/api/exchange" })
       { pockets, prices, cachedAt: new Date().toISOString() },
       CACHE_TTL
     );
+
+    log.info({ userId: user.id, exchange, label, credentialId: credential.id }, "connect: complete");
 
     return {
       credential: {
@@ -134,8 +149,11 @@ export const exchangeApi = new Elysia({ prefix: "/api/exchange" })
     const credential = await findExchangeCredentialById(params.id);
     if (!credential || credential.user_id !== user.id) {
       set.status = 404;
+      log.warn({ userId: user.id, credentialId: params.id }, "disconnect: not found");
       return { error: "Exchange connection not found" };
     }
+
+    log.info({ userId: user.id, exchange: credential.exchange, credentialId: params.id }, "disconnect: removing");
 
     // Delete credential
     await deleteExchangeCredential(params.id, user.id);
@@ -150,11 +168,14 @@ export const exchangeApi = new Elysia({ prefix: "/api/exchange" })
         await deleteService(child.id, user.id);
       }
       await deleteService(credential.service_id, user.id);
+      log.info({ userId: user.id, serviceId: credential.service_id, childrenRemoved: children.length }, "disconnect: service tree deleted");
     }
 
     // Clear Redis cache
     await cacheDel(`user:${user.id}:exchange:${credential.id}`);
     await cacheDel(`user:${user.id}:pockets`);
+
+    log.info({ userId: user.id, exchange: credential.exchange, credentialId: params.id }, "disconnect: complete");
 
     return { success: true };
   });
