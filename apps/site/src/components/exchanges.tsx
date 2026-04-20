@@ -2,7 +2,7 @@ import Html from "@kitajs/html";
 import { t, type Locale } from "../i18n";
 
 const exchanges: { name: string; icon: string }[] = [
-  { name: "Binance", icon: "https://bin.bnbstatic.com/static/images/bnb-for/brand.png" },
+  { name: "Binance", icon: "https://upload.wikimedia.org/wikipedia/commons/e/e8/Binance_Logo.svg" },
   { name: "Bybit", icon: "https://s2.coinmarketcap.com/static/img/exchanges/128x128/521.png" },
   { name: "Kraken", icon: "https://www.kraken.com/_assets/icons/apple-touch-icon.png" },
   { name: "Coinbase", icon: "https://www.coinbase.com/apple-touch-icon.png" },
