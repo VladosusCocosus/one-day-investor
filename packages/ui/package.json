@@ -1,0 +1,14 @@
+{
+  "name": "@ui",
+  "module": "index.ts",
+  "type": "module",
+  "private": true,
+  "dependencies": {
+    "@icons": "workspace:*",
+    "lucide-static": "^0.509.0"
+  },
+  "peerDependencies": {
+    "@kitajs/html": "*",
+    "typescript": "^5"
+  }
+}
