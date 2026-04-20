@@ -8,6 +8,7 @@ import {
   Legend,
   ResponsiveContainer,
 } from "recharts";
+import { useTranslation } from "react-i18next";
 import { Card, CardContent } from "@/components/ui/card";
 import type { AssetTimelineEntry } from "@/hooks/useAnalytics";
 import { formatMonthLong } from "@/lib/chart";
@@ -31,7 +32,7 @@ interface AssetAllocationChartProps {
   loading: boolean;
 }
 
-function buildChartData(data: AssetTimelineEntry[]) {
+function buildChartData(data: AssetTimelineEntry[], otherLabel: string) {
   if (data.length === 0) return { chartData: [], assetKeys: [] };
 
   // Determine top 8 assets by value in the most recent month
@@ -39,7 +40,7 @@ function buildChartData(data: AssetTimelineEntry[]) {
   const sorted = Object.entries(latest).sort(([, a], [, b]) => b - a);
   const topAssets = sorted.slice(0, MAX_ASSETS).map(([name]) => name);
   const hasOther = sorted.length > MAX_ASSETS;
-  const assetKeys = hasOther ? [...topAssets, "Other"] : topAssets;
+  const assetKeys = hasOther ? [...topAssets, otherLabel] : topAssets;
 
   // Build percentage data for each month
   const chartData = data.map((entry) => {
@@ -67,7 +68,7 @@ function buildChartData(data: AssetTimelineEntry[]) {
     }
 
     if (hasOther) {
-      row["Other"] = Math.round((otherTotal / total) * 10000) / 100;
+      row[otherLabel] = Math.round((otherTotal / total) * 10000) / 100;
     }
 
     return row;
@@ -77,21 +78,22 @@ function buildChartData(data: AssetTimelineEntry[]) {
 }
 
 export function AssetAllocationChart({ data, loading }: AssetAllocationChartProps) {
-  const { chartData, assetKeys } = buildChartData(data);
+  const { t } = useTranslation();
+  const { chartData, assetKeys } = buildChartData(data, t("analytics.other"));
 
   return (
     <Card>
       <CardContent className="pt-4">
         <p className="text-[11px] font-medium uppercase tracking-wider text-muted-foreground">
-          Asset allocation over time
+          {t("analytics.assetAllocation")}
         </p>
         {loading ? (
           <p className="py-16 text-center text-sm text-muted-foreground">
-            Loading...
+            {t("common.loading")}
           </p>
         ) : chartData.length === 0 ? (
           <p className="py-16 text-center text-sm text-muted-foreground">
-            No data yet
+            {t("analytics.noDataYet")}
           </p>
         ) : (
           <div className="mt-4">

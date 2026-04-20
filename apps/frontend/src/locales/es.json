@@ -96,7 +96,19 @@
   },
   "analytics": {
     "title": "Analítica",
-    "subtitle": "Rendimiento y distribución del portafolio"
+    "subtitle": "Rendimiento y distribución del portafolio",
+    "totalValue": "Valor total",
+    "vsPrevMonth": "vs mes anterior",
+    "services": "Servicios",
+    "trackedThisMonth": "Registrados este mes",
+    "largestHolding": "Mayor posición",
+    "ofPortfolio": "del portafolio",
+    "distribution": "Distribución",
+    "noDataForMonth": "Sin datos para este mes",
+    "portfolioOverTime": "Valor del portafolio en el tiempo",
+    "noDataYet": "Aún no hay datos",
+    "assetAllocation": "Distribución de activos en el tiempo",
+    "other": "Otros"
   },
   "unsubscribe": {
     "appName": "One Day Investor",

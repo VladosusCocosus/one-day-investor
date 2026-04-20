@@ -1,4 +1,5 @@
 import { useId } from "react";
+import { useTranslation } from "react-i18next";
 import {
   AreaChart,
   Area,
@@ -21,6 +22,7 @@ export function PortfolioTimelineChart({
   timeline,
   loading,
 }: PortfolioTimelineChartProps) {
+  const { t } = useTranslation();
   const gradientId = `portfolio-timeline-${useId()}`;
   const chartTimeline = timeline.map((t) => ({
     month: formatMonthLong(t.month),
@@ -31,15 +33,15 @@ export function PortfolioTimelineChart({
     <Card>
       <CardContent className="pt-4">
         <p className="text-[11px] font-medium uppercase tracking-wider text-muted-foreground">
-          Portfolio value over time
+          {t("analytics.portfolioOverTime")}
         </p>
         {loading ? (
           <p className="py-16 text-center text-sm text-muted-foreground">
-            Loading...
+            {t("common.loading")}
           </p>
         ) : chartTimeline.length === 0 ? (
           <p className="py-16 text-center text-sm text-muted-foreground">
-            No data yet
+            {t("analytics.noDataYet")}
           </p>
         ) : (
           <div className="mt-4">
@@ -89,7 +91,7 @@ export function PortfolioTimelineChart({
                 <Tooltip
                   formatter={(value) => [
                     `€${formatAmount(Number(value))}`,
-                    "Total",
+                    t("common.total"),
                   ]}
                   contentStyle={{
                     borderRadius: 8,
