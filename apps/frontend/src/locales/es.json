@@ -186,7 +186,9 @@
     "passphraseRequired": "La frase de paso es obligatoria para {{name}}",
     "connecting": "Conectando...",
     "connect": "Conectar",
-    "failedToConnect": "Error al conectar"
+    "failedToConnect": "Error al conectar",
+    "privateKeyLabel": "Clave privada (PEM)",
+    "privateKeyPlaceholder": "Pegue el contenido de private.pem"
   },
   "serviceManager": {
     "title": "Gestionar servicios",
