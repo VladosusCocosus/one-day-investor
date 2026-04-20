@@ -1,4 +1,5 @@
 import { ArrowDownRight, ArrowUpRight } from "lucide-react";
+import { useTranslation } from "react-i18next";
 import { Card, CardContent } from "@/components/ui/card";
 import { HeroSparkline } from "@/components/HeroSparkline";
 import type {
@@ -16,11 +17,11 @@ interface DashboardHeroProps {
   total: number
 }
 
-function getGreeting(): string {
+function getGreetingKey(): string {
   const hour = new Date().getHours();
-  if (hour < 12) return "Good morning";
-  if (hour < 18) return "Good afternoon";
-  return "Good evening";
+  if (hour < 12) return "dashboard.goodMorning";
+  if (hour < 18) return "dashboard.goodAfternoon";
+  return "dashboard.goodEvening";
 }
 
 export function DashboardHero({
@@ -29,6 +30,7 @@ export function DashboardHero({
   timelineLoading,
   user,
 }: DashboardHeroProps) {
+  const { t } = useTranslation();
   const hasData = timeline.length > 0;
 
   // MoM delta: compare the last two timeline entries
@@ -42,7 +44,7 @@ export function DashboardHero({
     }
   }
 
-  const greeting = `${getGreeting()}, ${user?.name ?? "there"}`;
+  const greeting = `${t(getGreetingKey())}, ${user?.name ?? t("dashboard.defaultName")}`;
   const totalDisplay = hasData ? formatCurrency(total) : "€0";
 
   return (
@@ -69,7 +71,7 @@ export function DashboardHero({
                 ) : (
                   <ArrowDownRight className="h-3.5 w-3.5" />
                 )}
-                {delta.pct.toFixed(1)}% vs prev month
+                {delta.pct.toFixed(1)}% {t("analytics.vsPrevMonth")}
               </p>
             ) : (
               <p className="mt-2 h-[26px]" aria-hidden />

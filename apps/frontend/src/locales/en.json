@@ -41,7 +41,11 @@
     "services": "Services",
     "tracked": "tracked",
     "largestHolding": "Largest holding",
-    "percentOfPortfolio": "{{percent}}% of portfolio"
+    "percentOfPortfolio": "{{percent}}% of portfolio",
+    "goodMorning": "Good morning",
+    "goodAfternoon": "Good afternoon",
+    "goodEvening": "Good evening",
+    "defaultName": "there"
   },
   "profile": {
     "title": "Profile",
