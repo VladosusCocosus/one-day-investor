@@ -96,7 +96,19 @@
   },
   "analytics": {
     "title": "Аналитика",
-    "subtitle": "Динамика и распределение портфеля"
+    "subtitle": "Динамика и распределение портфеля",
+    "totalValue": "Общая стоимость",
+    "vsPrevMonth": "к пред. месяцу",
+    "services": "Сервисы",
+    "trackedThisMonth": "Отслеживаются в этом месяце",
+    "largestHolding": "Крупнейший актив",
+    "ofPortfolio": "от портфеля",
+    "distribution": "Распределение",
+    "noDataForMonth": "Нет данных за этот месяц",
+    "portfolioOverTime": "Стоимость портфеля по времени",
+    "noDataYet": "Пока нет данных",
+    "assetAllocation": "Распределение активов по времени",
+    "other": "Прочее"
   },
   "unsubscribe": {
     "appName": "One Day Investor",

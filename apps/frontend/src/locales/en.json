@@ -96,7 +96,19 @@
   },
   "analytics": {
     "title": "Analytics",
-    "subtitle": "Portfolio performance and distribution"
+    "subtitle": "Portfolio performance and distribution",
+    "totalValue": "Total value",
+    "vsPrevMonth": "vs prev month",
+    "services": "Services",
+    "trackedThisMonth": "Tracked this month",
+    "largestHolding": "Largest holding",
+    "ofPortfolio": "of portfolio",
+    "distribution": "Distribution",
+    "noDataForMonth": "No data for this month",
+    "portfolioOverTime": "Portfolio value over time",
+    "noDataYet": "No data yet",
+    "assetAllocation": "Asset allocation over time",
+    "other": "Other"
   },
   "unsubscribe": {
     "appName": "One Day Investor",

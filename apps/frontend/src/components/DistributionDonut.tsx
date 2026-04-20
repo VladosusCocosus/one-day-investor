@@ -1,4 +1,5 @@
 import { useMemo } from "react";
+import { useTranslation } from "react-i18next";
 import { PieChart, Pie, Cell, Tooltip, ResponsiveContainer } from "recharts";
 import { Card, CardContent } from "@/components/ui/card";
 import type { DistributionEntry } from "@/hooks/useAnalytics";
@@ -21,6 +22,7 @@ export function DistributionDonut({
   activeMonth,
   loading,
 }: DistributionDonutProps) {
+  const { t } = useTranslation();
   const sortedDistribution = useMemo(
     () => sortByAmountDesc(distribution),
     [distribution]
@@ -38,7 +40,7 @@ export function DistributionDonut({
       <CardContent className="pt-4">
         <div className="flex items-baseline justify-between">
           <p className="text-[11px] font-medium uppercase tracking-wider text-muted-foreground">
-            Distribution
+            {t("analytics.distribution")}
           </p>
           {activeMonth && (
             <p className="text-[11px] text-muted-foreground">
@@ -49,11 +51,11 @@ export function DistributionDonut({
 
         {loading ? (
           <p className="py-16 text-center text-sm text-muted-foreground">
-            Loading...
+            {t("common.loading")}
           </p>
         ) : chartDistribution.length === 0 ? (
           <p className="py-16 text-center text-sm text-muted-foreground">
-            No data for this month
+            {t("analytics.noDataForMonth")}
           </p>
         ) : (
           <>
@@ -91,7 +93,7 @@ export function DistributionDonut({
               {/* Center label overlay */}
               <div className="pointer-events-none absolute inset-0 flex flex-col items-center justify-center">
                 <span className="text-[10px] font-semibold uppercase tracking-widest text-muted-foreground">
-                  Total
+                  {t("common.total")}
                 </span>
                 <span className="mt-0.5 text-xl font-semibold text-foreground tabular-nums">
                   {formatCompact(monthTotal)}
