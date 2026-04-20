@@ -1,7 +1,6 @@
 import Html from "@kitajs/html";
 import { t, localePath, type Locale } from "./i18n";
-import { LangSwitcher } from "./components/lang-switcher";
-import { PageShell } from "@ui";
+import { PageShell, LangSelect } from "@ui";
 import { XTwitterIcon, LinkedInIcon, InstagramIcon } from "@icons";
 import { Grid2x2, LogIn } from "lucide-static";
 
@@ -34,6 +33,12 @@ export function Layout({
   const ctaHref = isLoggedIn ? `${DASHBOARD_URL}/dashboard` : `${DASHBOARD_URL}/login`;
   const ctaIcon = isLoggedIn ? Grid2x2 : LogIn;
 
+  const langOptions = (["en", "ru", "es"] as const).map((l) => ({
+    value: l,
+    label: l.toUpperCase(),
+    href: localePath(canonicalPath, l),
+  }));
+
   const navContent = (
     <>
       {isLanding && (
@@ -56,7 +61,7 @@ export function Layout({
       >
         {t("nav.blog", locale)}
       </a>
-      <LangSwitcher locale={locale} canonicalPath={canonicalPath} />
+      <LangSelect locale={locale} options={langOptions} />
     </>
   );
 
