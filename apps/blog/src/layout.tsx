@@ -1,7 +1,7 @@
 import Html from "@kitajs/html";
 import { PageShell } from "@ui";
 import type { User } from "@types";
-import { t, type Locale } from "./i18n";
+import { t, localePath, type Locale } from "./i18n";
 import { Grid2x2, LogIn } from "lucide-static";
 import { XTwitterIcon, LinkedInIcon, InstagramIcon } from "@icons";
 
@@ -38,7 +38,8 @@ export function Layout({
     : null;
   const ogAlt = description || title;
   const fullTitle = `One Day Investor — ${title}`;
-  const canonicalUrl = canonicalPath ? `${SITE_URL}${canonicalPath}` : null;
+  const basePath = canonicalPath || "/";
+  const canonicalUrl = `${SITE_URL}${localePath(basePath, locale)}`;
 
   const blogUrl = process.env.BLOG_URL || "https://blog.odinvestor.net";
   const redirectParam = canonicalPath ? `?redirect_to=${encodeURIComponent(blogUrl + canonicalPath)}` : "";
@@ -51,13 +52,13 @@ export function Layout({
   const navContent = (
     <>
       <a
-        href="/"
+        href={locale === "en" ? "/" : `/${locale}`}
         class="hidden text-sm font-medium text-emerald-200 hover:text-white transition-colors md:inline"
       >
         {t("nav.blog", locale)}
       </a>
       <a
-        href="https://odinvestor.net/philosophy"
+        href={locale === "en" ? "https://odinvestor.net/philosophy" : `https://odinvestor.net/${locale}/philosophy`}
         class="hidden text-sm font-medium text-emerald-200 hover:text-white transition-colors md:inline"
       >
         {t("nav.philosophy", locale)}
@@ -83,16 +84,16 @@ export function Layout({
         <link rel="apple-touch-icon" href={`${DASHBOARD_URL}/apple-touch-icon.png`} />
         <title>{fullTitle}</title>
         {description && <meta name="description" content={description} />}
-        {canonicalUrl && <link rel="canonical" href={canonicalUrl} />}
-        <link rel="alternate" hreflang="en" href={`${SITE_URL}${canonicalPath || "/"}`} />
-        <link rel="alternate" hreflang="ru" href={`${SITE_URL}/ru${canonicalPath || "/"}`} />
-        <link rel="alternate" hreflang="es" href={`${SITE_URL}/es${canonicalPath || "/"}`} />
-        <link rel="alternate" hreflang="x-default" href={`${SITE_URL}${canonicalPath || "/"}`} />
+        <link rel="canonical" href={canonicalUrl} />
+        <link rel="alternate" hreflang="en" href={`${SITE_URL}${basePath}`} />
+        <link rel="alternate" hreflang="ru" href={`${SITE_URL}${localePath(basePath, "ru")}`} />
+        <link rel="alternate" hreflang="es" href={`${SITE_URL}${localePath(basePath, "es")}`} />
+        <link rel="alternate" hreflang="x-default" href={`${SITE_URL}${basePath}`} />
         <meta property="og:site_name" content="One Day Investor" />
         <meta property="og:title" content={fullTitle} />
         {description && <meta property="og:description" content={description} />}
         <meta property="og:type" content={ogType || "website"} />
-        {canonicalUrl && <meta property="og:url" content={canonicalUrl} />}
+        <meta property="og:url" content={canonicalUrl} />
         <meta property="og:locale" content={locale === "ru" ? "ru_RU" : locale === "es" ? "es_ES" : "en_US"} />
         {publishDate && <meta property="article:published_time" content={publishDate} />}
         {modifiedDate && <meta property="article:modified_time" content={modifiedDate} />}
