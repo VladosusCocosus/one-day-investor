@@ -3,6 +3,7 @@ import { Outlet, NavLink, useNavigate } from "react-router";
 import { LayoutDashboard, Layers, Camera, BarChart3 } from "lucide-react";
 import { useAuth } from "@/hooks/useAuth";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { useLanguageSync } from "@/hooks/useLanguageSync";
 import { Sidebar } from "./Sidebar";
 import Icon from "../assets/logo.svg?react";
 
@@ -72,6 +73,8 @@ function MobileTabBar() {
 }
 
 export function AppLayout() {
+  useLanguageSync();
+
   const [collapsed, setCollapsed] = useState(() => {
     return localStorage.getItem(SIDEBAR_KEY) === "true";
   });
