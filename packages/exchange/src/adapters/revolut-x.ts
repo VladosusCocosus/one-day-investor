@@ -64,10 +64,15 @@ export class RevolutXAdapter implements IExchangeAdapter {
   async validateCredentials(apiKey: string, privateKeyPem: string): Promise<boolean> {
     try {
       const pem = normalizePem(privateKeyPem);
+      log.info({ keyLength: apiKey.length, pemLines: pem.split("\n").length }, "validateCredentials: attempting");
       const res = await authedRequest("GET", "/balances", apiKey, pem);
+      if (!res.ok) {
+        const body = await res.text().catch(() => "");
+        log.warn({ status: res.status, body }, "validateCredentials: rejected by Revolut");
+      }
       return res.ok;
     } catch (err) {
-      log.error({ err }, "validateCredentials failed");
+      log.error({ err }, "validateCredentials: exception");
       return false;
     }
   }
