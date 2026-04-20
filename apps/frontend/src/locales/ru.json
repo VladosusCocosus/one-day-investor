@@ -41,7 +41,11 @@
     "services": "Сервисы",
     "tracked": "отслеживается",
     "largestHolding": "Крупнейшая позиция",
-    "percentOfPortfolio": "{{percent}}% портфеля"
+    "percentOfPortfolio": "{{percent}}% портфеля",
+    "goodMorning": "Доброе утро",
+    "goodAfternoon": "Добрый день",
+    "goodEvening": "Добрый вечер",
+    "defaultName": "друг"
   },
   "profile": {
     "title": "Профиль",

@@ -41,7 +41,11 @@
     "services": "Servicios",
     "tracked": "registrados",
     "largestHolding": "Mayor posición",
-    "percentOfPortfolio": "{{percent}}% del portafolio"
+    "percentOfPortfolio": "{{percent}}% del portafolio",
+    "goodMorning": "Buenos días",
+    "goodAfternoon": "Buenas tardes",
+    "goodEvening": "Buenas noches",
+    "defaultName": "amigo"
   },
   "profile": {
     "title": "Perfil",
