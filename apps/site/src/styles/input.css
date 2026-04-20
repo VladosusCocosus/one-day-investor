@@ -1,4 +1,6 @@
 @import "tailwindcss";
+@source "../../../../packages/ui";
+@source "../../../../packages/icons";
 
 @theme {
   --font-sans: 'Inter', system-ui, sans-serif;
