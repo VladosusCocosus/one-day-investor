@@ -89,7 +89,7 @@ export function Layout({
         <meta property="og:type" content="website" />
         <meta property="og:url" content={canonicalUrl} />
         <meta property="og:locale" content={locale === "ru" ? "ru_RU" : locale === "es" ? "es_ES" : "en_US"} />
-        <meta property="og:image" content={`${DASHBOARD_URL}/landing-dashboard-preview.png`} />
+        <meta property="og:image" content={`${DASHBOARD_URL}/og-image.png`} />
         <meta property="og:image:type" content="image/png" />
         <meta property="og:image:width" content="1200" />
         <meta property="og:image:height" content="630" />
@@ -97,7 +97,7 @@ export function Layout({
         <meta name="twitter:card" content="summary_large_image" />
         <meta name="twitter:title" content={fullTitle} />
         {description && <meta name="twitter:description" content={description} />}
-        <meta name="twitter:image" content={`${DASHBOARD_URL}/landing-dashboard-preview.png`} />
+        <meta name="twitter:image" content={`${DASHBOARD_URL}/og-image.png`} />
         <meta name="twitter:image:alt" content={description || title} />
         {jsonLd && (
           <script type="application/ld+json">
