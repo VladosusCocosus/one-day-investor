@@ -34,6 +34,10 @@ const exchangeIcons: { name: string; svg: string }[] = [
     name: "Crypto.com",
     svg: `<svg viewBox="0 0 24 24" aria-hidden="true" class="h-12 w-12"><rect width="24" height="24" rx="5" fill="#002D74"/><path fill="#fff" d="m12 3 9 5.2v7.6L12 21l-9-5.2V8.2L12 3Zm0 2.3L5 9.4v5.2l7 4 7-4V9.4l-7-4.1Zm-3.2 5 3.2-1.8 3.2 1.8v3.4L12 15.5l-3.2-1.8v-3.4Z"/></svg>`,
   },
+  {
+    name: "Revolut X",
+    svg: `<img src="https://assets.revolut.com/assets/rev-apps/crypto-exchange.png" alt="Revolut X" class="h-12 w-12 rounded-lg" />`,
+  },
 ];
 
 export function Exchanges({ locale }: { locale: Locale }) {
