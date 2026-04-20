@@ -186,7 +186,9 @@
     "passphraseRequired": "Парольная фраза обязательна для {{name}}",
     "connecting": "Подключение...",
     "connect": "Подключить",
-    "failedToConnect": "Не удалось подключиться"
+    "failedToConnect": "Не удалось подключиться",
+    "privateKeyLabel": "Приватный ключ (PEM)",
+    "privateKeyPlaceholder": "Вставьте содержимое файла private.pem"
   },
   "serviceManager": {
     "title": "Управление сервисами",

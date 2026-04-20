@@ -186,7 +186,9 @@
     "passphraseRequired": "Passphrase is required for {{name}}",
     "connecting": "Connecting...",
     "connect": "Connect",
-    "failedToConnect": "Failed to connect"
+    "failedToConnect": "Failed to connect",
+    "privateKeyLabel": "Private Key (PEM)",
+    "privateKeyPlaceholder": "Paste your private.pem content"
   },
   "serviceManager": {
     "title": "Manage Services",

@@ -22,10 +22,12 @@ export function ExchangeConnect({
   const [error, setError] = useState("");
 
   const needsPassphrase = exchange === "okx" || exchange === "kucoin";
+  const needsPrivateKey = exchange === "revolut-x";
   const exchangeNames: Record<string, string> = {
     "crypto.com": "Crypto.com",
     okx: "OKX",
     kucoin: "KuCoin",
+    "revolut-x": "Revolut X",
   };
   const exchangeName = exchangeNames[exchange] ?? exchange.charAt(0).toUpperCase() + exchange.slice(1);
 
@@ -95,16 +97,29 @@ export function ExchangeConnect({
         />
       </label>
 
-      <label className="flex flex-col gap-1">
-        <span className="text-sm font-medium">{t("exchange.apiSecret")}</span>
-        <input
-          type="password"
-          value={apiSecret}
-          onChange={(e) => setApiSecret(e.target.value)}
-          placeholder={t("exchange.apiSecretPlaceholder")}
-          className="border rounded px-3 py-2 text-sm font-mono"
-        />
-      </label>
+      {needsPrivateKey ? (
+        <label className="flex flex-col gap-1">
+          <span className="text-sm font-medium">{t("exchange.privateKeyLabel")}</span>
+          <textarea
+            value={apiSecret}
+            onChange={(e) => setApiSecret(e.target.value)}
+            placeholder={t("exchange.privateKeyPlaceholder")}
+            rows={4}
+            className="border rounded px-3 py-2 text-sm font-mono resize-y"
+          />
+        </label>
+      ) : (
+        <label className="flex flex-col gap-1">
+          <span className="text-sm font-medium">{t("exchange.apiSecret")}</span>
+          <input
+            type="password"
+            value={apiSecret}
+            onChange={(e) => setApiSecret(e.target.value)}
+            placeholder={t("exchange.apiSecretPlaceholder")}
+            className="border rounded px-3 py-2 text-sm font-mono"
+          />
+        </label>
+      )}
 
       {needsPassphrase && (
         <label className="flex flex-col gap-1">
