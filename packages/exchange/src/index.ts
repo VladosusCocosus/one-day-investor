@@ -17,3 +17,4 @@ export { OkxAdapter } from "./adapters/okx";
 export { KucoinAdapter } from "./adapters/kucoin";
 export { BitfinexAdapter } from "./adapters/bitfinex";
 export { CryptoDotComAdapter } from "./adapters/cryptodotcom";
+export { RevolutXAdapter } from "./adapters/revolut-x";

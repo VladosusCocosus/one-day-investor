@@ -1,4 +1,4 @@
-export type ExchangeType = "binance" | "bybit" | "kraken" | "coinbase" | "okx" | "kucoin" | "bitfinex" | "crypto.com";
+export type ExchangeType = "binance" | "bybit" | "kraken" | "coinbase" | "okx" | "kucoin" | "bitfinex" | "crypto.com" | "revolut-x";
 
 export interface ExchangeAsset {
   symbol: string;
