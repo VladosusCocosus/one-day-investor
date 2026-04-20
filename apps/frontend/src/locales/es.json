@@ -47,6 +47,12 @@
     "goodEvening": "Buenas noches",
     "defaultName": "amigo"
   },
+  "goal": {
+    "label": "Meta",
+    "reached": "Alcanzada",
+    "overGoal": "sobre la meta",
+    "takeFirstSnapshot": "Toma tu primera instantánea para ver el progreso →"
+  },
   "profile": {
     "title": "Perfil",
     "subtitle": "Tu cuenta y preferencias",

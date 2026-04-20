@@ -1,4 +1,5 @@
 import { useId } from "react";
+import { useTranslation } from "react-i18next";
 import {
   AreaChart,
   Area,
@@ -15,6 +16,7 @@ interface HeroSparklineProps {
 }
 
 export function HeroSparkline({ timeline, loading }: HeroSparklineProps) {
+  const { t } = useTranslation();
   const gradientId = `hero-sparkline-${useId()}`;
 
   // Empty state: show a flat gray line across the width
@@ -85,7 +87,7 @@ export function HeroSparkline({ timeline, loading }: HeroSparklineProps) {
           </defs>
           <YAxis hide domain={["dataMin", "dataMax"]} />
           <Tooltip
-            formatter={(value) => [`€${formatAmount(Number(value))}`, "Total"]}
+            formatter={(value) => [`€${formatAmount(Number(value))}`, t("common.total")]}
             contentStyle={{
               borderRadius: 8,
               border: "1px solid var(--color-border)",
