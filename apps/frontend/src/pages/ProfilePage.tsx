@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { useNavigate } from "react-router";
+import { useTranslation } from "react-i18next";
 import { Sparkles, LogOut } from "lucide-react";
 import { Switch } from "radix-ui";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
@@ -66,6 +67,8 @@ function SnapshotDayEditor({
 }) {
   const [draft, setDraft] = useState(String(value));
 
+  const { t } = useTranslation();
+
   const save = () => {
     const n = Math.min(28, Math.max(1, Number(draft) || 1));
     if (n !== value) onSave(n);
@@ -75,7 +78,7 @@ function SnapshotDayEditor({
   return (
     <div>
       <div className="text-[10px] font-semibold uppercase tracking-wider text-muted-foreground">
-        Snapshot day
+        {t("profile.snapshotDay")}
       </div>
       <input
         type="number"
@@ -92,10 +95,10 @@ function SnapshotDayEditor({
       />
       <div className="mt-3 flex gap-2">
         <Button size="sm" onClick={save}>
-          Save
+          {t("common.save")}
         </Button>
         <Button size="sm" variant="ghost" onClick={onClose}>
-          Cancel
+          {t("common.cancel")}
         </Button>
       </div>
     </div>
@@ -111,6 +114,7 @@ function CurrencyEditor({
   onSave: (value: string) => void;
   onClose: () => void;
 }) {
+  const { t } = useTranslation();
   const [draft, setDraft] = useState(value);
 
   const save = () => {
@@ -121,7 +125,7 @@ function CurrencyEditor({
   return (
     <div>
       <div className="text-[10px] font-semibold uppercase tracking-wider text-muted-foreground">
-        Currency
+        {t("profile.currency")}
       </div>
       <select
         value={draft}
@@ -135,26 +139,22 @@ function CurrencyEditor({
       </select>
       <div className="mt-3 flex gap-2">
         <Button size="sm" onClick={save}>
-          Save
+          {t("common.save")}
         </Button>
         <Button size="sm" variant="ghost" onClick={onClose}>
-          Cancel
+          {t("common.cancel")}
         </Button>
       </div>
     </div>
   );
 }
 
-const languages = [
-  { value: "en", label: "English" },
-  { value: "ru", label: "Русский" },
-  { value: "es", label: "Español" },
-] as const;
+const languageCodes = ["en", "ru", "es"] as const;
 
-const languageLabels: Record<string, string> = {
-  en: "English",
-  ru: "Русский",
-  es: "Español",
+const languageLabelKeys: Record<string, string> = {
+  en: "languages.en",
+  ru: "languages.ru",
+  es: "languages.es",
 };
 
 function LanguageEditor({
@@ -166,6 +166,7 @@ function LanguageEditor({
   onSave: (value: string) => void;
   onClose: () => void;
 }) {
+  const { t } = useTranslation();
   const [draft, setDraft] = useState(value);
 
   const save = () => {
@@ -176,7 +177,7 @@ function LanguageEditor({
   return (
     <div>
       <div className="text-[10px] font-semibold uppercase tracking-wider text-muted-foreground">
-        Language
+        {t("profile.language")}
       </div>
       <select
         value={draft}
@@ -184,18 +185,18 @@ function LanguageEditor({
         autoFocus
         className="mt-2 w-full rounded-md border border-border bg-background px-2 py-1.5 text-sm outline-none focus-visible:border-ring focus-visible:ring-[3px] focus-visible:ring-ring/50"
       >
-        {languages.map((l) => (
-          <option key={l.value} value={l.value}>
-            {l.label}
+        {languageCodes.map((code) => (
+          <option key={code} value={code}>
+            {t(languageLabelKeys[code])}
           </option>
         ))}
       </select>
       <div className="mt-3 flex gap-2">
         <Button size="sm" onClick={save}>
-          Save
+          {t("common.save")}
         </Button>
         <Button size="sm" variant="ghost" onClick={onClose}>
-          Cancel
+          {t("common.cancel")}
         </Button>
       </div>
     </div>
@@ -217,25 +218,26 @@ function EmailSettingsSection({
   onToggle: (key: string, value: boolean) => void;
   onSaveDay: (value: number) => void;
 }) {
+  const { t } = useTranslation();
   const [dayOpen, setDayOpen] = useState(false);
 
   const categories = [
     {
       key: "notify_snapshot_reminders",
-      label: "Snapshot reminders",
-      description: "A gentle nudge when it's time to take your monthly snapshot.",
+      label: t("notifications.snapshotReminders"),
+      description: t("notifications.snapshotRemindersDesc"),
       checked: notifySnapshots,
     },
     {
       key: "notify_service_updates",
-      label: "Service updates",
-      description: "New features, integrations, and maintenance notices.",
+      label: t("notifications.serviceUpdates"),
+      description: t("notifications.serviceUpdatesDesc"),
       checked: notifyUpdates,
     },
     {
       key: "notify_blog_posts",
-      label: "Blog posts",
-      description: "New blog posts published on One Day Investor.",
+      label: t("notifications.blogPosts"),
+      description: t("notifications.blogPostsDesc"),
       checked: notifyBlog,
     },
   ];
@@ -243,7 +245,7 @@ function EmailSettingsSection({
   return (
     <section className="mt-8 rounded-xl border border-border bg-card p-5">
       <h2 className="text-[10px] font-semibold uppercase tracking-wider text-muted-foreground">
-        Email settings
+        {t("profile.emailSettings")}
       </h2>
 
       <div className="mt-4 space-y-4">
@@ -285,7 +287,7 @@ function EmailSettingsSection({
         )}
       >
         <div className="text-xs text-muted-foreground">
-          Remind me on the{" "}
+          {t("profile.remindMeOn")}{" "}
           <Popover open={dayOpen} onOpenChange={setDayOpen}>
             <PopoverTrigger asChild>
               <button
@@ -310,7 +312,7 @@ function EmailSettingsSection({
               />
             </PopoverContent>
           </Popover>{" "}
-          of each month.
+          {t("profile.ofEachMonth")}
         </div>
       </div>
     </section>
@@ -319,6 +321,7 @@ function EmailSettingsSection({
 
 export function ProfilePage() {
   usePageMeta(pageMeta.profile);
+  const { t } = useTranslation();
   const { user, logout } = useAuth();
   const { settings, updateSettings } = useSettings();
   const navigate = useNavigate();
@@ -350,9 +353,9 @@ export function ProfilePage() {
   return (
     <div>
       {/* Page header */}
-      <h1 className="text-xl font-bold text-foreground">Profile</h1>
+      <h1 className="text-xl font-bold text-foreground">{t("profile.title")}</h1>
       <p className="mt-1 text-sm text-muted-foreground">
-        Your account and preferences
+        {t("profile.subtitle")}
       </p>
 
       {/* Identity strip */}
@@ -370,7 +373,7 @@ export function ProfilePage() {
         )}
         <div className="min-w-0">
           <div className="text-sm font-semibold text-foreground truncate">
-            {user?.name ?? "User"}
+            {user?.name ?? t("sidebar.defaultUserLabel")}
           </div>
           <div className="text-xs text-muted-foreground truncate">
             {user?.email}
@@ -381,7 +384,7 @@ export function ProfilePage() {
       {/* Settings chips (currency only now) */}
       <div className="mt-5 flex flex-wrap gap-2">
         <SettingsChip
-          label="Currency"
+          label={t("profile.currency")}
           displayValue={currency}
           open={currencyChipOpen}
           onOpenChange={setCurrencyChipOpen}
@@ -393,8 +396,8 @@ export function ProfilePage() {
           />
         </SettingsChip>
         <SettingsChip
-          label="Language"
-          displayValue={languageLabels[language] ?? language}
+          label={t("profile.language")}
+          displayValue={t(languageLabelKeys[language] ?? language)}
           open={languageChipOpen}
           onOpenChange={setLanguageChipOpen}
         >
@@ -419,10 +422,10 @@ export function ProfilePage() {
       {/* Help */}
       <section className="mt-10 border-t border-border pt-6">
         <h2 className="text-[10px] font-semibold uppercase tracking-wider text-muted-foreground">
-          Help
+          {t("profile.help")}
         </h2>
         <p className="mt-2 text-xs text-muted-foreground">
-          Forgotten how things work? Replay the welcome tour any time.
+          {t("profile.helpDescription")}
         </p>
         <Button
           variant="outline"
@@ -431,7 +434,7 @@ export function ProfilePage() {
           onClick={handleReplayWelcome}
         >
           <Sparkles className="mr-1.5 h-3.5 w-3.5" aria-hidden="true" />
-          Show welcome tour
+          {t("profile.showWelcomeTour")}
         </Button>
       </section>
 
@@ -447,7 +450,7 @@ export function ProfilePage() {
           }}
         >
           <LogOut className="mr-1.5 h-3.5 w-3.5" aria-hidden="true" />
-          Sign out
+          {t("profile.signOut")}
         </Button>
       </section>
     </div>

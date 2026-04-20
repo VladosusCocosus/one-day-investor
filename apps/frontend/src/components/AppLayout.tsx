@@ -1,5 +1,6 @@
 import { useState, useEffect } from "react";
 import { Outlet, NavLink, useNavigate } from "react-router";
+import { useTranslation } from "react-i18next";
 import { LayoutDashboard, Layers, Camera, BarChart3 } from "lucide-react";
 import { useAuth } from "@/hooks/useAuth";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
@@ -10,13 +11,14 @@ import Icon from "../assets/logo.svg?react";
 const SIDEBAR_KEY = "sidebar-collapsed";
 
 const mobileNavItems = [
-  { label: "Dashboard", icon: LayoutDashboard, path: "/dashboard" },
-  { label: "Assets", icon: Layers, path: "/assets-managment" },
-  { label: "Snapshots", icon: Camera, path: "/snapshots" },
-  { label: "Analytics", icon: BarChart3, path: "/analytics" },
+  { labelKey: "nav.dashboard", icon: LayoutDashboard, path: "/dashboard" },
+  { labelKey: "nav.assets", icon: Layers, path: "/assets-managment" },
+  { labelKey: "nav.snapshots", icon: Camera, path: "/snapshots" },
+  { labelKey: "nav.analytics", icon: BarChart3, path: "/analytics" },
 ] as const;
 
 function MobileTopBar() {
+  const { t } = useTranslation();
   const { user } = useAuth();
   const navigate = useNavigate();
 
@@ -34,13 +36,13 @@ function MobileTopBar() {
       <div className="flex items-center gap-2">
         <Icon width={24} height={24} />
         <span className="text-[15px] font-semibold text-gray-900">
-          ODInvestor
+          {t("common.appNameShort")}
         </span>
       </div>
       <button
         onClick={() => navigate("/profile")}
         className="cursor-pointer"
-        aria-label="Profile"
+        aria-label={t("nav.profile")}
       >
         <Avatar className="h-8 w-8">
           <AvatarImage src={user?.avatar_url ?? undefined} />
@@ -52,6 +54,7 @@ function MobileTopBar() {
 }
 
 function MobileTabBar() {
+  const { t } = useTranslation();
   return (
     <nav className="fixed bottom-0 left-0 right-0 z-40 flex items-center justify-around border-t border-gray-200 bg-white pb-[env(safe-area-inset-bottom)] md:hidden">
       {mobileNavItems.map((item) => (
@@ -65,7 +68,7 @@ function MobileTabBar() {
           }
         >
           <item.icon className="h-5 w-5" />
-          <span>{item.label}</span>
+          <span>{t(item.labelKey)}</span>
         </NavLink>
       ))}
     </nav>

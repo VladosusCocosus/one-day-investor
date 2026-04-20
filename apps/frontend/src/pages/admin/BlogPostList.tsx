@@ -1,5 +1,6 @@
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { useNavigate } from "react-router";
+import { useTranslation } from "react-i18next";
 import { blogApi } from "@/lib/blogApi";
 import { Button } from "@/components/ui/button";
 import { Plus, Pencil, Trash2, ExternalLink } from "lucide-react";
@@ -16,6 +17,7 @@ interface BlogPost {
 }
 
 export function BlogPostList() {
+  const { t } = useTranslation();
   const navigate = useNavigate();
   const queryClient = useQueryClient();
 
@@ -37,7 +39,7 @@ export function BlogPostList() {
   });
 
   const handleDelete = (id: number, title: string) => {
-    if (!confirm(`Delete "${title}"?`)) return;
+    if (!confirm(t("blog.deleteConfirm", { title }))) return;
     deleteMutation.mutate(id);
   };
 
@@ -47,22 +49,22 @@ export function BlogPostList() {
     <div>
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-xl font-bold text-foreground">Blog posts</h1>
+          <h1 className="text-xl font-bold text-foreground">{t("blog.title")}</h1>
           <p className="mt-1 text-sm text-muted-foreground">
-            Manage your blog content.
+            {t("blog.subtitle")}
           </p>
         </div>
         <Button size="sm" onClick={() => navigate("/admin/blog/new")}>
           <Plus className="mr-1.5 h-3.5 w-3.5" />
-          New post
+          {t("blog.newPost")}
         </Button>
       </div>
 
       {isLoading ? (
-        <div className="mt-8 text-sm text-muted-foreground">Loading...</div>
+        <div className="mt-8 text-sm text-muted-foreground">{t("common.loading")}</div>
       ) : posts.length === 0 ? (
         <div className="mt-8 text-sm text-muted-foreground">
-          No posts yet. Create your first one.
+          {t("blog.noPostsYet")}
         </div>
       ) : (
         <div className="mt-6 rounded-xl border border-border bg-card overflow-hidden">
@@ -70,16 +72,16 @@ export function BlogPostList() {
             <thead>
               <tr className="border-b border-border text-left">
                 <th className="px-4 py-3 text-[10px] font-semibold uppercase tracking-wider text-muted-foreground">
-                  Title
+                  {t("blog.columnTitle")}
                 </th>
                 <th className="px-4 py-3 text-[10px] font-semibold uppercase tracking-wider text-muted-foreground hidden sm:table-cell">
-                  Status
+                  {t("blog.columnStatus")}
                 </th>
                 <th className="px-4 py-3 text-[10px] font-semibold uppercase tracking-wider text-muted-foreground hidden md:table-cell">
-                  Tags
+                  {t("blog.columnTags")}
                 </th>
                 <th className="px-4 py-3 text-right text-[10px] font-semibold uppercase tracking-wider text-muted-foreground">
-                  Actions
+                  {t("blog.columnActions")}
                 </th>
               </tr>
             </thead>
@@ -103,7 +105,7 @@ export function BlogPostList() {
                           : "bg-yellow-100 text-yellow-700"
                       }`}
                     >
-                      {post.publish_date ? "Published" : "Draft"}
+                      {post.publish_date ? t("blog.published") : t("blog.draft")}
                     </span>
                   </td>
                   <td className="px-4 py-3 hidden md:table-cell text-xs text-muted-foreground">

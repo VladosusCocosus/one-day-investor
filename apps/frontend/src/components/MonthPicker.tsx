@@ -1,5 +1,6 @@
 import { MoreHorizontal } from "lucide-react";
 import { useState } from "react";
+import { useTranslation } from "react-i18next";
 import {
   Popover,
   PopoverContent,
@@ -38,6 +39,7 @@ function getYear(dateStr: string): string {
 }
 
 export function MonthPicker({ months, value, onChange }: MonthPickerProps) {
+  const { t } = useTranslation();
   const [open, setOpen] = useState(false);
 
   if (months.length === 0) return null;
@@ -93,7 +95,7 @@ export function MonthPicker({ months, value, onChange }: MonthPickerProps) {
           <PopoverTrigger asChild>
             <button
               type="button"
-              aria-label="More months"
+              aria-label={t("monthPicker.moreMonths")}
               className={cn(
                 "flex h-8 w-8 items-center justify-center rounded-full bg-muted text-foreground transition-colors hover:bg-muted/70",
                 open && "bg-muted/70"

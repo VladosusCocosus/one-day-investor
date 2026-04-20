@@ -15,7 +15,8 @@
     "change": "Change",
     "type": "Type",
     "saveFailed": "Save failed",
-    "deleteFailed": "Delete failed"
+    "deleteFailed": "Delete failed",
+    "dropImageHere": "Drop image here"
   },
   "nav": {
     "dashboard": "Dashboard",

@@ -15,7 +15,9 @@
     "change": "Change",
     "type": "Type",
     "saveFailed": "Save failed",
-    "deleteFailed": "Delete failed"
+    "deleteFailed": "Delete failed",
+    "dropImageHere": "Drop image here",
+    "appNameShort": "ODInvestor"
   },
   "nav": {
     "dashboard": "Dashboard",
@@ -26,7 +28,8 @@
   },
   "sidebar": {
     "expandSidebar": "Expand sidebar",
-    "signOut": "Sign out"
+    "signOut": "Sign out",
+    "defaultUserLabel": "User"
   },
   "login": {
     "appName": "One Day Investor",

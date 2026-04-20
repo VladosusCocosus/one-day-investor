@@ -1,4 +1,5 @@
 import { useEffect, useMemo, useRef, useState } from "react";
+import { useTranslation } from "react-i18next";
 import { Trash2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import {
@@ -64,6 +65,7 @@ export function SnapshotDrawer({
   onCreated,
   onDeleted,
 }: SnapshotDrawerProps) {
+  const { t } = useTranslation();
   const { summaries, createSnapshot, updateSnapshot, removeSnapshot } =
     useSnapshots();
 
@@ -290,7 +292,7 @@ export function SnapshotDrawer({
       }
       onOpenChange(false);
     } catch (e) {
-      setError(e instanceof Error ? e.message : "Save failed");
+      setError(e instanceof Error ? e.message : t("common.saveFailed"));
     } finally {
       setSaving(false);
     }
@@ -298,7 +300,7 @@ export function SnapshotDrawer({
 
   const handleDelete = async () => {
     if (mode.kind !== "edit") return;
-    const ok = window.confirm("Delete this snapshot? This can't be undone.");
+    const ok = window.confirm(t("snapshotDrawer.deleteConfirm"));
     if (!ok) return;
     setSaving(true);
     setError(null);
@@ -307,7 +309,7 @@ export function SnapshotDrawer({
       if (onDeleted) onDeleted();
       onOpenChange(false);
     } catch (e) {
-      setError(e instanceof Error ? e.message : "Delete failed");
+      setError(e instanceof Error ? e.message : t("common.deleteFailed"));
     } finally {
       setSaving(false);
     }
@@ -324,12 +326,12 @@ export function SnapshotDrawer({
       <SheetContent widthClass="w-full sm:max-w-[480px]">
         <SheetHeader>
           <SheetTitle>
-            {modeKind === "create" ? "New snapshot" : "Edit snapshot"}
+            {modeKind === "create" ? t("snapshotDrawer.newSnapshot") : t("snapshotDrawer.editSnapshot")}
           </SheetTitle>
           <SheetDescription>
             {modeKind === "create"
-              ? "Pick a month, confirm values, and save."
-              : "Update common-pocket amounts or delete this snapshot."}
+              ? t("snapshotDrawer.createDescription")
+              : t("snapshotDrawer.editDescription")}
           </SheetDescription>
         </SheetHeader>
 
@@ -338,7 +340,7 @@ export function SnapshotDrawer({
             {/* Month field */}
             <div>
               <label className="block text-[11px] font-medium uppercase tracking-wider text-muted-foreground">
-                Month
+                {t("snapshotDrawer.month")}
               </label>
               {modeKind === "create" ? (
                 <>
@@ -350,7 +352,7 @@ export function SnapshotDrawer({
                   />
                   {conflictingExisting && (
                     <p className="mt-1.5 text-[11px] text-destructive">
-                      A snapshot already exists for this month. Saving will overwrite it.
+                      {t("snapshotDrawer.snapshotExistsWarning")}
                     </p>
                   )}
                 </>
@@ -369,11 +371,11 @@ export function SnapshotDrawer({
             {modeKind === "create" && investServiceIds.length > 0 && (
               <div>
                 <p className="mb-1.5 text-[11px] font-medium uppercase tracking-wider text-muted-foreground">
-                  Holdings
+                  {t("snapshotDrawer.holdings")}
                 </p>
                 {pricesLoading && (
                   <p className="mb-2 text-[11px] italic text-muted-foreground">
-                    Fetching prices…
+                    {t("snapshotDrawer.fetchingPrices")}
                   </p>
                 )}
                 <div className="overflow-hidden rounded-md border">
@@ -420,7 +422,7 @@ export function SnapshotDrawer({
                 return (
                   <div>
                     <p className="mb-1.5 text-[11px] font-medium uppercase tracking-wider text-muted-foreground">
-                      Holdings (stored)
+                      {t("snapshotDrawer.holdingsStored")}
                     </p>
                     <div className="overflow-hidden rounded-md border">
                       {rows.map((svc) => (
@@ -449,7 +451,7 @@ export function SnapshotDrawer({
             {commonServices.length > 0 && (
               <div>
                 <p className="mb-1.5 text-[11px] font-medium uppercase tracking-wider text-muted-foreground">
-                  Other pockets
+                  {t("snapshotDrawer.otherPockets")}
                 </p>
                 <div className="space-y-2">
                   {commonServices.map((svc, i) => (
@@ -493,7 +495,7 @@ export function SnapshotDrawer({
             {/* Running total */}
             <div className="flex items-center justify-between border-t pt-3">
               <span className="text-[11px] font-semibold uppercase tracking-wider text-muted-foreground">
-                Total
+                {t("common.total")}
               </span>
               <span className="text-base font-semibold tabular-nums text-foreground">
                 {formatMoney(runningTotal, currencySymbol)}
@@ -517,13 +519,13 @@ export function SnapshotDrawer({
               disabled={saving}
             >
               <Trash2 className="mr-1.5 h-3.5 w-3.5" />
-              Delete
+              {t("common.delete")}
             </Button>
           ) : (
             <span />
           )}
           <Button size="sm" onClick={handleSave} disabled={!canSave}>
-            {saving ? "Saving..." : "Save"}
+            {saving ? t("common.saving") : t("common.save")}
           </Button>
         </SheetFooter>
       </SheetContent>

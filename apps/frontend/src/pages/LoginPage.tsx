@@ -1,4 +1,5 @@
 import { Navigate, useSearchParams } from "react-router";
+import { useTranslation } from "react-i18next";
 import { useAuth } from "@/hooks/useAuth";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
@@ -31,6 +32,7 @@ function GoogleIcon() {
 
 export function LoginPage() {
   usePageMeta(pageMeta.login);
+  const { t } = useTranslation();
   const { user, loading, login } = useAuth();
   const [searchParams] = useSearchParams();
   const redirectTo = searchParams.get("redirect_to");
@@ -38,7 +40,7 @@ export function LoginPage() {
   if (loading) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-[#f8fafc]">
-        <p className="text-muted-foreground">Loading...</p>
+        <p className="text-muted-foreground">{t("common.loading")}</p>
       </div>
     );
   }
@@ -58,9 +60,9 @@ export function LoginPage() {
           <div className="mx-auto mb-4 flex h-12 w-12 items-center justify-center rounded-xl bg-primary">
             <span className="text-xl font-bold text-white">I</span>
           </div>
-          <h1 className="text-xl font-bold text-foreground">One Day Investor</h1>
+          <h1 className="text-xl font-bold text-foreground">{t("login.appName")}</h1>
           <p className="mt-1 mb-8 text-sm text-muted-foreground">
-            Sign in to manage your portfolio
+            {t("login.signInSubtitle")}
           </p>
           <Button
             variant="outline"
@@ -68,14 +70,14 @@ export function LoginPage() {
             onClick={login}
           >
             <GoogleIcon />
-            Continue with Google
+            {t("login.continueWithGoogle")}
           </Button>
           <a
             href="https://odinvestor.net"
             className="inline-flex items-center justify-center gap-1.5 mt-4 text-sm text-muted-foreground hover:text-foreground transition-colors"
           >
             <ArrowLeft className="h-4 w-4" />
-            Back to site
+            {t("login.backToSite")}
           </a>
         </CardContent>
       </Card>

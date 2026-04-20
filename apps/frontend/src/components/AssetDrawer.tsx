@@ -1,4 +1,5 @@
 import { useEffect, useMemo, useRef, useState } from "react";
+import { useTranslation } from "react-i18next";
 import { Search, Trash2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import {
@@ -56,6 +57,7 @@ export function AssetDrawer({
   currencySymbol,
   assetsByService,
 }: AssetDrawerProps) {
+  const { t } = useTranslation();
   const { searchAssetCatalog } = useAssetCatalog();
   // usePocketAssets is called without a serviceId — we only use its mutations here.
   const { addAsset, updateAsset, removeAsset } = usePocketAssets(undefined);
@@ -240,7 +242,7 @@ export function AssetDrawer({
     const q = query.trim();
     if (!q) return;
     if (existingSymbols.has(q.toUpperCase())) {
-      setError(`${q.toUpperCase()} is already in this pocket.`);
+      setError(t("assetDrawer.alreadyInPocketMessage", { symbol: q.toUpperCase() }));
       return;
     }
     setSelection({
@@ -288,7 +290,7 @@ export function AssetDrawer({
       }
       onOpenChange(false);
     } catch (e) {
-      setError(e instanceof Error ? e.message : "Save failed");
+      setError(e instanceof Error ? e.message : t("common.saveFailed"));
     } finally {
       setSaving(false);
     }
@@ -302,7 +304,7 @@ export function AssetDrawer({
       await removeAsset(mode.asset.id);
       onOpenChange(false);
     } catch (e) {
-      setError(e instanceof Error ? e.message : "Delete failed");
+      setError(e instanceof Error ? e.message : t("common.deleteFailed"));
     } finally {
       setSaving(false);
     }
@@ -313,12 +315,12 @@ export function AssetDrawer({
       <SheetContent>
         <SheetHeader>
           <SheetTitle>
-            {mode.kind === "add" ? "Add asset" : "Edit asset"}
+            {mode.kind === "add" ? t("assetDrawer.addAsset") : t("assetDrawer.editAsset")}
           </SheetTitle>
           <SheetDescription>
             {mode.kind === "add"
-              ? `Search for an asset and enter the quantity. Adding to ${pocketLabel}.`
-              : `Update quantity or delete. Lives in ${pocketLabel}.`}
+              ? t("assetDrawer.addDescription", { pocket: pocketLabel })
+              : t("assetDrawer.editDescription", { pocket: pocketLabel })}
           </SheetDescription>
         </SheetHeader>
 
@@ -327,7 +329,7 @@ export function AssetDrawer({
             {/* Asset field */}
             <div>
               <label className="block text-[11px] font-medium uppercase tracking-wider text-muted-foreground">
-                Asset
+                {t("assetDrawer.asset")}
               </label>
               {mode.kind === "edit" ? (
                 <div className="mt-1.5 rounded-md border bg-muted/40 px-3 py-2">
@@ -355,7 +357,7 @@ export function AssetDrawer({
                     className="text-xs text-muted-foreground hover:text-foreground"
                     onClick={() => setSelection(null)}
                   >
-                    Change
+                    {t("common.change")}
                   </button>
                 </div>
               ) : (
@@ -375,7 +377,7 @@ export function AssetDrawer({
                     autoComplete="off"
                     spellCheck={false}
                     className="w-full rounded-md border bg-background px-3 py-2 pl-8 text-sm outline-none focus-visible:ring-2 focus-visible:ring-ring"
-                    placeholder="Search assets..."
+                    placeholder={t("assetDrawer.searchAssets")}
                     value={query}
                     onChange={(e) => handleSearchChange(e.target.value)}
                     onKeyDown={handleSearchKeyDown}
@@ -426,14 +428,13 @@ export function AssetDrawer({
                     (allFilteredOut ? (
                       <div className="absolute z-10 mt-1 w-full rounded-md border bg-background p-3 shadow-md">
                         <p className="text-xs text-muted-foreground">
-                          Every match for "{query.trim().toUpperCase()}" is
-                          already in this pocket.
+                          {t("assetDrawer.everyMatchInPocket", { query: query.trim().toUpperCase() })}
                         </p>
                       </div>
                     ) : (
                       <div className="absolute z-10 mt-1 w-full rounded-md border bg-background p-3 shadow-md">
                         <p className="text-xs text-muted-foreground">
-                          No match for "{query.trim().toUpperCase()}".
+                          {t("assetDrawer.noMatch", { query: query.trim().toUpperCase() })}
                         </p>
                         <Button
                           size="sm"
@@ -444,11 +445,11 @@ export function AssetDrawer({
                           )}
                           title={
                             existingSymbols.has(query.trim().toUpperCase())
-                              ? "Already in this pocket"
+                              ? t("assetDrawer.alreadyInPocket")
                               : undefined
                           }
                         >
-                          Add as custom
+                          {t("assetDrawer.addAsCustom")}
                         </Button>
                       </div>
                     ))}
@@ -459,7 +460,7 @@ export function AssetDrawer({
             {/* Quantity field */}
             <div>
               <label className="block text-[11px] font-medium uppercase tracking-wider text-muted-foreground">
-                Quantity
+                {t("assetDrawer.quantity")}
               </label>
               <input
                 type="number"
@@ -481,7 +482,7 @@ export function AssetDrawer({
             {selection && qtyNum > 0 && (
               <div className="rounded-md border bg-muted/30 px-3 py-2">
                 <p className="text-[11px] font-medium uppercase tracking-wider text-muted-foreground">
-                  Preview
+                  {t("common.preview")}
                 </p>
                 <div className="mt-1 flex items-baseline justify-between">
                   <span className="font-mono text-sm font-semibold text-foreground">
@@ -518,7 +519,7 @@ export function AssetDrawer({
               disabled={saving}
             >
               <Trash2 className="mr-1.5 h-3.5 w-3.5" />
-              Delete
+              {t("common.delete")}
             </Button>
           ) : (
             <span />
@@ -529,7 +530,7 @@ export function AssetDrawer({
             onClick={handleSave}
             disabled={!canSave}
           >
-            {saving ? "Saving..." : "Save"}
+            {saving ? t("common.saving") : t("common.save")}
           </Button>
         </SheetFooter>
       </SheetContent>

@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { useTranslation } from "react-i18next";
 import { useExchange } from "@/hooks/useExchange";
 
 interface ExchangeConnectProps {
@@ -12,6 +13,7 @@ export function ExchangeConnect({
   onSuccess,
   onCancel,
 }: ExchangeConnectProps) {
+  const { t } = useTranslation();
   const { connect, connecting } = useExchange();
   const [label, setLabel] = useState("");
   const [apiKey, setApiKey] = useState("");
@@ -32,11 +34,11 @@ export function ExchangeConnect({
     setError("");
 
     if (!label.trim() || !apiKey.trim() || !apiSecret.trim()) {
-      setError("All fields are required");
+      setError(t("exchange.allFieldsRequired"));
       return;
     }
     if (needsPassphrase && !passphrase.trim()) {
-      setError("Passphrase is required for " + exchangeName);
+      setError(t("exchange.passphraseRequired", { name: exchangeName }));
       return;
     }
 
@@ -53,18 +55,18 @@ export function ExchangeConnect({
         err && typeof err === "object" && "response" in err
           ? (err as { response: { data: { error: string } } }).response?.data
               ?.error
-          : "Failed to connect";
-      setError(message || "Failed to connect");
+          : t("exchange.failedToConnect");
+      setError(message || t("exchange.failedToConnect"));
     }
   };
 
   return (
     <form onSubmit={handleSubmit} className="flex flex-col gap-3">
       <h3 className="text-lg font-medium">
-        Connect {exchangeName}
+        {t("exchange.connectTitle", { name: exchangeName })}
       </h3>
       <p className="text-sm text-gray-500">
-        Use a read-only API key. We never place trades.
+        {t("exchange.readOnlyNote")}
       </p>
 
       {error && (
@@ -72,46 +74,46 @@ export function ExchangeConnect({
       )}
 
       <label className="flex flex-col gap-1">
-        <span className="text-sm font-medium">Account Label</span>
+        <span className="text-sm font-medium">{t("exchange.accountLabel")}</span>
         <input
           type="text"
           value={label}
           onChange={(e) => setLabel(e.target.value)}
-          placeholder="e.g. Main Account"
+          placeholder={t("exchange.accountLabelPlaceholder")}
           className="border rounded px-3 py-2 text-sm"
         />
       </label>
 
       <label className="flex flex-col gap-1">
-        <span className="text-sm font-medium">API Key</span>
+        <span className="text-sm font-medium">{t("exchange.apiKey")}</span>
         <input
           type="text"
           value={apiKey}
           onChange={(e) => setApiKey(e.target.value)}
-          placeholder="Enter your API key"
+          placeholder={t("exchange.apiKeyPlaceholder")}
           className="border rounded px-3 py-2 text-sm font-mono"
         />
       </label>
 
       <label className="flex flex-col gap-1">
-        <span className="text-sm font-medium">API Secret</span>
+        <span className="text-sm font-medium">{t("exchange.apiSecret")}</span>
         <input
           type="password"
           value={apiSecret}
           onChange={(e) => setApiSecret(e.target.value)}
-          placeholder="Enter your API secret"
+          placeholder={t("exchange.apiSecretPlaceholder")}
           className="border rounded px-3 py-2 text-sm font-mono"
         />
       </label>
 
       {needsPassphrase && (
         <label className="flex flex-col gap-1">
-          <span className="text-sm font-medium">Passphrase</span>
+          <span className="text-sm font-medium">{t("exchange.passphrase")}</span>
           <input
             type="password"
             value={passphrase}
             onChange={(e) => setPassphrase(e.target.value)}
-            placeholder="Enter your API passphrase"
+            placeholder={t("exchange.passphrasePlaceholder")}
             className="border rounded px-3 py-2 text-sm font-mono"
           />
         </label>
@@ -123,14 +125,14 @@ export function ExchangeConnect({
           disabled={connecting}
           className="bg-blue-600 text-white px-4 py-2 rounded text-sm font-medium hover:bg-blue-700 disabled:opacity-50"
         >
-          {connecting ? "Connecting..." : "Connect"}
+          {connecting ? t("exchange.connecting") : t("exchange.connect")}
         </button>
         <button
           type="button"
           onClick={onCancel}
           className="border px-4 py-2 rounded text-sm font-medium hover:bg-gray-50"
         >
-          Cancel
+          {t("common.cancel")}
         </button>
       </div>
     </form>
