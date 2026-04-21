@@ -258,21 +258,50 @@ export async function commitMissingDeletions(params: {
   const imp = await findPdfStatementImportById(importRowId, userId);
   if (!imp || !imp.service_id) throw new Error("Import not found or not linked to a service");
 
-  const toDelete = await pool.query<{ id: string; symbol: string }>(
-    `SELECT id, symbol FROM pocket_assets
-       WHERE id = ANY($1) AND service_id = $2`,
-    [pocketAssetIds, imp.service_id],
-  );
+  const client = await pool.connect();
+  let deleted: Array<{ id: string; symbol: string }> = [];
+  try {
+    await client.query("BEGIN");
 
-  for (const row of toDelete.rows) {
-    await removePocketAsset(row.id);
+    const toDelete = await client.query<{ id: string; symbol: string }>(
+      `SELECT id, symbol FROM pocket_assets
+         WHERE id = ANY($1) AND service_id = $2
+         FOR UPDATE`,
+      [pocketAssetIds, imp.service_id],
+    );
+    deleted = toDelete.rows;
+
+    if (deleted.length > 0) {
+      const ids = deleted.map((r) => r.id);
+      // Drop historical snapshot rows tied to these pocket_assets BEFORE the
+      // pocket_asset delete. The FK is ON DELETE SET NULL, which would
+      // otherwise nullify multiple entries for the same (snapshot, service)
+      // and collide under the UNIQUE NULLS NOT DISTINCT constraint on
+      // snapshot_entries_snapshot_service_pocket_key.
+      await client.query(
+        "DELETE FROM snapshot_entries WHERE pocket_asset_id = ANY($1)",
+        [ids],
+      );
+      await client.query(
+        "DELETE FROM pocket_assets WHERE id = ANY($1)",
+        [ids],
+      );
+    }
+
+    await client.query("COMMIT");
+  } catch (err) {
+    await client.query("ROLLBACK");
+    log.error({ err, importRowId }, "commitMissingDeletions failed");
+    throw err;
+  } finally {
+    client.release();
   }
 
-  if (toDelete.rows.length > 0) {
-    await appendImportDeletions(importRowId, toDelete.rows);
+  if (deleted.length > 0) {
+    await appendImportDeletions(importRowId, deleted);
   }
 
-  return { deleted: toDelete.rows };
+  return { deleted };
 }
 
 /**
