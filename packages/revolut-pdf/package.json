@@ -1,0 +1,17 @@
+{
+  "name": "@revolut-pdf",
+  "module": "src/index.ts",
+  "type": "module",
+  "private": true,
+  "devDependencies": {
+    "@types/bun": "latest",
+    "@types/pdf-parse": "^1.1.4"
+  },
+  "peerDependencies": {
+    "typescript": "^5"
+  },
+  "dependencies": {
+    "@logger": "workspace:*",
+    "pdf-parse": "^1.1.1"
+  }
+}
