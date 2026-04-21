@@ -8,9 +8,12 @@ import {
   deleteSnapshot,
   createPdfStatementImport,
 } from "@database";
+import { createLogger } from "@logger";
 import { resolveUser } from "../auth/session";
 import { getImporter } from "../services/pdf-import";
 import { handleSnapshotsPdfPreview } from "./pdf-import";
+
+const log = createLogger("api:snapshots");
 
 interface PdfRef {
   s3Key: string;
@@ -111,6 +114,17 @@ export const snapshotsApi = new Elysia({ prefix: "/api/snapshots" })
     }
     try {
       const dbEntries = entries.map(({ pdfRef: _pdfRef, ...rest }) => rest);
+      log.info(
+        {
+          userId: user.id,
+          month,
+          entryCount: dbEntries.length,
+          byServiceAndPocket: dbEntries.map(
+            (e) => `${e.service_id}|${e.pocket_asset_id ?? "null"}`,
+          ),
+        },
+        "createSnapshot called",
+      );
       const snapshot = await createSnapshot({
         user_id: user.id,
         month,
@@ -119,11 +133,15 @@ export const snapshotsApi = new Elysia({ prefix: "/api/snapshots" })
       await persistPdfRefs(user.id, snapshot.id, entries);
       return snapshot;
     } catch (err: unknown) {
-      if (err instanceof Error && err.message.includes("unique")) {
+      // Only the (user_id, month) collision on the snapshots table should
+      // surface as "snapshot already exists". Other unique violations (e.g.
+      // snapshot_entries_snapshot_service_pocket_key) indicate a duplicate
+      // entry payload and need a distinct message + log.
+      if (err instanceof Error && err.message.includes("snapshots_user_id_month")) {
         set.status = 409;
-        console.error(err)
         return { error: "Snapshot already exists for this month" };
       }
+      log.error({ err }, "createSnapshot failed");
       throw err;
     }
   })
