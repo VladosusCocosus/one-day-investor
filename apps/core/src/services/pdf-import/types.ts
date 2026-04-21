@@ -18,10 +18,32 @@ export interface SavingsDraft {
   accountNumber: string | null;
 }
 
+export interface AssetCandidate {
+  symbol: string;
+  name: string | null;
+  exchange: string | null;
+  exchangeDisplay: string | null;
+  apiId: string;
+}
+
+export interface UnmatchedHolding {
+  /** Stable key the client passes back when confirming. */
+  key: string;
+  pdfSymbol: string;
+  isin: string | null;
+  displayName: string;
+  quantity: string;
+  candidates: AssetCandidate[];
+}
+
 export interface ImportDiffResult {
   created: Array<{ symbol: string; isin: string | null; quantity: string }>;
   updated: Array<{ id: string; symbol: string; oldQuantity: string; newQuantity: string }>;
   missing: Array<{ id: string; symbol: string; quantity: string }>;
+  /** Holdings in the PDF with no existing asset_catalog match. The user must
+   *  pick a candidate (or enter one manually) and confirm via a follow-up
+   *  call before they enter pocket_assets. */
+  unmatched: UnmatchedHolding[];
   importRowId: string;
   statementPeriod: { start: string | null; end: string | null };
   uploadedAt: Date;

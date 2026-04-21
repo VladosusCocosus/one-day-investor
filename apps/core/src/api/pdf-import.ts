@@ -7,6 +7,7 @@ import {
   runInvestImport,
   runSavingsPreview,
   commitMissingDeletions,
+  commitUnmatchedAdditions,
 } from "../services/pdf-import";
 
 const log = createLogger("api:pdf-import");
@@ -90,6 +91,40 @@ export const pdfImportApi = new Elysia({ prefix: "/api/integrations" })
       log.error({ err, provider: importer.provider }, "invest import failed");
       set.status = 400;
       return { error: err instanceof Error ? err.message : "Import failed" };
+    }
+  })
+  .post("/pdf-upload/confirm-additions", async ({ user, set, body }) => {
+    if (!user) {
+      set.status = 401;
+      return { error: "Unauthorized" };
+    }
+    const { importRowId, additions } = (body ?? {}) as {
+      importRowId?: string;
+      additions?: Array<{
+        key: string;
+        quantity: string;
+        selection: {
+          symbol: string;
+          name: string | null;
+          apiId: string;
+          isin: string | null;
+        } | null;
+      }>;
+    };
+    if (!importRowId || !Array.isArray(additions)) {
+      set.status = 400;
+      return { error: "importRowId and additions are required" };
+    }
+    try {
+      return await commitUnmatchedAdditions({
+        userId: user.id,
+        importRowId,
+        additions,
+      });
+    } catch (err) {
+      log.error({ err, importRowId }, "confirm-additions failed");
+      set.status = 400;
+      return { error: err instanceof Error ? err.message : "Add failed" };
     }
   })
   .post("/pdf-upload/confirm-deletions", async ({ user, set, body }) => {

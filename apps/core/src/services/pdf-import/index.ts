@@ -10,12 +10,15 @@ export {
   runInvestImport,
   runSavingsPreview,
   commitMissingDeletions,
+  commitUnmatchedAdditions,
 } from "./runner";
 export type {
+  AssetCandidate,
   HoldingDraft,
   ImportDiffResult,
   PdfStatementImporter,
   ProviderSlug,
   SavingsDraft,
   SavingsPreviewResult,
+  UnmatchedHolding,
 } from "./types";
