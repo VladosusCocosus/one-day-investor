@@ -5,9 +5,11 @@ export type { PocketAsset } from "@types";
 
 export async function findPocketAssetsByServiceId(
   serviceId: string
-): Promise<(PocketAsset & { api_id: string | null })[]> {
-  const result = await pool.query<PocketAsset & { api_id: string | null }>(
-    `SELECT pa.*, ac.api_id
+): Promise<(PocketAsset & { api_id: string | null; isin: string | null })[]> {
+  const result = await pool.query<
+    PocketAsset & { api_id: string | null; isin: string | null }
+  >(
+    `SELECT pa.*, ac.api_id, ac.isin
      FROM pocket_assets pa
      LEFT JOIN asset_catalog ac ON pa.asset_catalog_id = ac.id
      WHERE pa.service_id = $1
@@ -19,10 +21,12 @@ export async function findPocketAssetsByServiceId(
 
 export async function findPocketAssetsByServiceIds(
   serviceIds: string[]
-): Promise<(PocketAsset & { api_id: string | null })[]> {
+): Promise<(PocketAsset & { api_id: string | null; isin: string | null })[]> {
   if (serviceIds.length === 0) return [];
-  const result = await pool.query<PocketAsset & { api_id: string | null }>(
-    `SELECT pa.*, ac.api_id
+  const result = await pool.query<
+    PocketAsset & { api_id: string | null; isin: string | null }
+  >(
+    `SELECT pa.*, ac.api_id, ac.isin
      FROM pocket_assets pa
      LEFT JOIN asset_catalog ac ON pa.asset_catalog_id = ac.id
      WHERE pa.service_id = ANY($1)
