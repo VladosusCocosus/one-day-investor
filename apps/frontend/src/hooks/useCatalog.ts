@@ -3,6 +3,7 @@ import { api } from "@/lib/api";
 import type { Service } from "@/hooks/useServices";
 
 export type ServiceType = "common" | "invest" | "crypto";
+export type IntegrationType = "manual" | "api" | "pdf-upload";
 
 export interface CatalogService {
   id: string;
@@ -10,6 +11,7 @@ export interface CatalogService {
   parent_id: string | null;
   service_type: ServiceType;
   sort_order: number;
+  integration_type: IntegrationType;
 }
 
 export interface CatalogTree {

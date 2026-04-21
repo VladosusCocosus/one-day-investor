@@ -38,16 +38,18 @@ export async function addPocketAsset(params: {
   symbol: string;
   name: string;
   asset_type: AssetType;
+  quantity?: string | number;
 }): Promise<PocketAsset> {
   const result = await pool.query<PocketAsset>(
-    `INSERT INTO pocket_assets (service_id, asset_catalog_id, symbol, name, asset_type)
-     VALUES ($1, $2, $3, $4, $5) RETURNING *`,
+    `INSERT INTO pocket_assets (service_id, asset_catalog_id, symbol, name, asset_type, quantity)
+     VALUES ($1, $2, $3, $4, $5, COALESCE($6, 0)) RETURNING *`,
     [
       params.service_id,
       params.asset_catalog_id ?? null,
       params.symbol,
       params.name,
       params.asset_type,
+      params.quantity ?? null,
     ]
   );
   return result.rows[0];

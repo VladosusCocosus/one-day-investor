@@ -24,6 +24,15 @@ export interface SnapshotDetail {
   entries: SnapshotEntry[];
 }
 
+export interface SnapshotEntryInput {
+  service_id: string;
+  amount: number;
+  pocket_asset_id?: string | null;
+  quantity?: number | null;
+  price?: number | null;
+  pdfRef?: { s3Key: string; provider: string; parsed?: Record<string, unknown> } | null;
+}
+
 export function useSnapshots() {
   const queryClient = useQueryClient();
 
@@ -36,7 +45,7 @@ export function useSnapshots() {
   });
 
   const createMutation = useMutation({
-    mutationFn: async ({ month, entries }: { month: string; entries: { service_id: string; amount: number; pocket_asset_id?: string | null; quantity?: number | null; price?: number | null }[] }) => {
+    mutationFn: async ({ month, entries }: { month: string; entries: SnapshotEntryInput[] }) => {
       const res = await api.post<SnapshotDetail>("/api/snapshots", { month, entries });
       return res.data;
     },
@@ -46,7 +55,7 @@ export function useSnapshots() {
   });
 
   const updateMutation = useMutation({
-    mutationFn: async ({ id, entries }: { id: string; entries: { service_id: string; amount: number; pocket_asset_id?: string | null; quantity?: number | null; price?: number | null }[] }) => {
+    mutationFn: async ({ id, entries }: { id: string; entries: SnapshotEntryInput[] }) => {
       const res = await api.put<SnapshotDetail>(`/api/snapshots/${id}`, { entries });
       return res.data;
     },
@@ -65,11 +74,11 @@ export function useSnapshots() {
     },
   });
 
-  const createSnapshot = async (month: string, entries: { service_id: string; amount: number; pocket_asset_id?: string | null; quantity?: number | null; price?: number | null }[]) => {
+  const createSnapshot = async (month: string, entries: SnapshotEntryInput[]) => {
     return createMutation.mutateAsync({ month, entries });
   };
 
-  const updateSnapshot = async (id: string, entries: { service_id: string; amount: number; pocket_asset_id?: string | null; quantity?: number | null; price?: number | null }[]) => {
+  const updateSnapshot = async (id: string, entries: SnapshotEntryInput[]) => {
     return updateMutation.mutateAsync({ id, entries });
   };
 
