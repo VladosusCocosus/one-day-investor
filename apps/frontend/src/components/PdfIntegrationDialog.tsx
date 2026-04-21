@@ -22,10 +22,28 @@ interface PdfIntegrationDialogProps {
   provider: PdfProviderInfo;
 }
 
+interface AssetCandidate {
+  symbol: string;
+  name: string | null;
+  exchange: string | null;
+  exchangeDisplay: string | null;
+  apiId: string;
+}
+
+interface UnmatchedHolding {
+  key: string;
+  pdfSymbol: string;
+  isin: string | null;
+  displayName: string;
+  quantity: string;
+  candidates: AssetCandidate[];
+}
+
 interface ImportResponse {
   created: Array<{ symbol: string; isin: string | null; quantity: string }>;
   updated: Array<{ id: string; symbol: string; oldQuantity: string; newQuantity: string }>;
   missing: Array<{ id: string; symbol: string; quantity: string }>;
+  unmatched: UnmatchedHolding[];
   importRowId: string;
   statementPeriod: { start: string | null; end: string | null };
   uploadedAt: string;
@@ -43,6 +61,8 @@ export function PdfIntegrationDialog({
   const [file, setFile] = useState<File | null>(null);
   const [result, setResult] = useState<ImportResponse | null>(null);
   const [toDelete, setToDelete] = useState<Set<string>>(new Set());
+  /** Per-unmatched-holding: apiId of the candidate picked, or null to skip. */
+  const [selections, setSelections] = useState<Record<string, string | null>>({});
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
@@ -51,6 +71,7 @@ export function PdfIntegrationDialog({
     setFile(null);
     setResult(null);
     setToDelete(new Set());
+    setSelections({});
     setBusy(false);
     setError(null);
   };
@@ -70,6 +91,13 @@ export function PdfIntegrationDialog({
       );
       setResult(res.data);
       setToDelete(new Set());
+      // Default each unmatched holding to its top candidate (if Yahoo returned
+      // at least one). User can change or clear before confirming.
+      const defaults: Record<string, string | null> = {};
+      for (const u of res.data.unmatched ?? []) {
+        defaults[u.key] = u.candidates[0]?.apiId ?? null;
+      }
+      setSelections(defaults);
       setStep("review");
       // Refresh assets so the UI catches up.
       qc.invalidateQueries({ queryKey: ["assets"] });
@@ -93,7 +121,7 @@ export function PdfIntegrationDialog({
     });
   };
 
-  const handleConfirmDeletions = async () => {
+  const handleConfirmReview = async () => {
     if (!result) return;
     setBusy(true);
     setError(null);
@@ -104,11 +132,36 @@ export function PdfIntegrationDialog({
           pocketAssetIds: [...toDelete],
         });
       }
+      const additions = (result.unmatched ?? []).map((u) => {
+        const apiId = selections[u.key];
+        const candidate = apiId
+          ? u.candidates.find((c) => c.apiId === apiId)
+          : null;
+        return {
+          key: u.key,
+          quantity: u.quantity,
+          selection: candidate
+            ? {
+                symbol: candidate.symbol,
+                name: candidate.name,
+                apiId: candidate.apiId,
+                isin: u.isin,
+              }
+            : null,
+        };
+      });
+      const hasPicks = additions.some((a) => a.selection);
+      if (hasPicks) {
+        await api.post("/api/integrations/pdf-upload/confirm-additions", {
+          importRowId: result.importRowId,
+          additions,
+        });
+      }
       qc.invalidateQueries({ queryKey: ["assets"] });
       reset();
       onOpenChange(false);
     } catch (e) {
-      setError(e instanceof Error ? e.message : "Delete failed");
+      setError(e instanceof Error ? e.message : "Save failed");
     } finally {
       setBusy(false);
     }
@@ -211,9 +264,66 @@ export function PdfIntegrationDialog({
                 </section>
               )}
 
+              {result.unmatched.length > 0 && (
+                <section>
+                  <h4 className="mb-1 text-[11px] font-semibold uppercase tracking-wider text-muted-foreground">
+                    Needs confirmation ({result.unmatched.length})
+                  </h4>
+                  <p className="mb-2 text-xs text-muted-foreground">
+                    We couldn't match these to an existing asset in your catalog.
+                    Pick a market listing for each, or skip to leave it out.
+                  </p>
+                  <ul className="space-y-3">
+                    {result.unmatched.map((u) => {
+                      const sel = selections[u.key] ?? null;
+                      return (
+                        <li key={u.key} className="rounded-md border px-3 py-2 text-xs">
+                          <div className="flex items-center justify-between">
+                            <div>
+                              <div className="font-medium text-foreground">
+                                {u.pdfSymbol} · {u.displayName}
+                              </div>
+                              <div className="text-muted-foreground">
+                                {u.isin ? `ISIN ${u.isin}` : "no ISIN"} · qty {u.quantity}
+                              </div>
+                            </div>
+                          </div>
+                          {u.candidates.length === 0 ? (
+                            <p className="mt-2 text-muted-foreground italic">
+                              No market candidates found — will be skipped.
+                            </p>
+                          ) : (
+                            <select
+                              className="mt-2 w-full rounded-md border bg-background px-2 py-1 text-xs"
+                              value={sel ?? ""}
+                              onChange={(e) =>
+                                setSelections((prev) => ({
+                                  ...prev,
+                                  [u.key]: e.target.value || null,
+                                }))
+                              }
+                            >
+                              <option value="">Skip — don't add</option>
+                              {u.candidates.map((c) => (
+                                <option key={c.apiId} value={c.apiId}>
+                                  {c.symbol}
+                                  {c.exchangeDisplay ? ` (${c.exchangeDisplay})` : ""}
+                                  {c.name ? ` — ${c.name}` : ""}
+                                </option>
+                              ))}
+                            </select>
+                          )}
+                        </li>
+                      );
+                    })}
+                  </ul>
+                </section>
+              )}
+
               {result.created.length === 0 &&
                 result.updated.length === 0 &&
-                result.missing.length === 0 && (
+                result.missing.length === 0 &&
+                result.unmatched.length === 0 && (
                   <p className="text-xs text-muted-foreground">
                     Portfolio already matches this statement — nothing to change.
                   </p>
@@ -246,8 +356,8 @@ export function PdfIntegrationDialog({
               {busy ? "Parsing…" : "Upload"}
             </Button>
           ) : (
-            <Button size="sm" onClick={handleConfirmDeletions} disabled={busy}>
-              {busy ? "Saving…" : toDelete.size > 0 ? `Confirm (remove ${toDelete.size})` : "Done"}
+            <Button size="sm" onClick={handleConfirmReview} disabled={busy}>
+              {busy ? "Saving…" : "Confirm"}
             </Button>
           )}
         </SheetFooter>
