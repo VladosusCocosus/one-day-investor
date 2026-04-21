@@ -102,9 +102,19 @@ export async function createSnapshot(params: {
       const amount = entry.pocket_asset_id && entry.quantity != null && entry.price != null
         ? entry.quantity * entry.price
         : entry.amount;
+      // ON CONFLICT matches the UNIQUE NULLS NOT DISTINCT constraint on
+      // (snapshot_id, service_id, pocket_asset_id). If the caller accidentally
+      // sends two rows with the same triple (e.g. duplicate common entries),
+      // the second upserts over the first instead of crashing the whole
+      // transaction — the user's last-written value wins.
       const entryResult = await client.query<SnapshotEntry>(
         `INSERT INTO snapshot_entries (snapshot_id, service_id, amount, pocket_asset_id, quantity, price)
-         VALUES ($1, $2, $3, $4, $5, $6) RETURNING *`,
+         VALUES ($1, $2, $3, $4, $5, $6)
+         ON CONFLICT (snapshot_id, service_id, pocket_asset_id)
+           DO UPDATE SET amount = EXCLUDED.amount,
+                         quantity = EXCLUDED.quantity,
+                         price = EXCLUDED.price
+         RETURNING *`,
         [
           snapshot.id,
           entry.service_id,
@@ -173,9 +183,19 @@ export async function updateSnapshot(
       const amount = entry.pocket_asset_id && entry.quantity != null && entry.price != null
         ? entry.quantity * entry.price
         : entry.amount;
+      // ON CONFLICT matches the UNIQUE NULLS NOT DISTINCT constraint on
+      // (snapshot_id, service_id, pocket_asset_id). If the caller accidentally
+      // sends two rows with the same triple (e.g. duplicate common entries),
+      // the second upserts over the first instead of crashing the whole
+      // transaction — the user's last-written value wins.
       const entryResult = await client.query<SnapshotEntry>(
         `INSERT INTO snapshot_entries (snapshot_id, service_id, amount, pocket_asset_id, quantity, price)
-         VALUES ($1, $2, $3, $4, $5, $6) RETURNING *`,
+         VALUES ($1, $2, $3, $4, $5, $6)
+         ON CONFLICT (snapshot_id, service_id, pocket_asset_id)
+           DO UPDATE SET amount = EXCLUDED.amount,
+                         quantity = EXCLUDED.quantity,
+                         price = EXCLUDED.price
+         RETURNING *`,
         [
           id,
           entry.service_id,
