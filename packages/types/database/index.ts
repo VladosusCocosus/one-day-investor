@@ -18,10 +18,27 @@ export interface OAuthAccount {
 export interface Session {
   id: string;
   user_id: string;
-  token: string;
+  token: string | null;           // plaintext cookie sessions (legacy path)
+  token_hash: string | null;      // sha256 hex of bearer tokens
+  token_last4: string | null;     // last 4 chars of plaintext, for UI
+  agent_id: string | null;        // null = cookie session, non-null = agent token
   expires_at: Date;
   created_at: Date;
+  last_used_at: Date | null;
+  revoked_at: Date | null;
 }
+
+export interface Agent {
+  id: string;
+  user_id: string;
+  name: string;
+  description: string | null;
+  created_at: Date;
+  last_used_at: Date | null;
+  revoked_at: Date | null;
+}
+
+export type AgentTokenExpiresIn = "1h" | "6h" | "24h" | "7d" | "30d";
 
 export type ServiceType = 'common' | 'invest' | 'crypto';
 
