@@ -14,6 +14,10 @@ const PORT = 3005;
 
 const SITE_URL = process.env.SITE_URL || "https://odinvestor.net";
 const BLOG_URL = process.env.BLOG_URL || "https://blog.odinvestor.net";
+const CORE_URL      = process.env.CORE_URL      || "https://core.odinvestor.net";
+const MARKET_URL    = process.env.MARKET_URL    || "https://market.odinvestor.net";
+const ANALYTICS_URL = process.env.ANALYTICS_URL || "https://analytics.odinvestor.net";
+const DASHBOARD_URL = process.env.DASHBOARD_URL || "https://dashboard.odinvestor.net";
 
 async function resolveUser(cookie: Record<string, any>): Promise<User | null> {
   const token = cookie.session?.value;
@@ -49,6 +53,67 @@ const app = new Elysia()
       `User-agent: *\nAllow: /\n\nSitemap: ${SITE_URL}/sitemap.xml`,
       { headers: { "Content-Type": "text/plain" } }
     );
+  })
+
+  // agents.json — discovery manifest for AI agents
+  .get("/agents.json", () => {
+    const manifest = {
+      name: "One Day Investor",
+      description: "Personal investment tracker. Agents can manage pockets, assets, and monthly snapshots on behalf of a user.",
+      services: {
+        core: {
+          base_url: CORE_URL,
+          openapi_url: `${CORE_URL}/api/swagger/json`,
+          swagger_ui: `${CORE_URL}/api/swagger`,
+        },
+        market: {
+          base_url: MARKET_URL,
+          openapi_url: `${MARKET_URL}/api/swagger/json`,
+          swagger_ui: `${MARKET_URL}/api/swagger`,
+        },
+        analytics: {
+          base_url: ANALYTICS_URL,
+          openapi_url: `${ANALYTICS_URL}/api/swagger/json`,
+          swagger_ui: `${ANALYTICS_URL}/api/swagger`,
+        },
+      },
+      auth: {
+        type: "bearer",
+        header: "Authorization",
+        format: "Bearer <token>",
+        obtain: `User generates a token at ${DASHBOARD_URL}/agents (max 30-day expiry).`,
+        expiry_options: ["1h", "6h", "24h", "7d", "30d"],
+        note: "The same token works across core, market, and analytics.",
+      },
+      capabilities: {
+        allowed_by_service: {
+          core:      ["/api/snapshots", "/api/services", "/api/assets", "/api/catalog"],
+          market:    ["/api/asset-catalog", "/api/pocket-assets", "/api/market"],
+          analytics: ["/api/analytics"],
+        },
+        denied: ["admin", "user-settings", "notifications", "exchange-credentials"],
+      },
+      flow: [
+        { step: 1, service: "core",      action: "List pockets",          method: "GET",  path: "/api/services" },
+        { step: 2, service: "core",      action: "Create pocket",         method: "POST", path: "/api/services" },
+        { step: 3, service: "market",    action: "Search asset catalog",  method: "GET",  path: "/api/asset-catalog/search?q=VOO" },
+        { step: 4, service: "core",      action: "Attach asset to pocket",method: "POST", path: "/api/assets" },
+        { step: 5, service: "core",      action: "Create monthly snapshot",method: "POST",path: "/api/snapshots" },
+        { step: 6, service: "core",      action: "List snapshots",        method: "GET",  path: "/api/snapshots" },
+        { step: 7, service: "analytics", action: "Read analytics",        method: "GET",  path: "/api/analytics/timeline" },
+      ],
+      errors: {
+        "401": "Missing, invalid, or expired token.",
+        "403": "Route not permitted for agent tokens (see capabilities.denied).",
+        "409": "Resource already exists (e.g. snapshot for that month).",
+      },
+    };
+    return new Response(JSON.stringify(manifest, null, 2), {
+      headers: {
+        "Content-Type":  "application/json",
+        "Cache-Control": "public, max-age=300",
+      },
+    });
   })
 
   // sitemap.xml with hreflang

@@ -6,12 +6,19 @@ import {
   updatePocketAsset,
   removePocketAsset,
 } from "@database";
-import { resolveUser } from "../auth/session";
+import { resolveAuth } from "../auth/session";
 import type { AssetType } from "@types";
 
 export const pocketAssetsApi = new Elysia({ prefix: "/api/pocket-assets" })
-  .derive(async ({ cookie }) => {
-    const user = await resolveUser(cookie as Record<string, { value: string }>);
+  .derive(async ({ cookie, request }) => {
+    const headers = Object.fromEntries(request.headers.entries()) as Record<
+      string,
+      string | undefined
+    >;
+    const { user } = await resolveAuth(
+      cookie as Record<string, { value?: string }>,
+      headers
+    );
     return { user };
   })
   .get("/:serviceId", async ({ user, set, params }) => {
