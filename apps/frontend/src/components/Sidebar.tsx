@@ -1,6 +1,6 @@
 import { NavLink, useNavigate } from "react-router";
 import { useTranslation } from "react-i18next";
-import { LayoutDashboard, User, Layers, Camera, BarChart3, PanelLeftClose, PanelLeft, LogOut } from "lucide-react";
+import { LayoutDashboard, User, Layers, Camera, BarChart3, Bot, PanelLeftClose, PanelLeft, LogOut } from "lucide-react";
 import { useAuth } from "@/hooks/useAuth";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
@@ -19,6 +19,7 @@ const navItems = [
   { labelKey: "nav.assets", icon: Layers, path: "/assets-managment" },
   { labelKey: "nav.snapshots", icon: Camera, path: "/snapshots" },
   { labelKey: "nav.analytics", icon: BarChart3, path: "/analytics" },
+  { labelKey: "nav.agents", icon: Bot, path: "/agents" },
 ] as const;
 
 interface SidebarProps {
