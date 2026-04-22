@@ -241,12 +241,10 @@ export async function fetchCryptoPrices(
 
   // 3. Convert from USD to target currency if needed
   if (currency.toUpperCase() !== "USD") {
-    console.log({ convert: true })
     const rate = await getExchangeRate("USD", currency);
-    for (const asset of assets) {
-      if (result[asset.api_id] != null) {
-        console.log({ convert: true, asset: asset.api_id })
-        result[asset.api_id] = Math.round(result[asset.api_id]! * rate * 100) / 100;
+    for (const id of Object.keys(result)) {
+      if (result[id] != null) {
+        result[id] = Math.round(result[id]! * rate * 100) / 100;
       }
     }
   }
@@ -291,7 +289,7 @@ export async function fetchStockPrices(
   );
 
   // Convert to target currency
-  for (const symbol of symbols) {
+  for (const symbol of Object.keys(result)) {
     if (result[symbol] != null) {
       const rate = await getExchangeRate(result[symbol]!.currency, currency);
       result[symbol] = {
