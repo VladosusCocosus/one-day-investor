@@ -15,6 +15,7 @@ import { ProfilePage } from "./pages/ProfilePage";
 import { SnapshotsPage } from "./pages/SnapshotsPage";
 import { AssetsPage } from "./pages/AssetsPage";
 import { AnalyticsPage } from "./pages/AnalyticsPage";
+import { AgentsPage } from "./pages/AgentsPage";
 import { lazy, Suspense } from "react";
 
 const AdminPage = lazy(() =>
@@ -62,6 +63,7 @@ const router = createBrowserRouter([
         children: [
           { path: "/dashboard", element: <DashboardPage /> },
           { path: "/profile", element: <ProfilePage /> },
+          { path: "/agents", element: <AgentsPage /> },
           { path: "/assets-managment", element: <AssetsPage /> },
           { path: "/snapshots", element: <SnapshotsPage /> },
           { path: "/analytics", element: <AnalyticsPage /> },
