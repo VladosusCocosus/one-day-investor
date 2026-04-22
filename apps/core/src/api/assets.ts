@@ -1,5 +1,5 @@
 import { Elysia } from "elysia";
-import { resolveUser } from "../auth/session";
+import { resolveAuth } from "../auth/session";
 import {
   findServicesByUserId,
   findPocketAssetsByServiceIds,
@@ -25,9 +25,16 @@ function getLeafServiceIds(services: { id: string; parent_id: string | null }[])
 }
 
 export const assetsApi = new Elysia({ prefix: "/api/assets" })
-  .derive(async ({ cookie }) => {
-    const user = await resolveUser(cookie as Record<string, { value: string }>);
-    return { user };
+  .derive(async ({ cookie, request }) => {
+    const headers = Object.fromEntries(request.headers.entries()) as Record<
+      string,
+      string | undefined
+    >;
+    const { user, agentId } = await resolveAuth(
+      cookie as Record<string, { value?: string }>,
+      headers
+    );
+    return { user, agentId };
   })
   .get("/", async ({ user, set }) => {
     if (!user) {
