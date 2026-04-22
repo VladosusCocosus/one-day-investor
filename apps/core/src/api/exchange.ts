@@ -1,6 +1,6 @@
 import { Elysia } from "elysia";
 import { createLogger } from "@logger";
-import { resolveUser } from "../auth/session";
+import { resolveAuth } from "../auth/session";
 import {
   createExchangeCredential,
   findExchangeCredentialsByUserId,
@@ -27,9 +27,16 @@ const log = createLogger("api:exchange");
 const CACHE_TTL = 180; // 3 minutes
 
 export const exchangeApi = new Elysia({ prefix: "/api/exchange" })
-  .derive(async ({ cookie }) => {
-    const user = await resolveUser(cookie as Record<string, { value: string }>);
-    return { user };
+  .derive(async ({ cookie, request }) => {
+    const headers = Object.fromEntries(request.headers.entries()) as Record<
+      string,
+      string | undefined
+    >;
+    const { user, agentId } = await resolveAuth(
+      cookie as Record<string, { value?: string }>,
+      headers
+    );
+    return { user, agentId };
   })
   .post("/connect", async ({ user, set, body }) => {
     if (!user) {

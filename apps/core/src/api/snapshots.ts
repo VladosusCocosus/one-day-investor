@@ -9,7 +9,7 @@ import {
   createPdfStatementImport,
 } from "@database";
 import { createLogger } from "@logger";
-import { resolveUser } from "../auth/session";
+import { resolveAuth } from "../auth/session";
 import { getImporter } from "../services/pdf-import";
 import { handleSnapshotsPdfPreview } from "./pdf-import";
 
@@ -64,9 +64,16 @@ async function persistPdfRefs(
 }
 
 export const snapshotsApi = new Elysia({ prefix: "/api/snapshots" })
-  .derive(async ({ cookie }) => {
-    const user = await resolveUser(cookie as Record<string, { value: string }>);
-    return { user };
+  .derive(async ({ cookie, request }) => {
+    const headers = Object.fromEntries(request.headers.entries()) as Record<
+      string,
+      string | undefined
+    >;
+    const { user, agentId } = await resolveAuth(
+      cookie as Record<string, { value?: string }>,
+      headers
+    );
+    return { user, agentId };
   })
   .get("/", async ({ user, set }) => {
     if (!user) {
