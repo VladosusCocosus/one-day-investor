@@ -1,7 +1,36 @@
+import type { PoolClient } from "pg";
 import { pool } from "../../pool";
 import type { Snapshot, SnapshotEntry } from "@types";
 
 export type { Snapshot, SnapshotEntry } from "@types";
+
+interface FrozenIdentity {
+  symbol: string | null;
+  name: string | null;
+  isin: string | null;
+}
+
+/**
+ * Resolve the asset identity to freeze onto a snapshot_entries row. Caller
+ * supplies the pocket_asset_id (may be null for plain common-pocket entries).
+ * Returns {null, null, null} if no pocket_asset_id or the pocket_asset is
+ * missing — the row is then a "plain" entry under the (snapshot, service,
+ * null symbol) slot and has no per-asset identity.
+ */
+async function resolveFrozenIdentity(
+  client: PoolClient,
+  pocketAssetId: string | null | undefined,
+): Promise<FrozenIdentity> {
+  if (!pocketAssetId) return { symbol: null, name: null, isin: null };
+  const res = await client.query<FrozenIdentity>(
+    `SELECT pa.symbol, pa.name, ac.isin
+       FROM pocket_assets pa
+       LEFT JOIN asset_catalog ac ON pa.asset_catalog_id = ac.id
+       WHERE pa.id = $1`,
+    [pocketAssetId],
+  );
+  return res.rows[0] ?? { symbol: null, name: null, isin: null };
+}
 
 export interface SnapshotWithTotal {
   id: string;
@@ -102,18 +131,24 @@ export async function createSnapshot(params: {
       const amount = entry.pocket_asset_id && entry.quantity != null && entry.price != null
         ? entry.quantity * entry.price
         : entry.amount;
-      // ON CONFLICT matches the UNIQUE NULLS NOT DISTINCT constraint on
-      // (snapshot_id, service_id, pocket_asset_id). If the caller accidentally
-      // sends two rows with the same triple (e.g. duplicate common entries),
-      // the second upserts over the first instead of crashing the whole
-      // transaction — the user's last-written value wins.
+      const identity = await resolveFrozenIdentity(client, entry.pocket_asset_id);
+      // Freeze the asset identity onto the row so historical rendering never
+      // depends on a pocket_asset that may later be deleted. ON CONFLICT
+      // matches the UNIQUE NULLS NOT DISTINCT constraint on
+      // (snapshot_id, service_id, symbol). Duplicate payloads upsert rather
+      // than crashing the transaction.
       const entryResult = await client.query<SnapshotEntry>(
-        `INSERT INTO snapshot_entries (snapshot_id, service_id, amount, pocket_asset_id, quantity, price)
-         VALUES ($1, $2, $3, $4, $5, $6)
-         ON CONFLICT (snapshot_id, service_id, pocket_asset_id)
+        `INSERT INTO snapshot_entries
+           (snapshot_id, service_id, amount, pocket_asset_id, quantity, price,
+            symbol, name, isin)
+         VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9)
+         ON CONFLICT (snapshot_id, service_id, symbol)
            DO UPDATE SET amount = EXCLUDED.amount,
                          quantity = EXCLUDED.quantity,
-                         price = EXCLUDED.price
+                         price = EXCLUDED.price,
+                         pocket_asset_id = EXCLUDED.pocket_asset_id,
+                         name = EXCLUDED.name,
+                         isin = EXCLUDED.isin
          RETURNING *`,
         [
           snapshot.id,
@@ -122,6 +157,9 @@ export async function createSnapshot(params: {
           entry.pocket_asset_id ?? null,
           entry.quantity ?? null,
           entry.price ?? null,
+          identity.symbol,
+          identity.name,
+          identity.isin,
         ]
       );
       entries.push(entryResult.rows[0]);
@@ -183,18 +221,24 @@ export async function updateSnapshot(
       const amount = entry.pocket_asset_id && entry.quantity != null && entry.price != null
         ? entry.quantity * entry.price
         : entry.amount;
-      // ON CONFLICT matches the UNIQUE NULLS NOT DISTINCT constraint on
-      // (snapshot_id, service_id, pocket_asset_id). If the caller accidentally
-      // sends two rows with the same triple (e.g. duplicate common entries),
-      // the second upserts over the first instead of crashing the whole
-      // transaction — the user's last-written value wins.
+      const identity = await resolveFrozenIdentity(client, entry.pocket_asset_id);
+      // Freeze the asset identity onto the row so historical rendering never
+      // depends on a pocket_asset that may later be deleted. ON CONFLICT
+      // matches the UNIQUE NULLS NOT DISTINCT constraint on
+      // (snapshot_id, service_id, symbol). Duplicate payloads upsert rather
+      // than crashing the transaction.
       const entryResult = await client.query<SnapshotEntry>(
-        `INSERT INTO snapshot_entries (snapshot_id, service_id, amount, pocket_asset_id, quantity, price)
-         VALUES ($1, $2, $3, $4, $5, $6)
-         ON CONFLICT (snapshot_id, service_id, pocket_asset_id)
+        `INSERT INTO snapshot_entries
+           (snapshot_id, service_id, amount, pocket_asset_id, quantity, price,
+            symbol, name, isin)
+         VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9)
+         ON CONFLICT (snapshot_id, service_id, symbol)
            DO UPDATE SET amount = EXCLUDED.amount,
                          quantity = EXCLUDED.quantity,
-                         price = EXCLUDED.price
+                         price = EXCLUDED.price,
+                         pocket_asset_id = EXCLUDED.pocket_asset_id,
+                         name = EXCLUDED.name,
+                         isin = EXCLUDED.isin
          RETURNING *`,
         [
           id,

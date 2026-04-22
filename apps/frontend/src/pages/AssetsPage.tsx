@@ -1,11 +1,10 @@
 import { useMemo, useState } from "react";
 import { Trans, useTranslation } from "react-i18next";
-import { Plus, FileUp } from "lucide-react";
+import { Plus } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { AssetDrawer } from "@/components/AssetDrawer";
 import { PocketDrawer, type PocketDrawerMode } from "@/components/PocketDrawer";
-import { PdfIntegrationDialog } from "@/components/PdfIntegrationDialog";
 import {
   useServices,
   getLeafPockets,
@@ -14,8 +13,6 @@ import {
 } from "@/hooks/useServices";
 import { useSettings } from "@/hooks/useSettings";
 import { useAssets, type PocketAssetWithPrice } from "@/hooks/useAssets";
-import { useCatalog } from "@/hooks/useCatalog";
-import { providerForCatalogEntry, type PdfProviderInfo } from "@/lib/pdf-providers";
 import { cn } from "@/lib/utils";
 import { usePageMeta } from "@/lib/use-page-meta";
 import { pageMeta } from "@/lib/metadata";
@@ -46,13 +43,6 @@ export function AssetsPage() {
   });
   const [pocketDrawerMode, setPocketDrawerMode] =
     useState<PocketDrawerMode | null>(null);
-  const [pdfDialog, setPdfDialog] = useState<{
-    open: boolean;
-    serviceId: string;
-    serviceLabel: string;
-    provider: PdfProviderInfo;
-  } | null>(null);
-  const { allCatalog } = useCatalog();
 
   const leafPockets = useMemo(() => getLeafPockets(services), [services]);
   const leafCommonPockets = useMemo(
@@ -197,10 +187,6 @@ export function AssetsPage() {
           {leafPockets.map((pocket) => {
             const assets = assetsByService.get(pocket.id) ?? [];
             const total = pocketTotal(pocket.id);
-            const provider = providerForCatalogEntry(
-              allCatalog,
-              pocket.catalog_service_id,
-            );
             return (
               <PocketSection
                 key={pocket.id}
@@ -212,18 +198,6 @@ export function AssetsPage() {
                 onHeaderClick={() => openEditPocket(pocket.id)}
                 onAddAsset={() => openAddAsset(pocket.id)}
                 onRowClick={openEditAsset}
-                onUploadPdf={
-                  provider
-                    ? () =>
-                        setPdfDialog({
-                          open: true,
-                          serviceId: pocket.id,
-                          serviceLabel:
-                            pocketLabels.get(pocket.id) ?? pocket.name,
-                          provider,
-                        })
-                    : undefined
-                }
               />
             );
           })}
@@ -261,18 +235,6 @@ export function AssetsPage() {
         mode={pocketDrawerMode}
         onModeChange={setPocketDrawerMode}
       />
-
-      {pdfDialog && (
-        <PdfIntegrationDialog
-          open={pdfDialog.open}
-          onOpenChange={(o) =>
-            setPdfDialog((prev) => (prev ? { ...prev, open: o } : null))
-          }
-          serviceId={pdfDialog.serviceId}
-          serviceLabel={pdfDialog.serviceLabel}
-          provider={pdfDialog.provider}
-        />
-      )}
     </div>
   );
 }
@@ -286,7 +248,6 @@ interface PocketSectionProps {
   onHeaderClick: () => void;
   onAddAsset: () => void;
   onRowClick: (a: PocketAssetWithPrice) => void;
-  onUploadPdf?: () => void;
 }
 
 function PocketSection({
@@ -298,7 +259,6 @@ function PocketSection({
   onHeaderClick,
   onAddAsset,
   onRowClick,
-  onUploadPdf,
 }: PocketSectionProps) {
   const { t } = useTranslation();
   return (
@@ -320,21 +280,6 @@ function PocketSection({
         <span className="px-2 text-xs font-medium text-foreground tabular-nums">
           {total}
         </span>
-        {onUploadPdf && (
-          <button
-            type="button"
-            onClick={onUploadPdf}
-            aria-label={`Upload PDF statement for ${label}`}
-            className={cn(
-              "mr-1 flex h-6 w-6 items-center justify-center rounded-md text-muted-foreground transition-colors",
-              "hover:bg-sky-50 hover:text-sky-700",
-              "focus-visible:bg-sky-50 focus-visible:text-sky-700 focus-visible:outline-none"
-            )}
-            title="Upload PDF statement"
-          >
-            <FileUp className="h-3.5 w-3.5" />
-          </button>
-        )}
         <button
           type="button"
           onClick={onAddAsset}
