@@ -1,10 +1,17 @@
 import { Elysia } from "elysia";
 import { findCurrentTotal, findDistribution, findTimeline, findAssetTimeline } from "@database";
-import { resolveUser } from "../auth/session";
+import { resolveAuth } from "../auth/session";
 
 export const analyticsApi = new Elysia({ prefix: "/api/analytics" })
-  .derive(async ({ cookie }) => {
-    const user = await resolveUser(cookie as Record<string, { value: string }>);
+  .derive(async ({ cookie, request }) => {
+    const headers = Object.fromEntries(request.headers.entries()) as Record<
+      string,
+      string | undefined
+    >;
+    const { user } = await resolveAuth(
+      cookie as Record<string, { value?: string }>,
+      headers
+    );
     return { user };
   })
   .get("/distribution", async ({ user, set, query }) => {
