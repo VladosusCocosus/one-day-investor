@@ -1,4 +1,5 @@
 import { Elysia } from "elysia";
+import { agentScope } from "../auth/agent-scope";
 import { servicesApi } from "./services";
 import { snapshotsApi } from "./snapshots";
 import { catalogApi } from "./catalog";
@@ -7,9 +8,9 @@ import { exchangeApi } from "./exchange";
 import { assetsApi } from "./assets";
 import { notificationsApi } from "./notifications";
 import { adminApi } from "./admin";
-import { pdfImportApi } from "./pdf-import";
 
 export const api = new Elysia({ name: "api" })
+  .use(agentScope)
   .use(servicesApi)
   .use(snapshotsApi)
   .use(catalogApi)
@@ -17,5 +18,4 @@ export const api = new Elysia({ name: "api" })
   .use(exchangeApi)
   .use(assetsApi)
   .use(notificationsApi)
-  .use(adminApi)
-  .use(pdfImportApi);
+  .use(adminApi);

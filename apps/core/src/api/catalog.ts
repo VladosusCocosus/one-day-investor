@@ -1,11 +1,18 @@
 import { Elysia } from "elysia";
 import { findAllCatalogServices, searchCatalogServices } from "@database";
-import { resolveUser } from "../auth/session";
+import { resolveAuth } from "../auth/session";
 
 export const catalogApi = new Elysia({ prefix: "/api/catalog" })
-  .derive(async ({ cookie }) => {
-    const user = await resolveUser(cookie as Record<string, { value: string }>);
-    return { user };
+  .derive(async ({ cookie, request }) => {
+    const headers = Object.fromEntries(request.headers.entries()) as Record<
+      string,
+      string | undefined
+    >;
+    const { user, agentId } = await resolveAuth(
+      cookie as Record<string, { value?: string }>,
+      headers
+    );
+    return { user, agentId };
   })
   .get("/", async ({ user, set }) => {
     if (!user) {

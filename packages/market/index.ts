@@ -171,24 +171,36 @@ export async function fetchCryptoPrices(
 
   // 1. Try exchange tickers (Binance/Bybit — returns USD prices)
   const tickers = await fetchExchangeTickers();
+
+  console.log({
+      assets
+  })
+
+  console.log({
+      tickers: tickers
+  })
+
   const unresolvedAssets: { api_id: string; symbol?: string }[] = [];
 
   for (const asset of assets) {
     const id = asset.api_id;
     // Try the actual ticker symbol first (most reliable — "SFP", "BTC", etc.)
     if (asset.symbol && tickers.has(asset.symbol)) {
+      console.log("found [Binance]", { id, result: tickers.get(asset.symbol) })
       result[id] = tickers.get(asset.symbol)!;
       continue;
     }
     // Then try known CoinGecko→symbol mapping
     const mapped = COINGECKO_TO_SYMBOL[id];
     if (mapped && tickers.has(mapped)) {
+      console.log("found [CoinGecko]", { id, mapped })
       result[id] = tickers.get(mapped)!;
       continue;
     }
     // Try uppercase api_id as symbol
     const upperId = id.toUpperCase();
     if (tickers.has(upperId)) {
+      console.log("found [Binance] Upper Case", { id, result: tickers.get(upperId) })
       result[id] = tickers.get(upperId)!;
       continue;
     }
@@ -229,9 +241,11 @@ export async function fetchCryptoPrices(
 
   // 3. Convert from USD to target currency if needed
   if (currency.toUpperCase() !== "USD") {
+    console.log({ convert: true })
     const rate = await getExchangeRate("USD", currency);
     for (const asset of assets) {
       if (result[asset.api_id] != null) {
+        console.log({ convert: true, asset: asset.api_id })
         result[asset.api_id] = Math.round(result[asset.api_id]! * rate * 100) / 100;
       }
     }
