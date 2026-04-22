@@ -2,9 +2,16 @@ import { Elysia } from "elysia";
 import { cors } from "@elysiajs/cors";
 import config from "@config";
 import { createLogger } from "@logger";
+import { createAgentScope } from "./auth/agent-scope";
 import { api } from "./api";
 
 const log = createLogger("market-app");
+
+const MARKET_AGENT_ALLOWED_PREFIXES = [
+  "/api/asset-catalog",
+  "/api/pocket-assets",
+  "/api/market",
+] as const;
 
 const app = new Elysia()
   .use(cors({
@@ -15,6 +22,7 @@ const app = new Elysia()
     log.error({ err: error, code, path }, "Unhandled request error");
     return { error: "Internal server error" };
   })
+  .use(createAgentScope(MARKET_AGENT_ALLOWED_PREFIXES))
   .use(api)
   .get("/", () => "Market service")
   .listen(3002);
