@@ -1,5 +1,6 @@
 import { Elysia } from "elysia";
 import { cors } from "@elysiajs/cors";
+import { swagger } from "@elysiajs/swagger";
 import config from "@config";
 import { createLogger } from "@logger";
 import { createAgentScope } from "./auth/agent-scope";
@@ -13,6 +14,24 @@ const app = new Elysia()
   .use(cors({
     origin: [config.get("frontendUrl"), config.get("siteUrl")],
     credentials: true,
+  }))
+  .use(swagger({
+    path: "/api/swagger",
+    documentation: {
+      info: {
+        title: "One Day Investor — Analytics API",
+        version: "1.0.0",
+        description: "Computed analytics over user snapshots. Bearer auth via https://odinvestor.net/agents.json.",
+      },
+      components: {
+        securitySchemes: {
+          bearerAuth: { type: "http", scheme: "bearer", bearerFormat: "opaque" },
+        },
+      },
+      tags: [
+        { name: "Analytics", description: "Timeline, distribution, current totals" },
+      ],
+    },
   }))
   .onError(({ error, code, path }) => {
     log.error({ err: error, code, path }, "Unhandled request error");
