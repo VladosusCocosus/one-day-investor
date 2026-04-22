@@ -12,11 +12,8 @@ import {
   SheetDescription,
 } from "@/components/ui/sheet";
 import { useAssets } from "@/hooks/useAssets";
-import { useCatalog } from "@/hooks/useCatalog";
 import { useSnapshots, type SnapshotDetail } from "@/hooks/useSnapshots";
 import type { ServiceTree } from "@/hooks/useServices";
-import { api } from "@/lib/api";
-import { providerForCatalogEntry } from "@/lib/pdf-providers";
 
 export type SnapshotDrawerMode =
   | { kind: "create" }
@@ -38,18 +35,6 @@ interface SnapshotEntryInput {
   pocket_asset_id?: string | null;
   quantity?: number | null;
   price?: number | null;
-  pdfRef?: { s3Key: string; provider: string; parsed?: Record<string, unknown> } | null;
-}
-
-interface SavingsPreviewPayload {
-  s3Key: string;
-  parsed: {
-    amount: string;
-    currency: string;
-    periodEnd: string;
-    generatedAt: string;
-    accountNumber: string | null;
-  };
 }
 
 function formatMoney(value: number, sym: string): string {
@@ -97,7 +82,7 @@ export function SnapshotDrawer({
   // snapshot entries.
   const { investServiceIds, commonServices, allLeafServices } = useMemo(() => {
     const invest: string[] = [];
-    const commons: { id: string; label: string; catalogServiceId: string | null }[] = [];
+    const commons: { id: string; label: string }[] = [];
     const leaves: { id: string; label: string; type: string }[] = [];
     for (const group of tree) {
       const isCommonParent = group.service.service_type === "common";
@@ -110,7 +95,6 @@ export function SnapshotDrawer({
                   ? group.service.name
                   : `${group.service.name} · ${c.name}`,
               type: c.service_type,
-              catalogServiceId: c.catalog_service_id,
             }))
           : isCommonParent
             ? [] // Common parent without children — invisible in snapshot UI.
@@ -119,7 +103,6 @@ export function SnapshotDrawer({
                   id: group.service.id,
                   label: group.service.name,
                   type: group.service.service_type,
-                  catalogServiceId: group.service.catalog_service_id,
                 },
               ];
       for (const leaf of iterate) {
@@ -128,7 +111,6 @@ export function SnapshotDrawer({
           commons.push({
             id: leaf.id,
             label: leaf.label,
-            catalogServiceId: leaf.catalogServiceId,
           });
         } else {
           invest.push(leaf.id);
@@ -141,9 +123,6 @@ export function SnapshotDrawer({
       allLeafServices: leaves,
     };
   }, [tree]);
-
-  // Catalog metadata, used to find pdf-upload services (e.g. Revolut > Savings).
-  const { allCatalog } = useCatalog();
 
   // Pocket assets for invest/crypto services (only used in create mode)
   const { assets: allAssetsFromApi } = useAssets();
@@ -171,42 +150,6 @@ export function SnapshotDrawer({
   const [amounts, setAmounts] = useState<Record<string, string>>({});
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  /** Attached PDF preview per service_id (Flow A — Revolut > Savings). */
-  const [pdfRefs, setPdfRefs] = useState<Record<string, SavingsPreviewPayload>>({});
-  const [uploadingFor, setUploadingFor] = useState<string | null>(null);
-
-  const handleSavingsPdfUpload = async (
-    serviceId: string,
-    providerSlug: string,
-    file: File,
-  ) => {
-    setUploadingFor(serviceId);
-    setError(null);
-    try {
-      const form = new FormData();
-      form.append("file", file);
-      form.append("provider", providerSlug);
-      const res = await api.post<SavingsPreviewPayload>(
-        "/api/snapshots/pdf-preview",
-        form,
-      );
-      setPdfRefs((prev) => ({ ...prev, [serviceId]: res.data }));
-      setAmounts((prev) => ({ ...prev, [serviceId]: res.data.parsed.amount }));
-    } catch (e) {
-      const message = e instanceof Error ? e.message : "PDF upload failed";
-      setError(message);
-    } finally {
-      setUploadingFor(null);
-    }
-  };
-
-  const clearPdfRef = (serviceId: string) => {
-    setPdfRefs((prev) => {
-      const next = { ...prev };
-      delete next[serviceId];
-      return next;
-    });
-  };
 
   const firstCommonInputRef = useRef<HTMLInputElement | null>(null);
 
@@ -323,20 +266,12 @@ export function SnapshotDrawer({
             price,
           });
         }
-        // Common entries — one per manual input, with optional PDF attachment.
+        // Common entries — one per manual input.
         for (const c of commonServices) {
           const amount = parseFloat(amounts[c.id] || "0") || 0;
-          const pdf = pdfRefs[c.id];
           entries.push({
             service_id: c.id,
             amount,
-            pdfRef: pdf
-              ? {
-                  s3Key: pdf.s3Key,
-                  provider: "revolut-savings",
-                  parsed: pdf.parsed,
-                }
-              : null,
           });
         }
         const created = await createSnapshot(month, entries);
@@ -357,17 +292,9 @@ export function SnapshotDrawer({
         // Rewrite common entries from form state
         for (const c of commonServices) {
           const amount = parseFloat(amounts[c.id] || "0") || 0;
-          const pdf = pdfRefs[c.id];
           entries.push({
             service_id: c.id,
             amount,
-            pdfRef: pdf
-              ? {
-                  s3Key: pdf.s3Key,
-                  provider: "revolut-savings",
-                  parsed: pdf.parsed,
-                }
-              : null,
           });
         }
         await updateSnapshot(mode.snapshot.id, entries);
@@ -536,80 +463,37 @@ export function SnapshotDrawer({
                   {t("snapshotDrawer.otherPockets")}
                 </p>
                 <div className="space-y-2">
-                  {commonServices.map((svc, i) => {
-                    const provider = providerForCatalogEntry(
-                      allCatalog,
-                      svc.catalogServiceId,
-                    );
-                    const attachedPdf = pdfRefs[svc.id];
-                    return (
-                      <div key={svc.id} className="space-y-1">
-                        <div className="flex items-center gap-3">
-                          <label className="flex-1 truncate text-sm text-foreground">
-                            {svc.label}
-                          </label>
-                          <input
-                            ref={i === 0 ? firstCommonInputRef : null}
-                            type="number"
-                            step="0.01"
-                            inputMode="decimal"
-                            className="w-32 rounded-md border bg-background px-3 py-1.5 text-right text-sm tabular-nums outline-none focus-visible:ring-2 focus-visible:ring-ring"
-                            placeholder="0"
-                            value={amounts[svc.id] ?? ""}
-                            onChange={(e) => setAmount(svc.id, e.target.value)}
-                            onKeyDown={(e) => {
-                              if (e.key === "Enter") {
-                                e.preventDefault();
-                                if (i < commonServices.length - 1) {
-                                  const next = document.querySelectorAll<HTMLInputElement>(
-                                    'input[type="number"][data-snapshot-common]'
-                                  )[i + 1];
-                                  next?.focus();
-                                } else if (canSave) {
-                                  handleSave();
-                                }
-                              }
-                            }}
-                            data-snapshot-common
-                          />
-                        </div>
-                        {provider && (
-                          <div className="flex items-center gap-2 pl-0.5">
-                            {attachedPdf ? (
-                              <span className="inline-flex items-center gap-1.5 rounded-full bg-muted px-2 py-0.5 text-[11px] text-muted-foreground">
-                                Filled from PDF · Period end {attachedPdf.parsed.periodEnd?.slice(0, 10)}
-                                <button
-                                  type="button"
-                                  aria-label="Remove attached PDF"
-                                  className="text-muted-foreground hover:text-foreground"
-                                  onClick={() => clearPdfRef(svc.id)}
-                                >
-                                  ×
-                                </button>
-                              </span>
-                            ) : (
-                              <label className="inline-flex cursor-pointer items-center gap-1 text-[11px] text-muted-foreground hover:text-foreground">
-                                <input
-                                  type="file"
-                                  accept="application/pdf"
-                                  className="hidden"
-                                  disabled={uploadingFor === svc.id}
-                                  onChange={(e) => {
-                                    const f = e.currentTarget.files?.[0];
-                                    if (f) handleSavingsPdfUpload(svc.id, provider.slug, f);
-                                    e.currentTarget.value = "";
-                                  }}
-                                />
-                                {uploadingFor === svc.id
-                                  ? "Parsing PDF…"
-                                  : "Upload Revolut statement"}
-                              </label>
-                            )}
-                          </div>
-                        )}
-                      </div>
-                    );
-                  })}
+                  {commonServices.map((svc, i) => (
+                    <div key={svc.id} className="flex items-center gap-3">
+                      <label className="flex-1 truncate text-sm text-foreground">
+                        {svc.label}
+                      </label>
+                      <input
+                        ref={i === 0 ? firstCommonInputRef : null}
+                        type="number"
+                        step="0.01"
+                        inputMode="decimal"
+                        className="w-32 rounded-md border bg-background px-3 py-1.5 text-right text-sm tabular-nums outline-none focus-visible:ring-2 focus-visible:ring-ring"
+                        placeholder="0"
+                        value={amounts[svc.id] ?? ""}
+                        onChange={(e) => setAmount(svc.id, e.target.value)}
+                        onKeyDown={(e) => {
+                          if (e.key === "Enter") {
+                            e.preventDefault();
+                            if (i < commonServices.length - 1) {
+                              const next = document.querySelectorAll<HTMLInputElement>(
+                                'input[type="number"][data-snapshot-common]'
+                              )[i + 1];
+                              next?.focus();
+                            } else if (canSave) {
+                              handleSave();
+                            }
+                          }
+                        }}
+                        data-snapshot-common
+                      />
+                    </div>
+                  ))}
                 </div>
               </div>
             )}

@@ -3,7 +3,7 @@ import { api } from "@/lib/api";
 import type { Service } from "@/hooks/useServices";
 
 export type ServiceType = "common" | "invest" | "crypto";
-export type IntegrationType = "manual" | "api" | "pdf-upload";
+export type IntegrationType = "manual" | "api";
 
 export interface CatalogService {
   id: string;

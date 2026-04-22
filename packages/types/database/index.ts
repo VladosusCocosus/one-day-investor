@@ -25,7 +25,7 @@ export interface Session {
 
 export type ServiceType = 'common' | 'invest' | 'crypto';
 
-export type IntegrationType = 'manual' | 'api' | 'pdf-upload';
+export type IntegrationType = 'manual' | 'api';
 
 export interface CatalogService {
   id: string;
@@ -94,10 +94,14 @@ export interface SnapshotEntry {
   id: string;
   snapshot_id: string;
   service_id: string;
-  amount: string; // numeric comes back as string from pg
-  pocket_asset_id: string | null;
+  amount: string;                  // numeric comes back as string from pg
+  pocket_asset_id: string | null;  // advisory link; nullable after pocket delete
   quantity: string | null;
   price: string | null;
+  /** Frozen at snapshot creation so historical rendering never depends on a live pocket_asset. */
+  symbol: string | null;
+  name: string | null;
+  isin: string | null;
 }
 
 export interface ExchangeCredential {
