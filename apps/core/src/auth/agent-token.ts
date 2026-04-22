@@ -22,8 +22,9 @@ export function sha256Hex(value: string): string {
 
 export function parseBearer(header: string | undefined): string | null {
   if (!header) return null;
-  if (!header.startsWith("Bearer ")) return null;
-  const token = header.slice(7).trim();
+  const match = /^Bearer\s+(.*)$/i.exec(header);
+  if (!match) return null;
+  const token = match[1].trim();
   return token.length > 0 ? token : null;
 }
 

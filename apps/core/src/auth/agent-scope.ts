@@ -1,6 +1,8 @@
 import { Elysia } from "elysia";
 import { resolveAuth } from "./session";
 
+export type { ResolvedAuth } from "./session";
+
 const AGENT_ALLOWED_PREFIXES = [
   "/api/snapshots",
   "/api/services",
@@ -8,6 +10,12 @@ const AGENT_ALLOWED_PREFIXES = [
   "/api/catalog",
   "/api/analytics",
 ] as const;
+
+function isAllowed(path: string): boolean {
+  return AGENT_ALLOWED_PREFIXES.some(
+    (p) => path === p || path.startsWith(`${p}/`)
+  );
+}
 
 /**
  * Derives `{ user, agentId }` once per request and short-circuits with 403 when
@@ -30,8 +38,7 @@ export const agentScope = new Elysia({ name: "agent-scope" })
   })
   .onBeforeHandle(({ agentId, path, set }) => {
     if (agentId === null) return;
-    const allowed = AGENT_ALLOWED_PREFIXES.some((p) => path.startsWith(p));
-    if (!allowed) {
+    if (!isAllowed(path)) {
       set.status = 403;
       return { error: "Agent tokens cannot access this endpoint" };
     }
