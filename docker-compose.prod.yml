@@ -226,6 +226,9 @@ services:
       DASHBOARD_URL: ${DASHBOARD_URL:-https://dashboard.odinvestor.net}
       BLOG_URL: ${BLOG_URL:-https://blog.odinvestor.net}
       FRONTEND_URL: ${FRONTEND_URL:-https://dashboard.odinvestor.net}
+      CORE_URL: ${CORE_URL:-https://core.odinvestor.net}
+      MARKET_URL: ${MARKET_URL:-https://market.odinvestor.net}
+      ANALYTICS_URL: ${ANALYTICS_URL:-https://analytics.odinvestor.net}
     depends_on:
       db:
         condition: service_healthy
