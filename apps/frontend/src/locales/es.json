@@ -24,7 +24,8 @@
     "profile": "Perfil",
     "assets": "Activos",
     "snapshots": "Instantáneas",
-    "analytics": "Analítica"
+    "analytics": "Analítica",
+    "agents": "Agentes"
   },
   "sidebar": {
     "expandSidebar": "Expandir barra lateral",
@@ -66,6 +67,29 @@
     "helpDescription": "¿Olvidaste cómo funciona? Repite el tour de bienvenida en cualquier momento.",
     "showWelcomeTour": "Mostrar tour de bienvenida",
     "signOut": "Cerrar sesión"
+  },
+  "agents": {
+    "title": "Agentes",
+    "subtitle": "Gestiona tokens para bots y automatizaciones que operen tu portafolio. Consulta la especificación pública:",
+    "namePlaceholder": "Nombre del agente (ej. Mi bot de trading)",
+    "createAgent": "Crear agente",
+    "empty": "Aún no hay agentes. Crea uno arriba.",
+    "manageTokens": "Gestionar tokens",
+    "tokensCount_one": "{{count}} token activo",
+    "tokensCount_other": "{{count}} tokens activos",
+    "lastUsed": "Último uso {{when}}",
+    "neverUsed": "Nunca usado",
+    "confirmRevoke": "¿Revocar este agente y todos sus tokens?",
+    "expiresIn": "Expira en",
+    "createToken": "Crear token",
+    "revokeToken": "Revocar",
+    "tokenCreated": "Token creado",
+    "tokenOnceWarning": "Copia este token ahora — no se mostrará de nuevo.",
+    "copy": "Copiar",
+    "expiresAt": "Expira {{when}}",
+    "statusActive": "Activo",
+    "statusExpired": "Expirado",
+    "statusRevoked": "Revocado"
   },
   "languages": {
     "en": "English",
