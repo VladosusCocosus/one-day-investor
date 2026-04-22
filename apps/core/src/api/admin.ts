@@ -2,7 +2,7 @@ import { Elysia } from "elysia";
 import { pool } from "@database";
 import { sendEmail } from "@mailgun";
 import { generateUnsubscribeToken } from "@notifications";
-import { resolveUser } from "../auth/session";
+import { resolveAuth } from "../auth/session";
 import { renderServiceUpdateEmail } from "../template/service-update";
 import { renderBlogPostEmail } from "../template/blog-post";
 import config from "@config";
@@ -32,9 +32,16 @@ function isAdmin(email: string): boolean {
 }
 
 export const adminApi = new Elysia({ prefix: "/api/admin" })
-  .derive(async ({ cookie }) => {
-    const user = await resolveUser(cookie as Record<string, { value: string }>);
-    return { user };
+  .derive(async ({ cookie, request }) => {
+    const headers = Object.fromEntries(request.headers.entries()) as Record<
+      string,
+      string | undefined
+    >;
+    const { user, agentId } = await resolveAuth(
+      cookie as Record<string, { value?: string }>,
+      headers
+    );
+    return { user, agentId };
   })
   .onBeforeHandle(({ user, set }) => {
     if (!user || !isAdmin(user.email)) {
