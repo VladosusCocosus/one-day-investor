@@ -1,11 +1,18 @@
 import { Elysia } from "elysia";
 import { searchAssetCatalog } from "@database";
-import { resolveUser } from "../auth/session";
+import { resolveAuth } from "../auth/session";
 import type { AssetType } from "@types";
 
 export const assetCatalogApi = new Elysia({ prefix: "/api/asset-catalog" })
-  .derive(async ({ cookie }) => {
-    const user = await resolveUser(cookie as Record<string, { value: string }>);
+  .derive(async ({ cookie, request }) => {
+    const headers = Object.fromEntries(request.headers.entries()) as Record<
+      string,
+      string | undefined
+    >;
+    const { user } = await resolveAuth(
+      cookie as Record<string, { value?: string }>,
+      headers
+    );
     return { user };
   })
   .get("/search", async ({ user, set, query }) => {
