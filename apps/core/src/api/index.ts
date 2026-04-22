@@ -8,6 +8,7 @@ import { exchangeApi } from "./exchange";
 import { assetsApi } from "./assets";
 import { notificationsApi } from "./notifications";
 import { adminApi } from "./admin";
+import { agentsApi } from "./agents";
 
 const CORE_AGENT_ALLOWED_PREFIXES = [
   "/api/snapshots",
@@ -25,4 +26,5 @@ export const api = new Elysia({ name: "api" })
   .use(exchangeApi)
   .use(assetsApi)
   .use(notificationsApi)
-  .use(adminApi);
+  .use(adminApi)
+  .use(agentsApi);
