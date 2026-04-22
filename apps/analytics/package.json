@@ -8,9 +8,10 @@
     "@config": "workspace:*",
     "@database": "workspace:*",
     "@elysiajs/cors": "^1.4.1",
+    "@elysiajs/swagger": "^1.3.1",
+    "@logger": "workspace:*",
     "@types": "workspace:*",
-    "elysia": "latest",
-    "@logger": "workspace:*"
+    "elysia": "latest"
   },
   "devDependencies": {
     "bun-types": "latest"
