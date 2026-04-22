@@ -16,7 +16,6 @@
     "@mailgun": "workspace:*",
     "@notifications": "workspace:*",
     "@redis": "workspace:*",
-    "@revolut-pdf": "workspace:*",
     "@storage": "workspace:*",
     "@types": "workspace:*",
     "arctic": "latest",
