@@ -112,3 +112,20 @@ export async function listTokensByAgentId(agentId: string): Promise<Session[]> {
   );
   return result.rows;
 }
+
+/**
+ * Revoke a token that belongs to both the given user AND the given agent.
+ * Returns true if a row was updated. Used by DELETE /api/agents/:id/tokens/:tokenId.
+ */
+export async function revokeAgentSession(
+  sessionId: string,
+  userId: string,
+  agentId: string
+): Promise<boolean> {
+  const result = await pool.query(
+    `UPDATE sessions SET revoked_at = now()
+     WHERE id = $1 AND user_id = $2 AND agent_id = $3 AND revoked_at IS NULL`,
+    [sessionId, userId, agentId]
+  );
+  return (result.rowCount ?? 0) > 0;
+}
