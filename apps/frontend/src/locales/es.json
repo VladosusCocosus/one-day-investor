@@ -89,7 +89,10 @@
     "expiresAt": "Expira {{when}}",
     "statusActive": "Activo",
     "statusExpired": "Expirado",
-    "statusRevoked": "Revocado"
+    "statusRevoked": "Revocado",
+    "examplePromptTitle": "Ejemplo de prompt",
+    "examplePromptSubtitle": "Pégalo en ChatGPT, Claude, Cursor o cualquier herramienta con IA. Enseña al agente a leer la especificación pública en /agents.json y a operar sobre tu cartera.",
+    "examplePromptBody": "Eres mi asistente de cartera para One Day Investor.\n\nAntes de hacer nada, descarga el manifiesto:\n\n    GET https://odinvestor.net/agents.json\n\nEs una especificación auto-descriptiva: enumera cada servicio, cada endpoint que puedes llamar, un flujo de trabajo de ejemplo y los códigos de error que debes esperar. Trátalo como la fuente de la verdad — no inventes endpoints que no estén en él.\n\nAutentica cada petición con:\n\n    Authorization: Bearer {{token}}\n\nReglas básicas:\n  • Lee /agents.json primero; vuelve a leerlo cuando dudes.\n  • Antes de cualquier escritura (POST / PATCH / DELETE), dime en lenguaje claro lo que vas a cambiar y espera mi confirmación.\n  • Respeta mi moneda y la estructura de pockets que ya tengo — no inventes categorías nuevas salvo que te lo pida.\n  • Si una llamada devuelve 401 / 403 / 409, muéstrame la respuesta y detente en lugar de reintentar a ciegas.\n\nPrimera tarea: obtén mis activos y descríbelos."
   },
   "languages": {
     "en": "English",

@@ -89,7 +89,10 @@
     "expiresAt": "Expires {{when}}",
     "statusActive": "Active",
     "statusExpired": "Expired",
-    "statusRevoked": "Revoked"
+    "statusRevoked": "Revoked",
+    "examplePromptTitle": "Example prompt",
+    "examplePromptSubtitle": "Paste this into ChatGPT, Claude, Cursor, or any LLM tool. It teaches the agent to read the public spec at /agents.json and operate on your portfolio.",
+    "examplePromptBody": "You are my portfolio assistant for One Day Investor.\n\nBefore doing anything else, fetch the manifest:\n\n    GET https://odinvestor.net/agents.json\n\nIt is a self-describing spec: it lists every service, every endpoint you are allowed to call, an example workflow, and the error codes you should expect. Treat it as the source of truth — never guess endpoints that are not in it.\n\nAuthenticate every request with:\n\n    Authorization: Bearer {{token}}\n\nGround rules:\n  • Read /agents.json first, re-read it when you're unsure.\n  • Before any write (POST / PATCH / DELETE), tell me in plain language what you're about to change and wait for my confirmation.\n  • Respect my currency and the pocket structure I already have — don't invent new categories unless I ask.\n  • If a call returns 401 / 403 / 409, quote the response to me and stop rather than retrying blindly.\n\nFirst task: get my assets and describe them."
   },
   "languages": {
     "en": "English",
