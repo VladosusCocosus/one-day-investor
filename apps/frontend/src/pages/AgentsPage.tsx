@@ -33,6 +33,10 @@ export function AgentsPage() {
     setNewName("");
   };
 
+  const examplePrompt = t("agents.examplePromptBody", {
+    token: freshToken?.token ?? "oda_xxxxxxxxxxxxxxxxxxxxx",
+  });
+
   return (
     <div>
       <h1 className="text-xl font-bold text-foreground">{t("agents.title")}</h1>
@@ -89,6 +93,28 @@ export function AgentsPage() {
           </div>
         </section>
       )}
+
+      <section className="mt-6 rounded-xl border border-border bg-card p-5">
+        <div className="text-sm font-semibold text-foreground">
+          {t("agents.examplePromptTitle")}
+        </div>
+        <div className="mt-1 text-xs text-muted-foreground">
+          {t("agents.examplePromptSubtitle")}
+        </div>
+        <pre className="mt-3 rounded-md bg-background border border-border p-3 font-mono text-xs whitespace-pre-wrap break-all">
+          {examplePrompt}
+        </pre>
+        <div className="mt-2 flex justify-end">
+          <Button
+            size="sm"
+            variant="outline"
+            onClick={() => navigator.clipboard.writeText(examplePrompt)}
+          >
+            <Copy className="mr-1.5 h-3.5 w-3.5" aria-hidden="true" />
+            {t("agents.copy")}
+          </Button>
+        </div>
+      </section>
 
       <section className="mt-6 space-y-3">
         {isLoading && (
