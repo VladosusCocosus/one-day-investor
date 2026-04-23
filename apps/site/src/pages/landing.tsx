@@ -5,6 +5,7 @@ import { Hero } from "../components/hero";
 import { DashboardPreview } from "../components/dashboard-preview";
 import { Features } from "../components/features";
 import { Exchanges } from "../components/exchanges";
+import { AgentsSection } from "../components/agents-section";
 import { PhilosophyCard } from "../components/philosophy-card";
 import { Guide } from "../components/guide";
 import { BlogPreview } from "../components/blog-preview";
@@ -46,6 +47,7 @@ export async function LandingPage({
       <DashboardPreview locale={locale} />
       <Features locale={locale} />
       <Exchanges locale={locale} />
+      <AgentsSection locale={locale} />
       <PhilosophyCard locale={locale} />
       <Guide locale={locale} />
       {blogHtml as "safe"}
