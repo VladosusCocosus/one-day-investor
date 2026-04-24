@@ -77,10 +77,10 @@ This disables the top-of-document overscroll that triggers Safari's pull-to-refr
 
 ```diff
 - <header className="sticky top-0 z-40 flex items-center justify-between border-b border-gray-200 bg-white px-4 py-3 md:hidden">
-+ <header className="sticky top-0 z-40 flex items-center justify-between border-b border-gray-200 bg-white px-4 py-3 pt-[calc(0.75rem+env(safe-area-inset-top))] md:hidden">
++ <header className="sticky top-0 z-40 flex items-center justify-between border-b border-gray-200 bg-white px-4 pb-3 pt-[calc(0.75rem+env(safe-area-inset-top))] md:hidden">
 ```
 
-`0.75rem` is the existing `py-3` top padding; we add the inset on top of it so the header content sits below the notch in landscape orientation and in the standalone PWA.
+We split the existing `py-3` into explicit `pb-3` + an arbitrary `pt-*` so only one rule targets `padding-top` (avoiding a Tailwind ordering ambiguity). `0.75rem` matches the original top padding; adding `env(safe-area-inset-top)` keeps the header content below the notch in landscape orientation and in the standalone PWA.
 
 ### 5. `apps/frontend/src/components/SnapshotListRail.tsx` — viewport height calc
 
