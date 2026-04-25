@@ -111,6 +111,7 @@ export function Layout({
         {ogImageUrl && <meta property="og:image:height" content="630" />}
         {ogImageUrl && <meta property="og:image:alt" content={ogAlt} />}
         <meta name="twitter:card" content={ogImageUrl ? "summary_large_image" : "summary"} />
+        <meta name="twitter:site" content="@razin36986" />
         <meta name="twitter:title" content={fullTitle} />
         {description && <meta name="twitter:description" content={description} />}
         {ogImageUrl && <meta name="twitter:image" content={ogImageUrl} />}
