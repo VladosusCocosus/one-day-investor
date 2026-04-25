@@ -69,7 +69,7 @@ export function Layout({
     <html lang={locale}>
       <head>
         <meta charset="utf-8" />
-        <meta name="viewport" content="width=device-width, initial-scale=1" />
+        <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
         <script async src="https://www.googletagmanager.com/gtag/js?id=G-YSRMF124RE"></script>
         <script>
           {`
@@ -115,7 +115,7 @@ export function Layout({
         <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" />
       </head>
       <body
-        class="min-h-screen text-emerald-50"
+        class="min-h-dvh text-emerald-50"
         style="background: radial-gradient(ellipse 900px 700px at 85% 115%, rgba(16, 185, 129, 0.28) 0%, transparent 55%), radial-gradient(ellipse 1400px 900px at 10% -10%, #0f6d4f 0%, #064e36 38%, #02281c 100%);"
       >
         <a
