@@ -1,4 +1,4 @@
-import { Elysia } from "elysia";
+import { Elysia, t } from "elysia";
 import { createLogger } from "@logger";
 import { cacheGet, cacheSet } from "@redis";
 
@@ -66,13 +66,26 @@ async function searchYahoo(query: string): Promise<AssetSearchCandidate[]> {
 }
 
 export const searchAssetsApi = new Elysia({ prefix: "/api/market" })
-  .get("/search-assets", async ({ query, set }) => {
-    const q = typeof query.q === "string" ? query.q.trim() : "";
-    if (!q) {
-      set.status = 400;
-      return { error: "q is required" };
-    }
-    return searchYahoo(q);
-  });
+  .get(
+    "/search-assets",
+    async ({ query, set }) => {
+      const q = typeof query.q === "string" ? query.q.trim() : "";
+      if (!q) {
+        set.status = 400;
+        return { error: "q is required" };
+      }
+      return searchYahoo(q);
+    },
+    {
+      query: t.Object(
+        { q: t.Optional(t.String()) },
+        { additionalProperties: true },
+      ),
+      detail: {
+        tags: ["Market"],
+        summary: "Search assets via Yahoo Finance (ISIN or free text)",
+      },
+    },
+  );
 
 export { searchYahoo };
