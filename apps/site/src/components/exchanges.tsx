@@ -18,7 +18,7 @@ export function Exchanges({ locale }: { locale: Locale }) {
     <section
       id="exchanges"
       aria-labelledby="exchanges-heading"
-      class="px-6 py-24 md:px-8 md:py-32"
+      class="px-6 py-16 md:px-8 md:py-32"
     >
       <div class="mx-auto max-w-[1200px]">
         <div class="mx-auto max-w-[720px] text-center">
@@ -42,13 +42,15 @@ export function Exchanges({ locale }: { locale: Locale }) {
           {exchanges.map(({ name, icon }) => (
             <li
               title={name}
-              class="flex aspect-square items-center justify-center rounded-2xl border border-emerald-900/50 bg-emerald-950/40 p-5 backdrop-blur-sm transition-colors hover:border-emerald-700/60 hover:bg-emerald-950/60"
+              class="flex aspect-square items-center justify-center rounded-2xl border border-emerald-900/50 bg-emerald-950/40 p-4 backdrop-blur-sm transition-colors hover:border-emerald-700/60 hover:bg-emerald-950/60 md:p-5"
             >
               <span class="sr-only">{name}</span>
               <img
                 src={icon}
                 alt={name}
                 loading="lazy"
+                width={48}
+                height={48}
                 class="h-12 w-12 rounded-lg object-contain"
               />
             </li>
