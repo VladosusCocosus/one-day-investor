@@ -1,4 +1,4 @@
-import { Elysia } from "elysia";
+import { Elysia, t } from "elysia";
 import { findAllCatalogServices, searchCatalogServices } from "@database";
 import { resolveAuth } from "../auth/session";
 
@@ -14,19 +14,43 @@ export const catalogApi = new Elysia({ prefix: "/api/catalog" })
     );
     return { user, agentId };
   })
-  .get("/", async ({ user, set }) => {
-    if (!user) {
-      set.status = 401;
-      return { error: "Unauthorized" };
-    }
-    return findAllCatalogServices();
-  })
-  .get("/search", async ({ user, set, query }) => {
-    if (!user) {
-      set.status = 401;
-      return { error: "Unauthorized" };
-    }
-    const q = (query as { q?: string }).q ?? "";
-    if (!q.trim()) return [];
-    return searchCatalogServices(q.trim());
-  });
+  .get(
+    "/",
+    async ({ user, set }) => {
+      if (!user) {
+        set.status = 401;
+        return { error: "Unauthorized" };
+      }
+      return findAllCatalogServices();
+    },
+    {
+      detail: {
+        tags: ["Catalog"],
+        summary: "List all catalog services",
+        security: [{ bearerAuth: [] }],
+      },
+    },
+  )
+  .get(
+    "/search",
+    async ({ user, set, query }) => {
+      if (!user) {
+        set.status = 401;
+        return { error: "Unauthorized" };
+      }
+      const q = query.q ?? "";
+      if (!q.trim()) return [];
+      return searchCatalogServices(q.trim());
+    },
+    {
+      query: t.Object(
+        { q: t.Optional(t.String()) },
+        { additionalProperties: true },
+      ),
+      detail: {
+        tags: ["Catalog"],
+        summary: "Search catalog services",
+        security: [{ bearerAuth: [] }],
+      },
+    },
+  );
