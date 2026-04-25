@@ -91,7 +91,7 @@ export function AppLayout() {
       <Sidebar collapsed={collapsed} onToggle={() => setCollapsed((c) => !c)} />
       <div className="flex flex-1 flex-col overflow-hidden">
         <MobileTopBar />
-        <main className="flex-1 overflow-auto bg-[#f8fafc] p-4 pb-20 md:p-6 md:pb-6">
+        <main className="flex-1 overflow-auto bg-[#f8fafc] p-4 pb-[calc(5rem+env(safe-area-inset-bottom))] md:p-6 md:pb-6">
           <Outlet />
         </main>
         <MobileTabBar />
