@@ -71,7 +71,7 @@ export function SnapshotListRail({
 
   return (
     <div className="overflow-hidden rounded-xl border bg-card h-fit">
-      <div className="max-h-[calc(100vh-12rem)] overflow-y-auto">
+      <div className="max-h-[calc(100dvh-12rem)] overflow-y-auto">
         {sections.map((section) => (
           <div key={section.year}>
             <div className="sticky top-0 z-[1] border-b bg-muted/40 px-3 py-1.5">
