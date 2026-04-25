@@ -1,4 +1,4 @@
-import { Elysia } from "elysia";
+import { Elysia, t } from "elysia";
 import { pool } from "@database";
 import { sendEmail } from "@mailgun";
 import { generateUnsubscribeToken } from "@notifications";
@@ -49,119 +49,200 @@ export const adminApi = new Elysia({ prefix: "/api/admin" })
       return { error: "Forbidden" };
     }
   })
-  .get("/check", () => ({ admin: true }))
-  .post("/upload-image", async ({ body, set }) => {
-    const formBody = body as Record<string, unknown>;
-    const file = formBody.file;
-    if (!file || !(file instanceof File)) {
-      set.status = 400;
-      return { error: "No file provided" };
-    }
-
-    const ext = file.name.split(".").pop()?.toLowerCase() || "png";
-    const key = `emails/${Date.now()}-${Math.random().toString(36).slice(2, 8)}.${ext}`;
-    const buffer = Buffer.from(await file.arrayBuffer());
-
-    const { upload } = await import("@storage");
-    await upload(key, buffer, file.type);
-    const publicBase = config.get("s3.publicUrl");
-    const bucket = config.get("s3.bucket");
-    const url = publicBase
-      ? `${publicBase}/${bucket}/${key}`
-      : `${config.get("s3.endpoint")}/${bucket}/${key}`;
-    return { url };
-  })
-  .post("/service-update/preview", async ({ body }) => {
-    const { subject, markdown } = body as { subject: string; markdown: string };
-    const html = renderServiceUpdateEmail({ subject, markdown, unsubscribeUrl: "#" });
-    return { html };
-  })
-  .post("/service-update/send", async ({ body, set }) => {
-    const { subject, markdown } = body as { subject: string; markdown: string };
-
-    const { rows } = await pool.query<{ user_id: string; email: string; name: string | null }>(
-      `SELECT us.user_id, u.email, u.name
-       FROM user_settings us
-       JOIN users u ON u.id = us.user_id
-       WHERE us.notify_service_updates = TRUE`
-    );
-
-    let sent = 0;
-    let failed = 0;
-    const frontendUrl = config.get("frontendUrl");
-
-    for (const row of rows) {
-      try {
-        const token = generateUnsubscribeToken(row.user_id);
-        const unsubscribeUrl = `${frontendUrl}/unsubscribe?token=${token}`;
-        const html = renderServiceUpdateEmail({ subject, markdown, unsubscribeUrl });
-        const toHeader = row.name ? `${row.name} <${row.email}>` : row.email;
-        await sendEmail({
-          to: toHeader,
-          subject,
-          html,
-          headers: { "List-Unsubscribe": `<${unsubscribeUrl}>` },
-        });
-        sent++;
-      } catch {
-        failed++;
+  .get(
+    "/check",
+    () => ({ admin: true }),
+    {
+      detail: {
+        tags: ["Admin"],
+        summary: "Check whether the current user is an admin",
+      },
+    },
+  )
+  .post(
+    "/upload-image",
+    async ({ body, set }) => {
+      const formBody = body as Record<string, unknown>;
+      const file = formBody.file;
+      if (!file || !(file instanceof File)) {
+        set.status = 400;
+        return { error: "No file provided" };
       }
-    }
 
-    return { sent, failed, total: rows.length };
-  })
-  .post("/blog-post/preview", async ({ body }) => {
-    const { title, excerpt, slug, blocks } = body as { title: string; excerpt: string; slug: string; blocks?: any[] };
-    const blogUrl = process.env.VITE_BLOG_URL || process.env.BLOG_URL || "https://blog.odinvestor.net";
-    const sections = extractSections(blocks);
-    const html = renderBlogPostEmail({
-      title,
-      excerpt,
-      sections,
-      postUrl: `${blogUrl}/${slug}`,
-      unsubscribeUrl: "#",
-    });
-    return { html };
-  })
-  .post("/blog-post/send", async ({ body }) => {
-    const { title, excerpt, slug, blocks } = body as { title: string; excerpt: string; slug: string; blocks?: any[] };
-    const blogUrl = process.env.VITE_BLOG_URL || process.env.BLOG_URL || "https://blog.odinvestor.net";
-    const sections = extractSections(blocks);
+      const ext = file.name.split(".").pop()?.toLowerCase() || "png";
+      const key = `emails/${Date.now()}-${Math.random().toString(36).slice(2, 8)}.${ext}`;
+      const buffer = Buffer.from(await file.arrayBuffer());
 
-    const { rows } = await pool.query<{ user_id: string; email: string; name: string | null }>(
-      `SELECT us.user_id, u.email, u.name
-       FROM user_settings us
-       JOIN users u ON u.id = us.user_id
-       WHERE us.notify_blog_posts = TRUE`
-    );
+      const { upload } = await import("@storage");
+      await upload(key, buffer, file.type);
+      const publicBase = config.get("s3.publicUrl");
+      const bucket = config.get("s3.bucket");
+      const url = publicBase
+        ? `${publicBase}/${bucket}/${key}`
+        : `${config.get("s3.endpoint")}/${bucket}/${key}`;
+      return { url };
+    },
+    {
+      body: t.Object({ file: t.Any() }, { additionalProperties: true }),
+      detail: {
+        tags: ["Admin"],
+        summary: "Upload an image to S3",
+      },
+    },
+  )
+  .post(
+    "/service-update/preview",
+    async ({ body }) => {
+      const { subject, markdown } = body;
+      const html = renderServiceUpdateEmail({ subject, markdown, unsubscribeUrl: "#" });
+      return { html };
+    },
+    {
+      body: t.Object(
+        { subject: t.String(), markdown: t.String() },
+        { additionalProperties: true },
+      ),
+      detail: {
+        tags: ["Admin"],
+        summary: "Render a preview of a service-update email",
+      },
+    },
+  )
+  .post(
+    "/service-update/send",
+    async ({ body, set }) => {
+      const { subject, markdown } = body;
 
-    let sent = 0;
-    let failed = 0;
-    const frontendUrl = config.get("frontendUrl");
+      const { rows } = await pool.query<{ user_id: string; email: string; name: string | null }>(
+        `SELECT us.user_id, u.email, u.name
+         FROM user_settings us
+         JOIN users u ON u.id = us.user_id
+         WHERE us.notify_service_updates = TRUE`,
+      );
 
-    for (const row of rows) {
-      try {
-        const token = generateUnsubscribeToken(row.user_id);
-        const unsubscribeUrl = `${frontendUrl}/unsubscribe?token=${token}`;
-        const html = renderBlogPostEmail({
-          title,
-          excerpt,
-          sections,
-          postUrl: `${blogUrl}/${slug}`,
-          unsubscribeUrl,
-        });
-        const toHeader = row.name ? `${row.name} <${row.email}>` : row.email;
-        await sendEmail({
-          to: toHeader,
-          subject: `New post: ${title}`,
-          html,
-          headers: { "List-Unsubscribe": `<${unsubscribeUrl}>` },
-        });
-        sent++;
-      } catch {
-        failed++;
+      let sent = 0;
+      let failed = 0;
+      const frontendUrl = config.get("frontendUrl");
+
+      for (const row of rows) {
+        try {
+          const token = generateUnsubscribeToken(row.user_id);
+          const unsubscribeUrl = `${frontendUrl}/unsubscribe?token=${token}`;
+          const html = renderServiceUpdateEmail({ subject, markdown, unsubscribeUrl });
+          const toHeader = row.name ? `${row.name} <${row.email}>` : row.email;
+          await sendEmail({
+            to: toHeader,
+            subject,
+            html,
+            headers: { "List-Unsubscribe": `<${unsubscribeUrl}>` },
+          });
+          sent++;
+        } catch {
+          failed++;
+        }
       }
-    }
 
-    return { sent, failed, total: rows.length };
-  });
+      return { sent, failed, total: rows.length };
+    },
+    {
+      body: t.Object(
+        { subject: t.String(), markdown: t.String() },
+        { additionalProperties: true },
+      ),
+      detail: {
+        tags: ["Admin"],
+        summary: "Send a service-update email to subscribed users",
+      },
+    },
+  )
+  .post(
+    "/blog-post/preview",
+    async ({ body }) => {
+      const { title, excerpt, slug, blocks } = body as { title: string; excerpt: string; slug: string; blocks?: any[] };
+      const blogUrl = process.env.VITE_BLOG_URL || process.env.BLOG_URL || "https://blog.odinvestor.net";
+      const sections = extractSections(blocks);
+      const html = renderBlogPostEmail({
+        title,
+        excerpt,
+        sections,
+        postUrl: `${blogUrl}/${slug}`,
+        unsubscribeUrl: "#",
+      });
+      return { html };
+    },
+    {
+      body: t.Object(
+        {
+          title: t.String(),
+          excerpt: t.String(),
+          slug: t.String(),
+          blocks: t.Optional(t.Array(t.Any())),
+        },
+        { additionalProperties: true },
+      ),
+      detail: {
+        tags: ["Admin"],
+        summary: "Render a preview of a blog-post email",
+      },
+    },
+  )
+  .post(
+    "/blog-post/send",
+    async ({ body }) => {
+      const { title, excerpt, slug, blocks } = body as { title: string; excerpt: string; slug: string; blocks?: any[] };
+      const blogUrl = process.env.VITE_BLOG_URL || process.env.BLOG_URL || "https://blog.odinvestor.net";
+      const sections = extractSections(blocks);
+
+      const { rows } = await pool.query<{ user_id: string; email: string; name: string | null }>(
+        `SELECT us.user_id, u.email, u.name
+         FROM user_settings us
+         JOIN users u ON u.id = us.user_id
+         WHERE us.notify_blog_posts = TRUE`,
+      );
+
+      let sent = 0;
+      let failed = 0;
+      const frontendUrl = config.get("frontendUrl");
+
+      for (const row of rows) {
+        try {
+          const token = generateUnsubscribeToken(row.user_id);
+          const unsubscribeUrl = `${frontendUrl}/unsubscribe?token=${token}`;
+          const html = renderBlogPostEmail({
+            title,
+            excerpt,
+            sections,
+            postUrl: `${blogUrl}/${slug}`,
+            unsubscribeUrl,
+          });
+          const toHeader = row.name ? `${row.name} <${row.email}>` : row.email;
+          await sendEmail({
+            to: toHeader,
+            subject: `New post: ${title}`,
+            html,
+            headers: { "List-Unsubscribe": `<${unsubscribeUrl}>` },
+          });
+          sent++;
+        } catch {
+          failed++;
+        }
+      }
+
+      return { sent, failed, total: rows.length };
+    },
+    {
+      body: t.Object(
+        {
+          title: t.String(),
+          excerpt: t.String(),
+          slug: t.String(),
+          blocks: t.Optional(t.Array(t.Any())),
+        },
+        { additionalProperties: true },
+      ),
+      detail: {
+        tags: ["Admin"],
+        summary: "Send a blog-post email to subscribed users",
+      },
+    },
+  );
