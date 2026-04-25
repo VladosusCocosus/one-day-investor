@@ -12,7 +12,7 @@ const cardIcons: Record<string, string> = {
 
 export function AgentsSection({ locale }: { locale: Locale }) {
   return (
-    <section id="agents" class="px-6 py-24 md:px-8 md:py-32">
+    <section id="agents" class="px-6 py-16 md:px-8 md:py-32">
       <div class="mx-auto max-w-[1200px]">
         <div class="mx-auto max-w-[760px] text-center">
           <p class="text-xs font-semibold uppercase tracking-[0.22em] text-emerald-300">
@@ -35,12 +35,12 @@ export function AgentsSection({ locale }: { locale: Locale }) {
               {t("agents_section.prompt_label", locale)}
             </span>
           </div>
-          <pre class="overflow-x-auto whitespace-pre-wrap break-words px-5 py-5 font-mono text-[13px] leading-relaxed text-emerald-100">{t("agents_section.prompt_body", locale)}</pre>
+          <pre class="overflow-x-auto whitespace-pre-wrap [overflow-wrap:anywhere] px-4 py-4 font-mono text-[13px] leading-relaxed text-emerald-100 md:px-5 md:py-5">{t("agents_section.prompt_body", locale)}</pre>
         </div>
 
         <div class="mt-14 grid grid-cols-1 gap-5 sm:grid-cols-3">
           {cardKeys.map((key) => (
-            <div class="rounded-2xl border border-emerald-900/50 bg-emerald-950/40 p-7 backdrop-blur-sm transition-colors hover:border-emerald-700/60 hover:bg-emerald-950/60">
+            <div class="rounded-2xl border border-emerald-900/50 bg-emerald-950/40 p-5 backdrop-blur-sm transition-colors hover:border-emerald-700/60 hover:bg-emerald-950/60 md:p-7">
               <div class="flex h-10 w-10 items-center justify-center rounded-lg bg-emerald-500/15 text-emerald-300 ring-1 ring-inset ring-emerald-400/30 [&>svg]:h-5 [&>svg]:w-5">
                 {cardIcons[key] as "safe"}
               </div>
