@@ -60,6 +60,12 @@ const app = new Elysia()
     const manifest = {
       name: "One Day Investor",
       description: "Personal investment tracker. Agents can manage pockets, assets, and monthly snapshots on behalf of a user.",
+      instructions_for_agents: [
+        "The authoritative route surface lives in each service's OpenAPI document — fetch services.<name>.openapi_url and use it for parameter names, body shapes, and response types.",
+        "This manifest provides orientation only: the named services, auth flow, and a typical first-time setup (flow).",
+        "All routes accept the bearer token from auth.format in an Authorization header. The same token works across all three services.",
+        "capabilities.allowed_by_service lists the path prefixes each agent token may call; routes outside the allowlist return 403.",
+      ],
       services: {
         core: {
           base_url: CORE_URL,
@@ -88,24 +94,26 @@ const app = new Elysia()
       capabilities: {
         allowed_by_service: {
           core:      ["/api/snapshots", "/api/services", "/api/assets", "/api/catalog"],
-          market:    ["/api/asset-catalog", "/api/pocket-assets", "/api/market"],
+          market:    ["/api/asset-catalog", "/api/pocket-assets/{service_id}", "/api/market"],
           analytics: ["/api/analytics"],
         },
         denied: ["admin", "user-settings", "notifications", "exchange-credentials"],
       },
       flow: [
-        { step: 1, service: "core",      action: "List pockets",          method: "GET",  path: "/api/services" },
-        { step: 2, service: "core",      action: "Create pocket",         method: "POST", path: "/api/services" },
-        { step: 3, service: "market",    action: "Search asset catalog",  method: "GET",  path: "/api/asset-catalog/search?q=VOO" },
-        { step: 4, service: "core",      action: "Attach asset to pocket",method: "POST", path: "/api/assets" },
-        { step: 5, service: "core",      action: "Create monthly snapshot",method: "POST",path: "/api/snapshots" },
-        { step: 6, service: "core",      action: "List snapshots",        method: "GET",  path: "/api/snapshots" },
-        { step: 7, service: "analytics", action: "Read analytics",        method: "GET",  path: "/api/analytics/timeline" },
+        { step: 1, service: "core",      action: "List pockets",            method: "GET",  path: "/api/services" },
+        { step: 2, service: "core",      action: "Create pocket",           method: "POST", path: "/api/services" },
+        { step: 3, service: "market",    action: "Search asset catalog",    method: "GET",  path: "/api/asset-catalog/search?q=VOO" },
+        { step: 4, service: "market",    action: "Add asset to a pocket",   method: "POST", path: "/api/pocket-assets" },
+        { step: 5, service: "core",      action: "Create monthly snapshot", method: "POST", path: "/api/snapshots" },
+        { step: 6, service: "core",      action: "List snapshots",          method: "GET",  path: "/api/snapshots" },
+        { step: 7, service: "analytics", action: "Read analytics",          method: "GET",  path: "/api/analytics/timeline" },
       ],
       errors: {
         "401": "Missing, invalid, or expired token.",
         "403": "Route not permitted for agent tokens (see capabilities.denied).",
+        "404": "Route or resource not found.",
         "409": "Resource already exists (e.g. snapshot for that month).",
+        "422": "Request validation failed (see response body for details).",
       },
     };
     return new Response(JSON.stringify(manifest, null, 2), {
