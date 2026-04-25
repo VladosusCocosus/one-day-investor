@@ -1,4 +1,4 @@
-import { Elysia } from "elysia";
+import { Elysia, t } from "elysia";
 import { getSettings, updateSettings } from "@database";
 import { resolveAuth } from "../auth/session";
 
@@ -14,26 +14,47 @@ export const settingsApi = new Elysia({ prefix: "/api/settings" })
     );
     return { user, agentId };
   })
-  .get("/", async ({ user, set }) => {
-    if (!user) {
-      set.status = 401;
-      return { error: "Unauthorized" };
-    }
-    return getSettings(user.id);
-  })
-  .put("/", async ({ user, set, body }) => {
-    if (!user) {
-      set.status = 401;
-      return { error: "Unauthorized" };
-    }
-    const params = body as {
-      snapshot_day?: number;
-      goal?: number;
-      currency?: string;
-      language?: string;
-      notify_snapshot_reminders?: boolean;
-      notify_service_updates?: boolean;
-      notify_blog_posts?: boolean;
-    };
-    return updateSettings(user.id, params);
-  });
+  .get(
+    "/",
+    async ({ user, set }) => {
+      if (!user) {
+        set.status = 401;
+        return { error: "Unauthorized" };
+      }
+      return getSettings(user.id);
+    },
+    {
+      detail: {
+        tags: ["Settings"],
+        summary: "Get the current user's settings",
+      },
+    },
+  )
+  .put(
+    "/",
+    async ({ user, set, body }) => {
+      if (!user) {
+        set.status = 401;
+        return { error: "Unauthorized" };
+      }
+      return updateSettings(user.id, body);
+    },
+    {
+      body: t.Object(
+        {
+          snapshot_day: t.Optional(t.Numeric()),
+          goal: t.Optional(t.Numeric()),
+          currency: t.Optional(t.String()),
+          language: t.Optional(t.String()),
+          notify_snapshot_reminders: t.Optional(t.Boolean()),
+          notify_service_updates: t.Optional(t.Boolean()),
+          notify_blog_posts: t.Optional(t.Boolean()),
+        },
+        { additionalProperties: true },
+      ),
+      detail: {
+        tags: ["Settings"],
+        summary: "Update the current user's settings",
+      },
+    },
+  );
