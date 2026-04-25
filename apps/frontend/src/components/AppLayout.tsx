@@ -87,7 +87,7 @@ export function AppLayout() {
   }, [collapsed]);
 
   return (
-    <div className="group/sidebar flex h-screen">
+    <div className="group/sidebar flex h-dvh">
       <Sidebar collapsed={collapsed} onToggle={() => setCollapsed((c) => !c)} />
       <div className="flex flex-1 flex-col overflow-hidden">
         <MobileTopBar />
