@@ -32,7 +32,7 @@ function MobileTopBar() {
     : "?";
 
   return (
-    <header className="sticky top-0 z-40 flex items-center justify-between border-b border-gray-200 bg-white px-4 py-3 md:hidden">
+    <header className="sticky top-0 z-40 flex items-center justify-between border-b border-gray-200 bg-white px-4 pb-3 pt-[calc(0.75rem+env(safe-area-inset-top))] md:hidden">
       <div className="flex items-center gap-2">
         <Icon width={24} height={24} />
         <span className="text-[15px] font-semibold text-gray-900">
