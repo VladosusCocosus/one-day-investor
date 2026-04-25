@@ -100,6 +100,7 @@ export function Layout({
         <meta property="og:image:height" content="630" />
         <meta property="og:image:alt" content={description || title} />
         <meta name="twitter:card" content="summary_large_image" />
+        <meta name="twitter:site" content="@razin36986" />
         <meta name="twitter:title" content={fullTitle} />
         {description && <meta name="twitter:description" content={description} />}
         <meta name="twitter:image" content={`${DASHBOARD_URL}/og-image.png`} />
