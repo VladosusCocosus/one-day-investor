@@ -21,6 +21,9 @@ const app = new Elysia()
   }))
   .use(swagger({
     path: "/api/swagger",
+    scalarConfig: {
+      spec: { url: "/api/swagger/json" },
+    },
     documentation: {
       info: {
         title: "One Day Investor — Market API",
