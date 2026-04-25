@@ -42,8 +42,22 @@ const app = new Elysia()
       ],
     },
   }))
-  .onError(({ error, code, path }) => {
+  .onError(({ error, code, set, path }) => {
+    if (code === "NOT_FOUND") {
+      set.status = 404;
+      return { error: "Not found", path };
+    }
+    if (code === "VALIDATION") {
+      set.status = 422;
+      const details = error instanceof Error ? error.message : "Validation failed";
+      return { error: "Validation failed", details };
+    }
+    if (code === "PARSE") {
+      set.status = 400;
+      return { error: "Malformed request body" };
+    }
     log.error({ err: error, code, path }, "Unhandled request error");
+    set.status = 500;
     return { error: "Internal server error" };
   })
   .use(createAgentScope(MARKET_AGENT_ALLOWED_PREFIXES))
