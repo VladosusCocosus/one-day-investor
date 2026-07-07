@@ -1,0 +1,2 @@
+# Admin password stored on the server, never commit
+.admin-pass
