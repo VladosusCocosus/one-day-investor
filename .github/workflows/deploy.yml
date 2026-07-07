@@ -20,6 +20,17 @@ jobs:
             docker compose -f docker-compose.prod.yml build
             docker compose -f docker-compose.prod.yml run --rm core bun run --cwd packages/database migrate:up
             docker compose -f docker-compose.prod.yml up -d
+
+            # --- Auxiliary stacks: pinned images, own volumes (ghost_*, uptime-kuma_*) ---
+            # Ghost blog — secrets stay at /opt/ghost/.env; -p reuses existing volumes.
+            docker compose -p ghost --env-file /opt/ghost/.env -f apps/ghost/docker-compose.yml pull
+            docker compose -p ghost --env-file /opt/ghost/.env -f apps/ghost/docker-compose.yml up -d
+            # Uptime Kuma status page
+            docker compose -p uptime-kuma -f apps/uptime-kuma/docker-compose.yml pull
+            docker compose -p uptime-kuma -f apps/uptime-kuma/docker-compose.yml up -d
+
             sleep 5
             curl -sf http://127.0.0.1:3000/ > /dev/null && echo "Core health check passed" || echo "Core health check failed"
             curl -sf http://127.0.0.1:3001/ > /dev/null && echo "Analytics health check passed" || echo "Analytics health check failed"
+            curl -sf http://127.0.0.1:2368/ > /dev/null && echo "Ghost health check passed" || echo "Ghost health check failed"
+            curl -sf http://127.0.0.1:3011/ > /dev/null && echo "Kuma health check passed" || echo "Kuma health check failed"
