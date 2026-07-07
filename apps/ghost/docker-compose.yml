@@ -1,0 +1,49 @@
+services:
+  mysql:
+    image: mysql:8.0
+    container_name: ghost-mysql
+    restart: unless-stopped
+    environment:
+      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD}
+      MYSQL_DATABASE: ghost
+      MYSQL_USER: ghost
+      MYSQL_PASSWORD: ${MYSQL_PASSWORD}
+    volumes:
+      - ghost_mysql:/var/lib/mysql
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-p${MYSQL_ROOT_PASSWORD}"]
+      interval: 10s
+      timeout: 5s
+      retries: 12
+
+  ghost:
+    image: ghost:6
+    container_name: ghost
+    restart: unless-stopped
+    depends_on:
+      mysql:
+        condition: service_healthy
+    ports:
+      # Bound to loopback only — nginx terminates TLS and reverse-proxies to this.
+      - "127.0.0.1:2368:2368"
+    environment:
+      url: https://blog.odinvestor.net
+      database__client: mysql
+      database__connection__host: mysql
+      database__connection__user: ghost
+      database__connection__password: ${MYSQL_PASSWORD}
+      database__connection__database: ghost
+      NODE_ENV: production
+      # Transactional email via Mailgun SMTP (member magic links, password resets, staff invites)
+      mail__transport: SMTP
+      mail__from: "One Day Investor <noreply@odinvestor.net>"
+      mail__options__host: smtp.mailgun.org
+      mail__options__port: 587
+      mail__options__auth__user: ${MAIL_USER}
+      mail__options__auth__pass: ${MAIL_PASS}
+    volumes:
+      - ghost_content:/var/lib/ghost/content
+
+volumes:
+  ghost_mysql:
+  ghost_content:
