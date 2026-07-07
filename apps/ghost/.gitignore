@@ -1,0 +1,7 @@
+# Secrets — never commit
+.env
+.env.*
+!.env.example
+
+# Generated migration output
+migrate/posts.json
