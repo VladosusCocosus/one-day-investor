@@ -4,20 +4,78 @@ on:
   push:
     branches: [main]
 
+env:
+  REGISTRY: ghcr.io
+  IMAGE_PREFIX: ghcr.io/vladosuscocosus/odi
+
 jobs:
+  build-and-push:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      packages: write
+    strategy:
+      matrix:
+        service: [core, analytics, market, reminder, blog, og, site, frontend]
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Log in to GitHub Container Registry
+        uses: docker/login-action@v3
+        with:
+          registry: ${{ env.REGISTRY }}
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Build and push ${{ matrix.service }}
+        uses: docker/build-push-action@v6
+        with:
+          context: .
+          file: docker/Dockerfile.${{ matrix.service }}
+          push: true
+          tags: |
+            ${{ env.IMAGE_PREFIX }}-${{ matrix.service }}:${{ github.sha }}
+            ${{ env.IMAGE_PREFIX }}-${{ matrix.service }}:latest
+          cache-from: type=gha,scope=${{ matrix.service }}
+          cache-to: type=gha,scope=${{ matrix.service }},mode=max
+          # Consumed only by Dockerfile.frontend; ignored (with a harmless warning) by the rest.
+          build-args: |
+            VITE_API_URL=${{ vars.VITE_API_URL || 'https://core.odinvestor.net' }}
+            VITE_ANALYTICS_URL=${{ vars.VITE_ANALYTICS_URL || 'https://analytics.odinvestor.net' }}
+            VITE_MARKET_URL=${{ vars.VITE_MARKET_URL || 'https://market.odinvestor.net' }}
+            VITE_BLOG_URL=${{ vars.VITE_BLOG_URL || 'https://blog.odinvestor.net' }}
+            VITE_S3_PUBLIC_URL=${{ vars.VITE_S3_PUBLIC_URL }}
+
   deploy:
+    needs: build-and-push
     runs-on: ubuntu-latest
     steps:
       - name: Deploy via SSH
         uses: appleboy/ssh-action@v1
+        env:
+          IMAGE_TAG: ${{ github.sha }}
+          GHCR_USER: ${{ github.actor }}
+          GHCR_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
           host: ${{ secrets.SSH_HOST }}
           username: ${{ secrets.SSH_USER }}
           key: ${{ secrets.SSH_KEY }}
+          envs: IMAGE_TAG,GHCR_USER,GHCR_TOKEN
           script: |
+            set -e
             cd /opt/one-day-investor
             git pull origin main
-            docker compose -f docker-compose.prod.yml build
+
+            # Authenticate to ghcr with the run-scoped token (no long-lived secret on the server).
+            echo "$GHCR_TOKEN" | docker login ghcr.io -u "$GHCR_USER" --password-stdin
+
+            # Run exactly the images CI just built for this commit.
+            export IMAGE_TAG
+            docker compose -f docker-compose.prod.yml pull
             docker compose -f docker-compose.prod.yml run --rm core bun run --cwd packages/database migrate:up
             docker compose -f docker-compose.prod.yml up -d
 

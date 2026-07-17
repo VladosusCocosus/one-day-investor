@@ -52,6 +52,7 @@ services:
       - internal
 
   core:
+    image: ghcr.io/vladosuscocosus/odi-core:${IMAGE_TAG:-latest}
     build:
       context: .
       dockerfile: docker/Dockerfile.core
@@ -96,6 +97,7 @@ services:
       - internal
 
   analytics:
+    image: ghcr.io/vladosuscocosus/odi-analytics:${IMAGE_TAG:-latest}
     build:
       context: .
       dockerfile: docker/Dockerfile.analytics
@@ -117,6 +119,7 @@ services:
       - internal
 
   market:
+    image: ghcr.io/vladosuscocosus/odi-market:${IMAGE_TAG:-latest}
     build:
       context: .
       dockerfile: docker/Dockerfile.market
@@ -141,6 +144,7 @@ services:
       - internal
 
   reminder:
+    image: ghcr.io/vladosuscocosus/odi-reminder:${IMAGE_TAG:-latest}
     build:
       context: .
       dockerfile: docker/Dockerfile.reminder
@@ -163,6 +167,7 @@ services:
       - internal
 
   blog:
+    image: ghcr.io/vladosuscocosus/odi-blog:${IMAGE_TAG:-latest}
     build:
       context: .
       dockerfile: docker/Dockerfile.blog
@@ -193,6 +198,7 @@ services:
       - internal
 
   og:
+    image: ghcr.io/vladosuscocosus/odi-og:${IMAGE_TAG:-latest}
     build:
       context: .
       dockerfile: docker/Dockerfile.og
@@ -210,6 +216,7 @@ services:
       - internal
 
   site:
+    image: ghcr.io/vladosuscocosus/odi-site:${IMAGE_TAG:-latest}
     build:
       context: .
       dockerfile: docker/Dockerfile.site
@@ -236,6 +243,7 @@ services:
       - internal
 
   frontend:
+    image: ghcr.io/vladosuscocosus/odi-frontend:${IMAGE_TAG:-latest}
     build:
       context: .
       dockerfile: docker/Dockerfile.frontend
