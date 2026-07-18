@@ -1,0 +1,96 @@
+{
+  "project": "one-day-investor",
+  "services": {
+    "db": {
+      "image": "postgres:16-alpine",
+      "env": {
+        "POSTGRES_DB": "app",
+        "POSTGRES_USER": "app",
+        "POSTGRES_PASSWORD": "dev"
+      }
+    },
+    "redis": {
+      "image": "redis:7-alpine"
+    },
+    "core": {
+      "image": "ghcr.io/vladosuscocosus/odi-core:{{tag}}",
+      "env": {
+        "NODE_ENV": "production",
+        "AUTO_MIGRATE": "true",
+        "POSTGRES_HOST": "db",
+        "POSTGRES_PORT": "5432",
+        "POSTGRES_DB": "app",
+        "POSTGRES_USER": "app",
+        "POSTGRES_PASSWORD": "dev",
+        "DATABASE_URL": "postgres://app:dev@db:5432/app",
+        "REDIS_URL": "redis://redis:6379",
+        "FRONTEND_URL": "{{url.frontend}}",
+        "SITE_URL": "{{url.frontend}}",
+        "MARKET_URL": "http://market:3002",
+        "S3_ENDPOINT": "http://minio:9000",
+        "S3_REGION": "eu-central-1",
+        "S3_ACCESS_KEY_ID": "minioadmin",
+        "S3_SECRET_ACCESS_KEY": "minioadmin",
+        "S3_BUCKET": "blog-images",
+        "S3_PUBLIC_URL": "{{url.frontend}}/s3",
+        "SESSION_MAX_AGE": "2592000",
+        "EXCHANGE_ENCRYPTION_KEY": "00112233445566778899aabbccddeeff00112233445566778899aabbccddeeff",
+        "ADMIN_EMAIL": "admin@example.com",
+        "GOOGLE_CLIENT_ID": "preview-disabled",
+        "GOOGLE_CLIENT_SECRET": "preview-disabled",
+        "GOOGLE_REDIRECT_URI": "{{url.frontend}}/auth/google/callback",
+        "MAILGUN_API_KEY": "preview-disabled",
+        "MAILGUN_DOMAIN": "example.com",
+        "MAILGUN_FROM": "preview@example.com"
+      },
+      "expose": { "port": 3000, "health": "/" }
+    },
+    "analytics": {
+      "image": "ghcr.io/vladosuscocosus/odi-analytics:{{tag}}",
+      "env": {
+        "POSTGRES_HOST": "db",
+        "POSTGRES_PORT": "5432",
+        "POSTGRES_DB": "app",
+        "POSTGRES_USER": "app",
+        "POSTGRES_PASSWORD": "dev",
+        "FRONTEND_URL": "{{url.frontend}}",
+        "SITE_URL": "{{url.frontend}}"
+      }
+    },
+    "market": {
+      "image": "ghcr.io/vladosuscocosus/odi-market:{{tag}}",
+      "env": {
+        "POSTGRES_HOST": "db",
+        "POSTGRES_PORT": "5432",
+        "POSTGRES_DB": "app",
+        "POSTGRES_USER": "app",
+        "POSTGRES_PASSWORD": "dev",
+        "REDIS_URL": "redis://redis:6379",
+        "FRONTEND_URL": "{{url.frontend}}",
+        "SITE_URL": "{{url.frontend}}"
+      }
+    },
+    "site": {
+      "image": "ghcr.io/vladosuscocosus/odi-site:{{tag}}",
+      "env": {
+        "POSTGRES_HOST": "db",
+        "POSTGRES_PORT": "5432",
+        "POSTGRES_DB": "app",
+        "POSTGRES_USER": "app",
+        "POSTGRES_PASSWORD": "dev",
+        "SITE_URL": "{{url.site}}",
+        "DASHBOARD_URL": "{{url.frontend}}",
+        "FRONTEND_URL": "{{url.frontend}}",
+        "BLOG_URL": "{{url.frontend}}",
+        "CORE_URL": "http://core:3000",
+        "MARKET_URL": "http://market:3002",
+        "ANALYTICS_URL": "http://analytics:3001"
+      },
+      "expose": { "port": 3005, "health": "/" }
+    },
+    "frontend": {
+      "image": "ghcr.io/vladosuscocosus/odi-frontend:{{tag}}",
+      "expose": { "port": 8080, "health": "/" }
+    }
+  }
+}

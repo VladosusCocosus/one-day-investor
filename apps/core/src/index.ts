@@ -8,6 +8,30 @@ import { api } from "./api";
 
 const log = createLogger("core");
 
+// Branch/preview environments (hoster) start with an empty database and no
+// separate migration step, so core applies migrations itself on boot when
+// AUTO_MIGRATE=true. Unset in production — this block is a no-op there.
+if (process.env.AUTO_MIGRATE === "true") {
+  log.info("AUTO_MIGRATE=true — applying database migrations before start");
+  let migrated = false;
+  for (let attempt = 1; attempt <= 10 && !migrated; attempt++) {
+    const proc = Bun.spawnSync(
+      ["bun", "run", "--cwd", "packages/database", "migrate:up"],
+      { stdout: "inherit", stderr: "inherit" },
+    );
+    migrated = proc.exitCode === 0;
+    if (!migrated) {
+      log.warn({ attempt }, "migrate:up failed (db not ready?), retrying in 3s");
+      Bun.sleepSync(3000);
+    }
+  }
+  if (!migrated) {
+    log.error("migrations failed after 10 attempts — exiting");
+    process.exit(1);
+  }
+  log.info("migrations applied");
+}
+
 const app = new Elysia()
   .use(cors({
     origin: config.get("frontendUrl"),
