@@ -1,4 +1,5 @@
 import { NavLink, useNavigate } from "react-router";
+import type { NavLinkRenderProps } from "react-router";
 import { useTranslation } from "react-i18next";
 import { LayoutDashboard, User, Layers, Camera, BarChart3, Bot, PanelLeftClose, PanelLeft, LogOut } from "lucide-react";
 import { useAuth } from "@/hooks/useAuth";
@@ -103,7 +104,7 @@ export function Sidebar({ collapsed, onToggle }: SidebarProps) {
               <NavLink
                 key={item.path}
                 to={item.path}
-                className={({ isActive }) =>
+                className={({ isActive }: NavLinkRenderProps) =>
                   cn(
                     "flex items-center gap-2.5 rounded-lg px-2.5 py-2 text-[13px] font-medium transition-colors",
                     isActive

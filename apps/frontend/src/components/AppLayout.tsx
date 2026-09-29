@@ -1,5 +1,6 @@
 import { useState, useEffect } from "react";
 import { Outlet, NavLink, useNavigate } from "react-router";
+import type { NavLinkRenderProps } from "react-router";
 import { useTranslation } from "react-i18next";
 import { LayoutDashboard, Layers, Camera, BarChart3 } from "lucide-react";
 import { useAuth } from "@/hooks/useAuth";
@@ -61,7 +62,7 @@ function MobileTabBar() {
         <NavLink
           key={item.path}
           to={item.path}
-          className={({ isActive }) =>
+          className={({ isActive }: NavLinkRenderProps) =>
             `flex flex-1 flex-col items-center gap-1 py-2 text-[10px] font-medium transition-colors ${
               isActive ? "text-emerald-600" : "text-gray-400"
             }`

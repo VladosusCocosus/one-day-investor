@@ -1,4 +1,5 @@
 import { NavLink, Outlet } from "react-router";
+import type { NavLinkRenderProps } from "react-router";
 import { Mail, FileText, ArrowLeft } from "lucide-react";
 
 const navItems = [
@@ -19,7 +20,7 @@ export function AdminLayout() {
               key={item.path}
               to={item.path}
               end={item.path === "/admin"}
-              className={({ isActive }) =>
+              className={({ isActive }: NavLinkRenderProps) =>
                 `flex items-center gap-2.5 rounded-lg px-3 py-2 text-sm font-medium transition-colors ${
                   isActive
                     ? "bg-primary/10 text-primary"
