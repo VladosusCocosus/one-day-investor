@@ -56,7 +56,12 @@ async function resolveUser(cookie: Record<string, any>): Promise<User | null> {
 const SITE_URL = process.env.BLOG_URL || "https://blog.odinvestor.net";
 
 const FRONTEND_URL = process.env.FRONTEND_URL || "https://odinvestor.net";
-const ADMIN_EMAIL = process.env.BLOG_ADMIN_EMAIL || "razin36986@gmail.com";
+const ADMIN_EMAIL = process.env.BLOG_ADMIN_EMAIL ?? "";
+
+/** True when ADMIN_EMAIL is configured and matches the session user. */
+function isAdmin(user: User | null): boolean {
+  return user !== null && ADMIN_EMAIL !== "" && user.email === ADMIN_EMAIL;
+}
 
 const cssPath = new URL("./styles/output.css", import.meta.url).pathname;
 const cssFile = Bun.file(cssPath);
@@ -272,19 +277,19 @@ const app = new Elysia()
   // Admin JSON API
   .get("/api/admin/posts", async ({ cookie, set }) => {
     const user = await resolveUser(cookie);
-    if (!user || user.email !== ADMIN_EMAIL) { set.status = 403; return { error: "Forbidden" }; }
+    if (!isAdmin(user)) { set.status = 403; return { error: "Forbidden" }; }
     return listAllPosts();
   })
   .get("/api/admin/posts/:id", async ({ params, cookie, set }) => {
     const user = await resolveUser(cookie);
-    if (!user || user.email !== ADMIN_EMAIL) { set.status = 403; return { error: "Forbidden" }; }
+    if (!isAdmin(user)) { set.status = 403; return { error: "Forbidden" }; }
     const post = await getPostById(Number(params.id));
     if (!post) { set.status = 404; return { error: "Not found" }; }
     return post;
   })
   .post("/api/admin/posts", async ({ body, cookie, set }) => {
     const user = await resolveUser(cookie);
-    if (!user || user.email !== ADMIN_EMAIL) { set.status = 403; return { error: "Forbidden" }; }
+    if (!isAdmin(user)) { set.status = 403; return { error: "Forbidden" }; }
     const { title, slug, excerpt, tags, content, publish_date } = body as {
       title: string; slug: string; excerpt?: string; tags?: string[];
       content: Block[]; publish_date?: string | null;
@@ -293,7 +298,7 @@ const app = new Elysia()
   })
   .put("/api/admin/posts/:id", async ({ params, body, cookie, set }) => {
     const user = await resolveUser(cookie);
-    if (!user || user.email !== ADMIN_EMAIL) { set.status = 403; return { error: "Forbidden" }; }
+    if (!isAdmin(user)) { set.status = 403; return { error: "Forbidden" }; }
     const { title, slug, excerpt, tags, content, publish_date } = body as {
       title?: string; slug?: string; excerpt?: string; tags?: string[];
       content?: Block[]; publish_date?: string | null;
@@ -306,13 +311,13 @@ const app = new Elysia()
   })
   .delete("/api/admin/posts/:id", async ({ params, cookie, set }) => {
     const user = await resolveUser(cookie);
-    if (!user || user.email !== ADMIN_EMAIL) { set.status = 403; return { error: "Forbidden" }; }
+    if (!isAdmin(user)) { set.status = 403; return { error: "Forbidden" }; }
     await deleteBlogPost(Number(params.id));
     return { ok: true };
   })
   .post("/api/admin/posts/:id/og", async ({ params, cookie, set }) => {
     const user = await resolveUser(cookie);
-    if (!user || user.email !== ADMIN_EMAIL) { set.status = 403; return { error: "Forbidden" }; }
+    if (!isAdmin(user)) { set.status = 403; return { error: "Forbidden" }; }
     const post = await getPostById(Number(params.id));
     if (!post) { set.status = 404; return { error: "Not found" }; }
     const res = await fetch(`${OG_SERVICE_URL}/generate`, {
@@ -329,12 +334,12 @@ const app = new Elysia()
   // Admin translation API
   .get("/api/admin/posts/:id/translations", async ({ params, cookie, set }) => {
     const user = await resolveUser(cookie);
-    if (!user || user.email !== ADMIN_EMAIL) { set.status = 403; return { error: "Forbidden" }; }
+    if (!isAdmin(user)) { set.status = 403; return { error: "Forbidden" }; }
     return listPostTranslations(Number(params.id));
   })
   .put("/api/admin/posts/:id/translations/:lang", async ({ params, body, cookie, set }) => {
     const user = await resolveUser(cookie);
-    if (!user || user.email !== ADMIN_EMAIL) { set.status = 403; return { error: "Forbidden" }; }
+    if (!isAdmin(user)) { set.status = 403; return { error: "Forbidden" }; }
     const { title, excerpt, content } = body as {
       title: string; excerpt: string; content: Block[];
     };
@@ -342,7 +347,7 @@ const app = new Elysia()
   })
   .delete("/api/admin/posts/:id/translations/:lang", async ({ params, cookie, set }) => {
     const user = await resolveUser(cookie);
-    if (!user || user.email !== ADMIN_EMAIL) { set.status = 403; return { error: "Forbidden" }; }
+    if (!isAdmin(user)) { set.status = 403; return { error: "Forbidden" }; }
     await deletePostTranslation(Number(params.id), params.lang);
     return { ok: true };
   })

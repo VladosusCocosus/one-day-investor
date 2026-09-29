@@ -23,7 +23,11 @@ const POSTS_JSON = join(HERE, 'posts.json');
 
 const BASE = process.env.GHOST_URL || 'https://blog.odinvestor.net';
 const OWNER_NAME = 'One Day Investor';
-const OWNER_EMAIL = process.env.GHOST_OWNER_EMAIL || 'razin36986@gmail.com';
+const OWNER_EMAIL = process.env.GHOST_OWNER_EMAIL;
+if (!OWNER_EMAIL) {
+  console.error('GHOST_OWNER_EMAIL is required.');
+  process.exit(1);
+}
 const TITLE = 'One Day Investor';
 const DESCRIPTION = 'Track your portfolio with pockets, snapshots, and analytics — across every broker and asset class.';
 const ACCENT = '#10b981';

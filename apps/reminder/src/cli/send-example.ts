@@ -5,7 +5,11 @@ import type { ReminderData } from "@database";
 
 const log = createLogger("reminder-example");
 
-const TO = process.argv[2] ?? "razin36986@gmail.com";
+const TO = process.argv[2];
+if (!TO) {
+  log.error("Usage: bun run send-example <recipient@example.com>");
+  process.exit(1);
+}
 
 const sample: ReminderData = {
   user_id: "example-user",
