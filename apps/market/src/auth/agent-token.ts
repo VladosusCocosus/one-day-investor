@@ -39,7 +39,7 @@ const EXPIRES_IN_MS: Record<AgentTokenExpiresIn, number> = {
 export function isValidExpiresIn(
   value: string
 ): value is AgentTokenExpiresIn {
-  return value in EXPIRES_IN_MS;
+  return Object.hasOwn(EXPIRES_IN_MS, value);
 }
 
 export function expiresAtFrom(expiresIn: AgentTokenExpiresIn): Date {
