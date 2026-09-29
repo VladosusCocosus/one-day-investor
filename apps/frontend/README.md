@@ -1,73 +1,59 @@
-# React + TypeScript + Vite
+# @frontend
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+The One Day Investor dashboard — a React 19 SPA built with Vite.
 
-Currently, two official plugins are available:
+This is the authenticated side of the product. The public marketing pages are
+server-rendered separately in [`apps/site`](../site), and the blog in
+[`apps/blog`](../blog).
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Oxc](https://oxc.rs)
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/)
+## Running it
 
-## React Compiler
+From the repository root, after following the
+[main quick start](../../README.md#quick-start):
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
-
-## Expanding the ESLint configuration
-
-If you are developing a production application, we recommend updating the configuration to enable type-aware lint rules:
-
-```js
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
-
-      // Remove tseslint.configs.recommended and replace with this
-      tseslint.configs.recommendedTypeChecked,
-      // Alternatively, use this for stricter rules
-      tseslint.configs.strictTypeChecked,
-      // Optionally, add this for stylistic rules
-      tseslint.configs.stylisticTypeChecked,
-
-      // Other configs...
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
+```bash
+bun run dev:frontend                # http://localhost:5173
 ```
 
-You can also install [eslint-plugin-react-x](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-x) and [eslint-plugin-react-dom](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-dom) for React-specific lint rules:
+It expects `apps/core` (:3000), `apps/market` (:3002) and `apps/analytics`
+(:3001) to be running for anything beyond the login screen.
 
-```js
-// eslint.config.js
-import reactX from 'eslint-plugin-react-x'
-import reactDom from 'eslint-plugin-react-dom'
-
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
-      // Enable lint rules for React
-      reactX.configs['recommended-typescript'],
-      // Enable lint rules for React DOM
-      reactDom.configs.recommended,
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
+```bash
+bun run --cwd apps/frontend build   # production bundle into dist/
+bun run --cwd apps/frontend lint
 ```
+
+Unlike the backend services, the dev server also works when started directly
+with `bun run --cwd apps/frontend dev` — Vite loads `.env.development` itself.
+
+## Configuration
+
+Dev defaults live in `.env.development` and are loaded automatically by Vite.
+Production values are injected as build args in
+[`docker/Dockerfile.frontend`](../../docker/Dockerfile.frontend) — Vite inlines
+them at build time, so the image is environment-specific.
+
+| Variable | Points at |
+|---|---|
+| `VITE_API_URL` | core service |
+| `VITE_ANALYTICS_URL` | analytics service |
+| `VITE_MARKET_URL` | market service |
+| `VITE_BLOG_URL` | blog |
+| `VITE_S3_PUBLIC_URL` | public bucket for blog images |
+
+## Layout
+
+```
+src/
+  pages/        one component per route, plus pages/admin for the blog CMS
+  components/   shared presentational components
+  hooks/        AuthContext and data-fetching hooks
+  lib/          axios clients, one per backend service
+  locales/      en / ru / es translations (react-i18next)
+scripts/        HTML templates rendered to PNG by the og service
+```
+
+## Stack
+
+React 19 · Vite · Tailwind CSS · Radix UI · TanStack Query · React Router ·
+Recharts · react-i18next · axios

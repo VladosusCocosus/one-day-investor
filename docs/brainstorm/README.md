@@ -1,210 +1,262 @@
-# One Day Investor — живой README
+# One Day Investor — product brainstorm
 
-Рабочий черновик, в который мы складываем мысли по ходу разговора. Позже из него соберём нормальную документацию.
+The original working notes the product grew out of, translated from the Russian
+draft they were first written in. Kept as a record of the early thinking, not as
+current documentation — some of it shipped, some of it didn't.
 
-## Суть идеи
+## The idea
 
-One Day Investor — финансовый трекер для людей, которые не хотят следить за рынком каждый день.
+One Day Investor is a financial tracker for people who don't want to watch the
+market every day.
 
-**Как это работает:**
-- Один день в месяц заходишь в приложение и переписываешь все свои активы.
-- Актив — это что угодно, у чего есть цена: квартира, инвестиции, счета, карты, кэш, машина и т.д.
-- Не важно, насколько упала конкретная акция в моменте.
-- Важно — видеть движение месяц к месяцу к своей финансовой цели.
+**How it works:**
+- One day a month you open the app and write down everything you own.
+- An asset is anything with a price: a flat, investments, accounts, cards, cash,
+  a car, and so on.
+- It doesn't matter how far one particular stock dipped this week.
+- What matters is seeing the month-over-month movement toward your goal.
 
-**Философия:**
-- Низкая частота обновления — раз в месяц, не чаще.
-- Фокус на общей картине, а не на колебаниях.
-- Прогресс к цели — главная метрика, а не доходность портфеля.
+**Philosophy:**
+- Low update frequency — once a month, no more.
+- Focus on the whole picture, not the fluctuations.
+- Progress toward the goal is the headline metric, not portfolio return.
 
-**Что такое «цель»:**
-- Не SMART-цель с конкретной суммой и дедлайном.
-- Скорее направление: «капитал растёт месяц к месяцу».
-- Крупные хотелки (машина, квартира) существуют в голове, но не трекаются отдельно.
-- Логика пользователя: «мне нужны деньги, а как распределить — решу, когда они будут».
-- Следствие: приложение НЕ должно навязывать goal-setting в духе «накопи X к дате Y».
+**What "goal" means here:**
+- Not a SMART goal with a specific number and a deadline.
+- More of a direction: "capital is growing month over month."
+- Big wants (a car, a flat) exist in your head but aren't tracked separately.
+- The user's own logic: "I need money; how to allocate it I'll decide once I
+  have it."
+- Consequence: the app must **not** push goal-setting of the "save X by date Y"
+  kind.
 
-**Главная метрика — Net Worth:**
-- Сумма всего, что имеет цену, за вычетом долгов.
-- Любой рост месяц к месяцу = победа.
-- Без поправки на инфляцию, без разделения на ликвид/неликвид — одна простая цифра.
-- Всё остальное (разбивка по категориям, графики) — вспомогательное.
+**The headline metric is net worth:**
+- The sum of everything with a price, minus debts.
+- Any month-over-month growth is a win.
+- No inflation adjustment, no liquid/illiquid split — one simple number.
+- Everything else (category breakdowns, charts) is supporting material.
 
 ---
 
-## Два режима использования
+## Two modes of use
 
-Приложение живёт в двух режимах, и оба важны:
+The app lives in two modes, and both matter.
 
-**1. Быстрый месячный чек-ин (основной режим)**
-- Цель: обновить цифры максимально быстро.
-- Зашёл → пробежался по списку активов → вбил новые значения → ушёл.
-- Никаких отвлечений, никаких «а посмотри ещё сюда».
+**1. The quick monthly check-in (the main mode)**
+- Goal: update the numbers as fast as possible.
+- Open → run down the asset list → type the new values → leave.
+- No distractions, no "while you're here, look at this too."
 
-**2. Периодическая рефлексия (раз в квартал/полгода)**
-- Заварил кофе, сел спокойно.
-- Смотришь графики, динамику, думаешь о распределении.
-- Возможно что-то помечаешь, добавляешь заметки.
-- Это НЕ отдельная страница-дашборд, а, скорее, «настроение», в котором пользователь иногда заходит.
+**2. Periodic reflection (quarterly or twice a year)**
+- Make a coffee, sit down properly.
+- Look at the charts and the trend, think about allocation.
+- Maybe flag something, add a note.
+- This is **not** a separate dashboard page — it's more a mood the user
+  occasionally arrives in.
 
-**Следствие для дизайна:**
-- Быстрый режим должен быть быстрым по умолчанию.
-- Рефлексивные инструменты (графики, аналитика) доступны, но не мешают.
+**Design consequence:**
+- The fast mode has to be fast by default.
+- Reflective tools (charts, analytics) are available but stay out of the way.
 
-## Что именно тормозит месячный чек-ин
+## What actually slows the monthly check-in down
 
-Главная боль — не «найти данные», а «перенести их в таблицу»:
+The pain isn't "finding the data" — it's "moving it into the table."
 
-**B. Объём ручного ввода**
-- Цифры несложно найти (банки, брокеры — всё под рукой).
-- Но их много, и печатать одно за другим — скучно и долго.
+**Volume of manual entry**
+- The numbers aren't hard to find; banks and brokers all have them ready.
+- But there are a lot of them, and typing them one by one is boring and slow.
 
-**C. Арифметика и валюты**
-- Пересчёт общей суммы — ручной труд.
-- Конвертация валют в одну базовую — тоже вручную.
-- Это не сложно, но каждый раз съедает время и энергию.
+**Arithmetic and currencies**
+- Totalling it up is manual work.
+- Converting currencies to one base currency is manual too.
+- Neither is hard, but each time it eats time and energy.
 
-**Следствие:** приложение должно снять с пользователя ввод и пересчёт, а не помогать «собирать данные из банков». Пользователь и так знает, где его деньги.
+**Consequence:** the app should take entry and recalculation off the user, not
+help them "collect data from banks." The user already knows where their money is.
 
-## Позиционирование: чем мы НЕ являемся
+## Positioning: what we are not
 
-Мы не пытаемся заменить UI банков и брокеров.
+We are not trying to replace the UI of banks and brokers.
 
-- Банки показывают цифры точнее нас — и это нормально, мы и не соревнуемся.
-- Банки НЕ могут показать все активы пользователя в одном месте (квартира + счета в разных валютах + брокер + крипта + наличные).
-- Банки НЕ могут показать, как рос или падал капитал в целом, месяц к месяцу.
+- Banks show the numbers more precisely than we do — that's fine, we aren't
+  competing on that.
+- Banks **cannot** show all of a user's assets in one place (a flat + accounts in
+  several currencies + a broker + crypto + cash).
+- Banks **cannot** show how total capital rose or fell, month over month.
 
-**Наша ниша — это два пробела, которые не закрывает ни один банк:**
-1. **Агрегация** — все активы в одной точке, включая те, которых нет ни у одного банка (недвижимость, вещи, кэш).
-2. **Долгая временная линия** — история общего капитала, которая переживает смену банков и брокеров.
+**Our niche is the two gaps no bank closes:**
+1. **Aggregation** — every asset in one place, including the ones no bank holds
+   (property, possessions, cash).
+2. **The long timeline** — a history of total capital that outlives any change of
+   bank or broker.
 
-Всё остальное — точные остатки, транзакции, аналитика по конкретной акции — оставляем банкам. Мы про картину целиком.
+Everything else — exact balances, transactions, per-stock analytics — we leave to
+the banks. We're about the whole picture.
 
-## Что автоматизируем, что оставляем руками
+## What we automate, what stays manual
 
-**Автоматически (приложение тянет само):**
-- Курсы валют к базовой валюте пользователя.
-- Котировки акций и ETF.
-- Цены криптовалют.
-- Пересчёт общей суммы капитала.
+**Automatic (the app fetches it):**
+- Exchange rates against the user's base currency.
+- Stock and ETF quotes.
+- Crypto prices.
+- Recalculating total capital.
 
-**Вручную (пользователь вбивает раз в месяц):**
-- Остатки по счетам и картам.
-- Количество акций/крипты (если изменилось).
-- Стоимость неликвидных активов — квартиры, машины, вещей (пользователь сам оценивает).
-- Наличные.
+**Manual (the user types it once a month):**
+- Account and card balances.
+- Share/crypto quantities, if they changed.
+- The value of illiquid assets — flats, cars, possessions (the user's own
+  estimate).
+- Cash.
 
-**Принцип:** автоматизируем то, что объективно (цена акции сегодня — одна и та же для всех). Оставляем руками то, что только пользователь знает (сколько у него лежит на конкретном счёте прямо сейчас). Никаких интеграций с банками — это сложность и хрупкость, которая ломает обещание простоты.
+**Principle:** automate what is objective (today's share price is the same for
+everyone). Leave manual what only the user knows (how much is sitting in that
+particular account right now). No bank integrations — that's complexity and
+fragility, and it breaks the promise of simplicity.
 
-## Pockets — как их организовывать
+## Pockets — how to organise them
 
-**Pocket** — это единица, в которой пользователь видит часть своего капитала. Пользователь свободен решать, что это значит для него, но мы даём чёткую рекомендацию.
+A **pocket** is the unit in which a user sees a slice of their capital. Users are
+free to decide what that means, but we give a clear recommendation.
 
-**Рекомендованный паттерн — по сервисам и продуктам:**
-- `Tinkoff` (текущий счёт)
-- `Tinkoff Invest` (брокерский счёт)
-- `Tinkoff Saving` (накопительный)
-- `Interactive Brokers Invest`
-- `Недвижимость` — если хочется отдельно
-- `Lego` — если человек реально инвестирует в Lego
-- и т.д.
+**Recommended pattern — by service and product:**
+- `Bank` (current account)
+- `Bank Invest` (brokerage account)
+- `Bank Savings`
+- `Interactive Brokers`
+- `Property` — if you want it separate
+- `Lego` — if someone genuinely invests in Lego
+- and so on.
 
-**Почему так:**
-- Совпадает с тем, как пользователь мысленно раскладывает деньги («где что лежит»).
-- Легко обновлять: зашёл в приложение банка → увидел сумму → перенёс в соответствующий pocket.
-- Не навязывает смысловую классификацию («на отпуск», «подушка») — это отдельный слой, который может быть, а может и нет.
+**Why:**
+- It matches how users mentally sort their money ("where what sits").
+- It's easy to update: open the bank app → see the figure → move it into the
+  matching pocket.
+- It doesn't impose a semantic classification ("holiday fund", "emergency
+  buffer") — that's a separate layer that may or may not exist.
 
-**Что важно:**
-- Система не мешает пользователю выбрать другую логику (по целям, по типам активов — это его дело).
-- Нестандартные активы (коллекции, вещи, недвижимость) — полноправные pockets, а не «второй класс».
+**What matters:**
+- The system doesn't stop a user choosing another logic (by goal, by asset
+  type — their business).
+- Unusual assets (collections, possessions, property) are first-class pockets,
+  not second-class citizens.
 
-## Для кого это
+## Who it's for
 
-**Широкая ниша внутри сегмента «осознанных накопителей».**
+**A broad niche inside the "deliberate saver" segment.**
 
-Портрет:
-- Уже как-то инвестируют — брокерский счёт, крипта, вклады, недвижимость, либо комбинация.
-- Имеют доход выше среднего и активно стремятся к накоплению капитала.
-- Не обязательно ведут табличку, но думают о своём капитале как о чём-то, что нужно растить.
-- Не профессионалы финансов — им не нужны портфельные отчёты, коэффициенты Шарпа и т.п.
+The portrait:
+- Already investing somehow — a brokerage account, crypto, deposits, property,
+  or some combination.
+- Above-average income, actively trying to build capital.
+- Doesn't necessarily keep a spreadsheet, but thinks of their capital as
+  something to grow.
+- Not a finance professional — they don't need portfolio reports or Sharpe
+  ratios.
 
-Что это значит для продукта:
-- Не нужно объяснять, зачем вообще считать деньги — этим людям уже интересно.
-- Нужно объяснить, почему именно этот подход («раз в месяц, общая картина») лучше, чем то, что они делают сейчас (или не делают).
-- Термин «net worth» им, скорее всего, знаком — но стоит перепроверить на русскоязычной аудитории.
-- Онбординг критичен: первый заход должен приводить к «вау, я уже вижу свою картину» за минуты.
-- Никакого жаргона из мира активных трейдеров — у нас другая философия.
+What that means for the product:
+- No need to explain why you'd count your money — these people are already
+  interested.
+- We do need to explain why this approach ("once a month, the whole picture")
+  beats what they do now, or don't do.
+- The term "net worth" is probably familiar — worth re-checking with a
+  Russian-speaking audience.
+- Onboarding is critical: the first visit has to reach "wow, I can already see my
+  picture" within minutes.
+- No active-trader jargon — our philosophy is the opposite.
 
-## Ценностное предложение (лендинг, первые 30 секунд)
+## Value proposition (the landing page's first 30 seconds)
 
-Три крючка, которые работают вместе — ни один из них в одиночку не даёт полной картины:
+Three hooks that work together; none of them alone tells the whole story.
 
-1. **«Все твои активы в одном месте»** — решение боли, которую целевая аудитория уже чувствует: капитал разбросан по банкам, брокерам, крипте, недвижимости, и никто не показывает это вместе.
-2. **«Смотри, как растёт твой капитал месяц к месяцу»** — обещание долгой временной линии, которую ни один отдельный банк/брокер не даёт (особенно когда пользователь меняет их со временем).
-3. **«Перестань дёргаться из-за рынка»** — идеология one day investor, противопоставление активному трейдингу и ежедневным проверкам котировок.
+1. **"All your assets in one place"** — solves a pain the audience already feels:
+   capital scattered across banks, brokers, crypto and property, with nothing
+   showing it together.
+2. **"Watch your capital grow month over month"** — the long timeline no single
+   bank or broker can give, especially once the user changes providers.
+3. **"Stop flinching at the market"** — the one-day-investor ideology, set
+   against active trading and daily price-checking.
 
-На лендинге эти три идеи должны быть видны вместе, а не как «выбери одну».
+On the landing page all three have to be visible together, not offered as
+"pick one."
 
-## Экран рефлексии (раз в квартал, с кофе)
+## The reflection screen (quarterly, with coffee)
 
-Три вещи, которые обязательно должны быть — их достаточно, чтобы пользователь хотел возвращаться:
+Three things that must be there — enough to make a user want to come back.
 
-1. **График net worth по месяцам** — главная кривая, всё остальное вокруг неё.
-2. **Разбивка по pockets** — видно, из чего состоит капитал сегодня и как менялось соотношение со временем (pie chart или stacked bar — решим на дизайне).
-3. **Динамика роста** — не только абсолютная цифра, но и «за последние 6 месяцев ты вырос на 12%», «средний прирост — X/мес». Относительные метрики, которые дают чувство движения.
+1. **Net worth by month** — the headline curve; everything else orbits it.
+2. **Breakdown by pocket** — what capital consists of today and how the mix moved
+   over time (pie or stacked bar — decide at design time).
+3. **Growth dynamics** — not just the absolute figure but "you're up 12% over six
+   months", "average gain X/month". Relative metrics that convey movement.
 
-**Сознательно НЕ делаем (во всяком случае сейчас):**
-- Вехи и маркеры событий на графике («здесь купил квартиру», «здесь обвалился рынок»). Красивая идея, но не в приоритете — это перегруз для MVP.
-- Сравнение произвольных периодов («этот год vs прошлый», кастомные окна). Не первая необходимость.
+**Deliberately not doing, at least for now:**
+- Event markers on the chart ("bought the flat here", "market crashed here"). A
+  nice idea, but overload for an MVP.
+- Arbitrary period comparison ("this year vs last", custom windows). Not a first
+  necessity.
 
-Принцип: три простые мощные вещи лучше, чем пять компромиссных.
+Principle: three simple strong things beat five compromised ones.
 
-## Возврат пользователя — как мы напоминаем
+## Bringing the user back
 
-Весь продукт держится на том, что пользователь возвращается раз в месяц. Это единственная точка отказа — без возврата нет временной линии, нет рефлексии, нет ценности.
+The whole product rests on the user returning once a month. That's the single
+point of failure — without the return there's no timeline, no reflection, no
+value.
 
-**Стратегия: Email по умолчанию + пользователь может выбрать день.**
+**Strategy: email by default, and the user picks the day.**
 
-- Email — ненавязчиво, уже есть reminder-сервис в инфраструктуре.
-- По умолчанию — в начале месяца (или в конкретный день по умолчанию, определимся позже).
-- Пользователь может выбрать свой день — например, «в день зарплаты», «1 числа», «последняя пятница месяца».
-- Позже можно добавить push, если появится мобильное приложение.
+- Email is unobtrusive, and a reminder service already exists in the
+  infrastructure.
+- Default: the start of the month (exact default day to be decided).
+- The user can pick their own day — "payday", "the 1st", "the last Friday".
+- Push can come later if there's ever a mobile app.
 
-**Почему именно email:**
-- Целевая аудитория (осознанные накопители с доходом) живёт в почте.
-- Email соответствует медленному ритму продукта — не дёргает, приходит раз в месяц.
-- Push был бы слишком агрессивен для философии «не дёргайся из-за рынка».
+**Why email:**
+- The audience lives in their inbox.
+- Email matches the product's slow rhythm — it doesn't nag, it arrives monthly.
+- Push would be too aggressive for a "don't flinch at the market" philosophy.
 
-**Что если пользователь пропустил месяц:**
+**If the user skips a month:**
 
-Комбинируем два подхода:
+Combine two approaches.
 
-1. **Автоматическая интерполяция для графика.** Если данных за месяц нет, используем последнее известное значение (плоская линия от предыдущей точки). Это не «правда», но гарантирует, что график не ломается и не пугает дырами. Признаём, что это немного нечестно — поэтому см. пункт 2.
+1. **Automatic interpolation for the chart.** With no data for a month, carry the
+   last known value forward (a flat line from the previous point). It isn't "the
+   truth", but it keeps the chart from breaking into alarming holes. It is
+   slightly dishonest — hence point 2.
+2. **A gentle invitation to catch up.** On returning after a gap: "You were last
+   here in February. Want to add March and April?" No judgement, no streak
+   gamification. Just an offer to restore the picture.
+3. If the user enters real figures for the missed months, interpolation is
+   replaced by real data and the chart updates.
+4. If they don't, the interpolated points stay but are marked subtly as an
+   assumption, so the reflective mode shows where data was missing.
 
-2. **Мягкое приглашение догнать.** Когда пользователь возвращается после пропуска: «Последний раз ты заходил в феврале. Хочешь добавить данные за март и апрель?». Без осуждения, без геймификации «streak». Просто предложение восстановить картину.
+## Open questions
 
-3. Если пользователь вбивает реальные цифры за пропущенные месяцы — интерполяция заменяется на настоящие данные, график обновляется.
+- **Monetisation** — not thought through yet; the author is simply building.
+  We'll come back once the product has a shape. Likely future paths: freemium
+  (basic tracking free; long history, export and multi-currency paid), or a soft
+  subscription with a trial. Not an urgent decision.
 
-4. Если не вбивает — интерполированные точки остаются, но где-то тонко помечаются как «предположение», чтобы в рефлексивном режиме было видно, что здесь данных не было.
+## Privacy and trust
 
-## Открытые вопросы и темы для разговора
+**Model: ordinary SaaS.**
+- Data lives in our database, encrypted at rest.
+- The user trusts us as they'd trust any other service.
+- That's the simplest option to start with, and it's sufficient.
 
-- **Монетизация** — пока не продумывалась, автор просто строит. Вернёмся, когда продукт обретёт форму. Вероятные траектории на будущее: фримиум (базовый трекинг бесплатно, долгая история/экспорт/мультивалюта — по подписке), либо мягкая подписка с триалом. Решение не срочное.
+**Why that's enough:**
+- We **don't store bank or broker tokens** — no integrations, no access.
+- There is no way for the customer to lose money through us; we have no access to
+  money at all.
+- The worst a leak exposes is the user's capital figures. Unpleasant, but not
+  catastrophic, and certainly not a financial loss.
+- This is deliberate: "we don't reach into banks" simultaneously simplifies the
+  product and lowers the security stakes.
 
-## Приватность и доверие
-
-**Модель: обычный SaaS.**
-- Данные хранятся в нашей базе, шифрование at-rest.
-- Пользователь доверяет нам так же, как любому другому сервису.
-- Это самый простой вариант для старта, и он достаточен.
-
-**Почему этого хватает:**
-- Мы **не храним токены от банков и брокеров** — нет интеграций, нет доступов.
-- Никаким образом нельзя допустить потерю денег клиента — у нас нет доступа к деньгам в принципе.
-- Максимальный риск утечки — это раскрытие цифр капитала пользователя. Это неприятно, но не катастрофично и точно не финансовая потеря.
-- Это осознанное решение: «не лезем в банки» одновременно упрощает продукт и снижает стейки по безопасности.
-
-**Что это значит для архитектуры:**
-- Шифрование at-rest, нормальная гигиена (секреты, бэкапы, доступы) — must.
-- Не нужно усложнять клиент-сайд шифрованием и local-first.
-- Честная формулировка на лендинге: «мы не подключаемся к твоим банкам — мы физически не можем тронуть твои деньги».
+**What it means for the architecture:**
+- Encryption at rest and ordinary hygiene (secrets, backups, access) are a must.
+- No need to complicate things with client-side encryption or local-first.
+- An honest line for the landing page: "we don't connect to your banks — we
+  physically cannot touch your money."
