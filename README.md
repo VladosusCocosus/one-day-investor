@@ -101,12 +101,15 @@ Shared packages: `config` (convict schema, strict-validated at boot), `database`
 
 ## Tech stack
 
-**Runtime** Bun · TypeScript · [Elysia](https://elysiajs.com) HTTP framework
-**Frontend** React 19 · Vite · Tailwind CSS · Radix UI · TanStack Query · Recharts · react-i18next
-**Server rendering** `@kitajs/html` JSX for the site and blog
-**Data** PostgreSQL · Redis · S3 / MinIO
-**Infra** Docker Compose · nginx · GitHub Actions → GHCR → SSH deploy · Ghost · Uptime Kuma
-**API docs** OpenAPI via `@elysiajs/swagger`, rendered with Scalar
+| | |
+|---|---|
+| **Runtime** | Bun · TypeScript · [Elysia](https://elysiajs.com) |
+| **Frontend** | React 19 · Vite · Tailwind CSS · Radix UI · TanStack Query · Recharts · react-i18next |
+| **Server rendering** | `@kitajs/html` JSX, for the site and blog |
+| **Data** | PostgreSQL · Redis · S3 / MinIO |
+| **Infra** | Docker Compose · nginx · GitHub Actions → GHCR → SSH deploy |
+| **Ops** | Ghost (blog CMS) · Uptime Kuma (status page) |
+| **API docs** | OpenAPI via `@elysiajs/swagger`, rendered with Scalar |
 
 ## Quick start
 
