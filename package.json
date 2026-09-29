@@ -1,5 +1,21 @@
 {
   "name": "one-day-investor",
   "version": "1.0.0",
-  "workspaces": ["packages/*", "apps/*"]
+  "workspaces": [
+    "packages/*",
+    "apps/*"
+  ],
+  "scripts": {
+    "dev:core": "set -a && . ./.env && set +a && bun run --cwd apps/core dev",
+    "dev:analytics": "set -a && . ./.env && set +a && bun run --cwd apps/analytics dev",
+    "dev:market": "set -a && . ./.env && set +a && bun run --cwd apps/market dev",
+    "dev:frontend": "set -a && . ./.env && set +a && bun run --cwd apps/frontend dev",
+    "dev:site": "set -a && . ./.env && set +a && bun run --cwd apps/site dev",
+    "dev:blog": "set -a && . ./.env && set +a && bun run --cwd apps/blog dev",
+    "dev:og": "set -a && . ./.env && set +a && bun run --cwd apps/og dev",
+    "migrate": "set -a && . ./.env && set +a && bun run --cwd packages/database migrate:up",
+    "migrate:down": "set -a && . ./.env && set +a && bun run --cwd packages/database migrate:down",
+    "migrate:create": "set -a && . ./.env && set +a && bun run --cwd packages/database migrate:create",
+    "reminder:send": "set -a && . ./.env && set +a && bun run --cwd apps/reminder send-reminders"
+  }
 }
